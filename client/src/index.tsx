@@ -2,6 +2,7 @@ import { View, Text, StatusBar } from 'react-native'
 import React from 'react'
 import { NavigationContainer } from '@react-navigation/native';
 import '../gesture-handler.native';
+import AppLayout from './navigation';
 
 const RootLayout = () => {
   return (
@@ -12,7 +13,7 @@ const RootLayout = () => {
         translucent={false}
       />
     <NavigationContainer>
-    <Text className='text-3xl bg-red-700'>Hello, World!</Text>
+    <AppLayout/>
     </NavigationContainer>
    </>
   )
