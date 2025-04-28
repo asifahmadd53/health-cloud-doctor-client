@@ -1,4 +1,4 @@
-import leftIcon from '@/assets/icons/left.png'
+import leftIcon from '../../../assets/icons/left.png'
 import menuIcon from '@/assets/icons/app.png'
 import setings from '@/assets/icons/setting.png'
 import help from '@/assets/icons/help.png'

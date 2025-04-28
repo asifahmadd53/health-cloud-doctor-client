@@ -24,4 +24,4 @@ export {default as PreviouseData} from './PreviouseData';
 export {default as EConsults} from './Tabs/E-Consults';
 export {default as FollowUps} from './Tabs/Follow-Ups';
 export {default as Billing} from './Tabs/Billing';
-export {default as DashBoard} from './Tabs/DashBoard';
+export {default as DashBoard} from './Tabs/Dashboard';
