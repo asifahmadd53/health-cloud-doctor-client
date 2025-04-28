@@ -65,11 +65,11 @@ const DrugSheet = () => {
         { key: '3', value: 'Three times a day' },
         { key: '4', value: 'Every 6 hours' },
     ];
-    // const durationData = [
-    //     { key: '1', value: 'Days' },
-    //     { key: '2', value: 'Weeks' },
-    //     { key: '3', value: 'Months' }
-    // ];
+    const durationData = [
+        { key: '1', value: 'Days' },
+        { key: '2', value: 'Weeks' },
+        { key: '3', value: 'Months' }
+    ];
     const beforeAfterDate = [
         { key: '1', value: 'Before' },
         { key: '2', value: 'After' },
