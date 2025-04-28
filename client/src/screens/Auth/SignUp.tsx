@@ -13,14 +13,14 @@ import {
   import { SafeAreaView } from "react-native-safe-area-context";
   import { TextInput } from "react-native-paper";
   import { Checkbox } from "react-native-paper";
-  import * as ImagePicker from "expo-image-picker";
-  import { Link } from "expo-router";
+
   import { useNavigation } from "@react-navigation/native";
-  import CustomInput from "@/src/components/CustomInput";
-  import CustomPasswordInput from "@/src/components/CustomPasswordInput";
-  import Icons from "@/src/utils/libs/constants/Icons";
-  import Images from "@/src/utils/libs/constants/Images";
-  import CustomButton from "@/src/components/CustomButton";
+import CustomInput from "@/components/CustomInput";
+import Icons from "@/utils/libs/constants/Icons";
+import CustomPasswordInput from "@/components/CustomPasswordInput";
+import Images from "@/utils/libs/constants/Images";
+import CustomButton from "@/components/CustomButton";
+
   
   
   const SignUp = () => {
@@ -36,32 +36,32 @@ import {
   
   
   
-    useEffect(() => {
-      const requestPermissions = async () => {
-        await ImagePicker.requestCameraPermissionsAsync();
-        await ImagePicker.requestMediaLibraryPermissionsAsync();
-      };
+    // useEffect(() => {
+    //   const requestPermissions = async () => {
+    //     await ImagePicker.requestCameraPermissionsAsync();
+    //     await ImagePicker.requestMediaLibraryPermissionsAsync();
+    //   };
   
-      requestPermissions();
-    }, []);
-  
-  
-    const pickImage = async () => {
-  
-      let result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ["images"],
-        allowsEditing: true,
-        aspect: [20, 20],
-        quality: 1,
-      });
+    //   requestPermissions();
+    // }, []);
   
   
+    // const pickImage = async () => {
   
-      if (!result.canceled) {
-        setImage(result.assets[0].uri);
-      }
+    //   let result = await ImagePicker.launchImageLibraryAsync({
+    //     mediaTypes: ["images"],
+    //     allowsEditing: true,
+    //     aspect: [20, 20],
+    //     quality: 1,
+    //   });
   
-    };
+  
+  
+    //   if (!result.canceled) {
+    //     setImage(result.assets[0].uri);
+    //   }
+  
+    // };
   
     const navigation = useNavigation()
   
@@ -122,7 +122,7 @@ import {
             <View>
               <Text className="text-base mt-8 ml-8">Upload PMDC scan copy</Text>
               <View className="w-32 h-32 mx-auto mt-8">
-                <Pressable onPress={pickImage}>
+                {/* <Pressable onPress={pickImage}>
                   <Image
                     className="object-cover w-full h-full rounded-lg"
                     source={
@@ -131,7 +131,7 @@ import {
                         : Images.addImage
                     }
                   />
-                </Pressable>
+                </Pressable> */}
               </View>
             </View>
   

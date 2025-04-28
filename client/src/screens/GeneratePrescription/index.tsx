@@ -2,9 +2,11 @@ import { Image, Pressable, ScrollView, Text, TouchableOpacity, View } from 'reac
 import React, { useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Checkbox, Button } from 'react-native-paper';
-import CustomSimpleInput from '@/src/components/CustomSimpleInput';
+
 import { useNavigation } from '@react-navigation/native';
-import Icons from '@/src/utils/libs/constants/Icons';
+import Icons from '@/utils/libs/constants/Icons';
+import CustomSimpleInput from '@/components/CustomSimpleInput';
+
 
 const GeneratePrescription = () => {
   const [selected, setSelected] = useState({

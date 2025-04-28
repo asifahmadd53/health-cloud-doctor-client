@@ -2,19 +2,17 @@ import React, { useEffect, useState } from 'react';
 import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { useNavigation } from 'expo-router';
-import * as ImagePicker from 'expo-image-picker';
-
 
 import { KeyboardAvoidingView } from 'react-native';
-import Icons from '@/src/utils/libs/constants/Icons';
-import Images from '@/src/utils/libs/constants/Images';
-import CustomInput from '@/src/components/CustomInput';
-import CustomPasswordInput from '@/src/components/CustomPasswordInput';
-import CustomButton from '@/src/components/CustomButton';
 import { TouchableOpacity } from 'react-native';
 import ReactNativeModal from 'react-native-modal';
-import CustomSecondaryButton from '@/src/components/CustomSecondaryButton';
+import { useNavigation } from '@react-navigation/native';
+import Icons from '@/utils/libs/constants/Icons';
+import Images from '@/utils/libs/constants/Images';
+import CustomInput from '@/components/CustomInput';
+import CustomPasswordInput from '@/components/CustomPasswordInput';
+import CustomButton from '@/components/CustomButton';
+import CustomSecondaryButton from '@/components/CustomSecondaryButton';
 
 
 const Profile = () => {
@@ -26,34 +24,32 @@ const Profile = () => {
   const [phone, setPhone] = useState('040324034');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [image, setImage] = useState<string | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
 
   // const pmdcimg = require('../../assets/icons/pmdcimg.png');
 
-  useEffect(() => {
-    const requestPermissions = async () => {
-      await ImagePicker.requestCameraPermissionsAsync();
-      await ImagePicker.requestMediaLibraryPermissionsAsync();
-    };
+  // useEffect(() => {
+  //   const requestPermissions = async () => {
+  //     await ImagePicker.requestCameraPermissionsAsync();
+  //     await ImagePicker.requestMediaLibraryPermissionsAsync();
+  //   };
 
-    requestPermissions();
-  }, []);
+  //   requestPermissions();
+  // }, []);
 
-  const pickImage = async () => {
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: 'images',
-      allowsEditing: true,
-      aspect: [1, 1],
-      quality: 1,
-    });
+  // const pickImage = async () => {
+  //   let result = await ImagePicker.launchImageLibraryAsync({
+  //     mediaTypes: 'images',
+  //     allowsEditing: true,
+  //     aspect: [1, 1],
+  //     quality: 1,
+  //   });
   
-    if (!result.canceled && result.assets[0].uri) {
-      setImage(result.assets[0].uri);
-    }
-  };
+  //   if (!result.canceled && result.assets[0].uri) {
+  //     setImage(result.assets[0].uri);
+  //   }
+  // };
   
 
   return (
@@ -108,12 +104,12 @@ const Profile = () => {
           <View>
             <Text className="text-base mt-8 ml-8">Update PMDC scan copy</Text>
             <View className="w-28 h-28 md:w-32 md:h-32 my-6 mx-auto mt-8">
-              <Pressable onPress={pickImage}>
+              {/* <Pressable onPress={pickImage}>
                 <Image
                   className="object-cover w-full h-full rounded-lg"
                   source={image ? { uri: image } : Images.addImage}
                 />
-              </Pressable>
+              </Pressable> */}
             </View>
           </View>
          <View className='mb-8'>

@@ -1,5 +1,5 @@
-import CustomButton from '@/src/components/CustomButton';
-import Icons from '@/src/utils/libs/constants/Icons';
+import CustomButton from '@/components/CustomButton';
+import Icons from '@/utils/libs/constants/Icons';
 import { useNavigation } from '@react-navigation/native';
 import { useState } from 'react';
 import { View, Text, TouchableOpacity, TextInput, Animated, Pressable, Image } from 'react-native';

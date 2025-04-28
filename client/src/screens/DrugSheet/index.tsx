@@ -1,14 +1,17 @@
 import { View, Text, TouchableOpacity, StyleSheet, FlatList, Image, ScrollView } from 'react-native';
 import React, { useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import CustomSimpleInput from '@/src/components/CustomSimpleInput';
-import CustomButton from '@/src/components/CustomButton';
+
 import Modal from "react-native-modal";
-import CustomSecondaryButton from '@/src/components/CustomSecondaryButton';
-import { Dropdown } from 'react-native-element-dropdown';
+
 import { RadioButton, TextInput } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
-import Icons from '@/src/utils/libs/constants/Icons';
+import Icons from '@/utils/libs/constants/Icons';
+import CustomSecondaryButton from '@/components/CustomSecondaryButton';
+import { Dropdown } from 'react-native-element-dropdown';
+import CustomButton from '@/components/CustomButton';
+import CustomSimpleInput from '@/components/CustomSimpleInput';
+
 
 const DrugSheet = () => {
     const [drugsList, setDrugsList] = useState([]);
@@ -97,8 +100,19 @@ const DrugSheet = () => {
             beforeAfter
         };
     
-        // Prevent duplicate entries
-        const isDuplicate = drugsList.some(item => 
+       
+        // Check for duplicates in the drugsList
+        interface Drug {
+            name: string;
+            type: string;
+            mode: string;
+            strength: string;
+            dosage: string;
+            duration: number;
+            mealTiming: string;
+            beforeAfter: string;
+        }
+        const isDuplicate = drugsList.some((item:Drug) => 
             item.name.toLowerCase() === newDrug.name.toLowerCase() && 
             item.type === newDrug.type &&
             item.mode === newDrug.mode &&

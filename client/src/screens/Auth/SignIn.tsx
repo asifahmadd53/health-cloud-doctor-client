@@ -1,11 +1,8 @@
-import { Link } from "expo-router";
 import {
   ScrollView,
   Text,
-  Pressable,
   View,
   KeyboardAvoidingView,
-  TouchableOpacity,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
@@ -14,6 +11,9 @@ import { useNavigation } from "@react-navigation/native";
 
 import { useState } from "react";
 import CustomInput from "../../components/CustomInput";
+import CustomPasswordInput from "@/components/CustomPasswordInput";
+import Icons from "@/utils/libs/constants/Icons";
+import CustomButton from "@/components/CustomButton";
 
 
 

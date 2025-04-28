@@ -3,7 +3,7 @@ import React from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { TextInput } from 'react-native-paper'
 
-const OTP = ({navigation}) => {
+const OTP = ({navigation}:any) => {
   return (
     <SafeAreaView className='px-4'>
       <Text className='text-2xl pt-10'>Check Your SMS</Text>

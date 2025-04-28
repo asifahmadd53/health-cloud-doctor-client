@@ -14,7 +14,7 @@ import CustomButton from '@/components/CustomButton'
 
 const PatientDetails = () => {
     const [showModal, setShowModal] = useState(false)
-    const navigation = useNavigation()
+    const navigation = useNavigation<any>();
     return (
         <SafeAreaView className="px-5 pt-6 flex-1 bg-white">
             <View className="gap-4 bg-white p-5 rounded-2xl shadow-2xl">

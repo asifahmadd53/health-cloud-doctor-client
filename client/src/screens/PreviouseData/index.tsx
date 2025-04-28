@@ -3,7 +3,7 @@ import { View, Text, Dimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button } from 'react-native-paper';
 // import { Dropdown } from 'react-native-element-dropdown';
-import { Ionicons } from '@expo/vector-icons';
+
 import Animated, { useSharedValue, useAnimatedStyle, withTiming } from 'react-native-reanimated';
 
 const { width } = Dimensions.get('window');
@@ -51,13 +51,13 @@ const PreviouseData = () => {
             letterSpacing: 0.5,
             color: activeTab === 'Documents' ? 'white' : '#0077B6',
           }}
-          icon={() => (
-            <Ionicons
-              name="document-text-outline"
-              size={20}
-              color={activeTab === 'Documents' ? 'white' : '#0077B6'}
-            />
-          )}
+          // icon={() => (
+          //   <Ionicons
+          //     name="document-text-outline"
+          //     size={20}
+          //     color={activeTab === 'Documents' ? 'white' : '#0077B6'}
+          //   />
+          // )}
           onPress={() => handleTabChange('Documents')}
         >
           Documents
@@ -79,13 +79,13 @@ const PreviouseData = () => {
             letterSpacing: 0.5,
             color: activeTab === 'Reports' ? 'white' : '#023E8A',
           }}
-          icon={() => (
-            <Ionicons
-              name="bar-chart-outline"
-              size={20}
-              color={activeTab === 'Reports' ? 'white' : '#023E8A'}
-            />
-          )}
+          // icon={() => (
+          //   <Ionicons
+          //     name="bar-chart-outline"
+          //     size={20}
+          //     color={activeTab === 'Reports' ? 'white' : '#023E8A'}
+          //   />
+          // )}
           onPress={() => handleTabChange('Reports')}
         >
           Reports

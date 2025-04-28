@@ -1,9 +1,9 @@
 import { Text, View } from 'react-native';
 import React, { useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import CustomSimpleInput from '@/src/components/CustomSimpleInput';
-import CustomButton from '@/src/components/CustomButton';
 import { RadioButton } from 'react-native-paper';
+import CustomSimpleInput from '@/components/CustomSimpleInput';
+import CustomButton from '@/components/CustomButton';
 
 const NewAppointment = () => {
   const [name, setName] = useState('');

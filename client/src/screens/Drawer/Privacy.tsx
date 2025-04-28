@@ -1,8 +1,9 @@
 import { StyleSheet, Text, View, ScrollView, Pressable, Image, TouchableOpacity } from 'react-native';
 import React from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useNavigation } from 'expo-router';
-import Icons from '@/src/utils/libs/constants/Icons';
+import { useNavigation } from '@react-navigation/native';
+import Icons from '@/utils/libs/constants/Icons';
+
 
 const Privacy = () => {
     const navigation = useNavigation();
