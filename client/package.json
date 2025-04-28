@@ -10,6 +10,8 @@
     "test": "jest"
   },
   "dependencies": {
+    "@rneui/base": "^4.0.0-rc.8",
+    "@rneui/themed": "^4.0.0-rc.8",
     "nativewind": "^4.1.23",
     "react": "19.0.0",
     "react-native": "0.79.1",
