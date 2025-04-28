@@ -1,19 +1,16 @@
 import React from 'react';
 import { View, Image, SafeAreaView } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { useNavigation } from '@react-navigation/native';
+import CustomHeader from '../../components/CustomHeader';
+import DashBoard from '../../screens/Tabs/Dashboard';
+import { Billing, EConsults, FollowUps } from '../../screens';
+import Icons from '../../utils/libs/constants/Icons';
 
-import DashBoard from './dashboard';
-import EConsults from './e-consuts';
-import FollowUps from './follow-ups';
-import Billing from './billing';
-import CustomHeader from '@/src/components/CustomHeader';
-import Icons from '@/src/utils/libs/constants/Icons';
+
 
 const Tab = createBottomTabNavigator();
 
 const TabLayout = () => {
-  const navigation = useNavigation();
 
   return (
     <SafeAreaView className="flex-1 bg-white">

@@ -1,13 +1,12 @@
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import { View, Text, Image, TouchableOpacity } from 'react-native';
 import { DrawerContentScrollView, DrawerItemList } from '@react-navigation/drawer';
-import Profile from './profile';
-import Privacy from './privacy';
-import Help from './help';
 
-import Icons from '@/src/utils/libs/constants/Icons';
-import Images from '@/src/utils/libs/constants/Images';
-import TabLayout from '../(tabs)/_layout';
+
+import { Help, Privacy, Profile } from '../../screens';
+import Images from '../../utils/libs/constants/Images';
+import Icons from '../../utils/libs/constants/Icons';
+import TabLayout from '../TabNavigation';
 
 const Drawer = createDrawerNavigator();
 

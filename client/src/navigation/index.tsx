@@ -4,6 +4,10 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import AuthLayout from './AuthNavigation';
 import DrawerLayout from './DrawerNavigation';
 import TabLayout from './TabNavigation';
+import PrescriptionLayout from './Main/Prescription';
+import NewAppoinmentLayout from './Main/NewAppointment';
+import PateintDetailsLayout from './Main/PateintDetails';
+
 const AppLayout = () => {
 
     const Stack = createNativeStackNavigator();
@@ -13,7 +17,9 @@ const AppLayout = () => {
       <Stack.Screen name="drawer" component={DrawerLayout} />
       <Stack.Screen name="tabs" component={TabLayout} />
       {/* <Stack.Screen name="home" component={HomeRoutes} /> */}
-      {/* <Stack.Screen name="DrProfileRoutes" component={DrProfileRoutes} /> */}
+      <Stack.Screen name="patientDetails" component={PateintDetailsLayout} />
+      <Stack.Screen name="prescription" component={PrescriptionLayout} />
+      <Stack.Screen name="newAppointment" component={NewAppoinmentLayout} />
     </Stack.Navigator>
   )
 }

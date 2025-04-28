@@ -4,4 +4,8 @@ module.exports = {
   parserOptions: {
     requireConfigFile: false,
   },
+  rules: {
+    'jsx-quotes': ['error', 'prefer-double','prefer-single'], 
+    'semi': 'off',
+  },
 };

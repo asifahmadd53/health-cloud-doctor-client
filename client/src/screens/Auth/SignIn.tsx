@@ -10,15 +10,12 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
 
-import { TextInput } from "react-native-paper";
+
 
 import { useState } from "react";
+import CustomInput from "../../components/CustomInput";
 
-import SignUp from "./sign-up";
-import CustomInput from "@/src/components/CustomInput";
-import CustomPasswordInput from "@/src/components/CustomPasswordInput";
-import CustomButton from "@/src/components/CustomButton";
-import Icons from "@/src/utils/libs/constants/Icons";
+
 
 const SignIn = () => {
 

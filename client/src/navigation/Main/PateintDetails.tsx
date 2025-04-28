@@ -1,7 +1,11 @@
-import { View, Text } from 'react-native'
+import { View, Text, TouchableOpacity } from 'react-native'
 import React from 'react'
+import { PatientDetails, PreviouseData } from '../../screens'
+import { createNativeStackNavigator } from '@react-navigation/native-stack'
 
-const PateintDetails = () => {
+const PateintDetailsLayout = () => {
+
+  const Stack = createNativeStackNavigator();
   return (
     <>
      <Stack.Screen
@@ -16,7 +20,7 @@ const PateintDetails = () => {
                 onPress={() => navigation.goBack()} 
                 style={{ marginLeft: 10 }}
               >
-                <Ionicons name="arrow-back" size={24} color="black" />
+                {/* <Ionicons name="arrow-back" size={24} color="black" /> */}
               </TouchableOpacity>
             ),
           })}
@@ -32,7 +36,7 @@ const PateintDetails = () => {
                 onPress={() => navigation.goBack()} 
                 style={{ marginLeft: 10 }}
               >
-                <Ionicons name="arrow-back" size={24} color="black" />
+                {/* <Ionicons name="arrow-back" size={24} color="black" /> */}
               </TouchableOpacity>
             ),
           })}
@@ -42,4 +46,4 @@ const PateintDetails = () => {
   )
 }
 
-export default PateintDetails
+export default PateintDetailsLayout
