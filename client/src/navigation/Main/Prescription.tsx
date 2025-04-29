@@ -1,5 +1,5 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-;
+
 import { TouchableOpacity } from 'react-native';
 import { DrugSheet, GeneratePrescription } from '../../screens';
 

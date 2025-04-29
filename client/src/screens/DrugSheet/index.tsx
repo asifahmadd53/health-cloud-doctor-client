@@ -10,6 +10,7 @@ import { Dropdown } from 'react-native-element-dropdown';
 import CustomSimpleInput from '../../components/CustomSimpleInput';
 import CustomSecondaryButton from '../../components/CustomSecondaryButton';
 import CustomButton from '../../components/CustomButton';
+import Icons from '../../utils/libs/constants/Icons';
 
 
 

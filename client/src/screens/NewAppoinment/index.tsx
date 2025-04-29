@@ -63,7 +63,7 @@ const NewAppointment = () => {
         </View>
 
         <View className='mt-7'>
-          <CustomButton label='Proceed' />
+          <CustomButton label='Proceed'/>
         </View>
       </View>
     </SafeAreaView>

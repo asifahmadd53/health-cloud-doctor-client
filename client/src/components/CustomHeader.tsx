@@ -7,7 +7,7 @@ const CustomHeader = () => {
   const navigation = useNavigation();
 
   return (
-    <View className="absolute left-3 top-3 z-30 h-10 w-10">
+    <View className="absolute left-3 top-3 h-10 w-10 z-40">
       <Pressable onPress={() => navigation.dispatch(DrawerActions.openDrawer())}>
         <Image className="object-cover w-full h-full" source={Icons.menu} />
       </Pressable>

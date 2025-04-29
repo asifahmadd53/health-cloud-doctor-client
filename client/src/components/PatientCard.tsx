@@ -8,7 +8,7 @@ const PatientCard = ({ index }) => {
 
   // Memoized function to avoid re-renders
   const handlePress = useCallback(() => {
-    navigation.navigate('patientDetails');
+    navigation.navigate('patientDetails' as never, );
   }, [navigation]);
 
   // Memoize patient age string

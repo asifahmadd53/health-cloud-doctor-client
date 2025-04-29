@@ -5,6 +5,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Animated, Dimensions, FlatList, Image, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { IconButton } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import LinearGradient from 'react-native-linear-gradient';
 
 
 
@@ -58,7 +59,7 @@ const DashBoard = () => {
   return (
     <SafeAreaView className="flex-1 bg-white">
       <View className="h-[31%] justify-center pt-10 px-7">
-        {/* <LinearGradient
+        <LinearGradient
           start={{ x: 0, y: 0.1 }}
           end={{ x: 1, y: 1.5 }}
           colors={[
@@ -67,7 +68,7 @@ const DashBoard = () => {
             'rgba(180, 230, 250, 0.6)',
           ]}
           className="absolute inset-0"
-        /> */}
+        />
         <View className="flex-row justify-around items-center">
           <View className="flex-col items-start justify-center">
             <Text className="text-3xl font-bold text-white">Welcome!</Text>
@@ -140,7 +141,7 @@ const DashBoard = () => {
 
         <View className="flex-1 mt-3">
           <FlatList
-            className="max-h-[63%] px-4 mb-2"
+            className="max-h-[53%] px-4 mb-2"
             data={patients}
             keyExtractor={(item, index) => index.toString()}
             renderItem={({ item, index }) => <PatientCard index={index + 1} />}
