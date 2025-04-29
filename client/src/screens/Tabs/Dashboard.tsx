@@ -138,9 +138,9 @@ const DashBoard = () => {
           </View>
         </ScrollView>
 
-        <View className=" max-h-[63%]  mt-3">
+        <View className="flex-1 mt-3">
           <FlatList
-            className="px-4 mb-2"
+            className="max-h-[63%] px-4 mb-2"
             data={patients}
             keyExtractor={(item, index) => index.toString()}
             renderItem={({ item, index }) => <PatientCard index={index + 1} />}
