@@ -1,10 +1,11 @@
-import CustomButton from '@/components/CustomButton';
-import Icons from '@/utils/libs/constants/Icons';
+
 import { useNavigation } from '@react-navigation/native';
 import { useState } from 'react';
 import { View, Text, TouchableOpacity, TextInput, Animated, Pressable, Image } from 'react-native';
 import { IconButton } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import Icons from '../../utils/libs/constants/Icons';
+import CustomButton from '../../components/CustomButton';
 
 const Help = () => {
   const [showReport, setShowReport] = useState(true);

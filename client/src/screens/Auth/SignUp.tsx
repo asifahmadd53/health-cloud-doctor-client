@@ -15,11 +15,11 @@ import {
   import { Checkbox } from "react-native-paper";
 
   import { useNavigation } from "@react-navigation/native";
-import CustomInput from "@/components/CustomInput";
-import Icons from "@/utils/libs/constants/Icons";
-import CustomPasswordInput from "@/components/CustomPasswordInput";
-import Images from "@/utils/libs/constants/Images";
-import CustomButton from "@/components/CustomButton";
+import Icons from "../../utils/libs/constants/Icons";
+import CustomInput from "../../components/CustomInput";
+import CustomPasswordInput from "../../components/CustomPasswordInput";
+import CustomButton from "../../components/CustomButton";
+
 
   
   

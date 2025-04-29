@@ -7,9 +7,10 @@ import { TextInput } from 'react-native-paper'
 import { useNavigation } from '@react-navigation/native'
 
 import ReactNativeModal from 'react-native-modal'
-import PatientText from '@/components/PatientText'
-import Icons from '@/utils/libs/constants/Icons'
-import CustomButton from '@/components/CustomButton'
+import PatientText from '../../components/PatientText'
+import Icons from '../../utils/libs/constants/Icons'
+import CustomButton from '../../components/CustomButton'
+
 
 
 const PatientDetails = () => {

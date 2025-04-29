@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { View, Text, Dimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button } from 'react-native-paper';
-// import { Dropdown } from 'react-native-element-dropdown';
 
 import Animated, { useSharedValue, useAnimatedStyle, withTiming } from 'react-native-reanimated';
 

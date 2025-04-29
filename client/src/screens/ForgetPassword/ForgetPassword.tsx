@@ -3,9 +3,10 @@ import React, { useState } from 'react'
 import { IconButton, TextInput } from 'react-native-paper'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useNavigation } from '@react-navigation/native'
-import Icons from '@/utils/libs/constants/Icons'
-import CustomInput from '@/components/CustomInput'
-import CustomButton from '@/components/CustomButton'
+import Icons from '../../utils/libs/constants/Icons'
+import CustomInput from '../../components/CustomInput'
+import CustomButton from '../../components/CustomButton'
+
 
 
 

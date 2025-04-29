@@ -2,12 +2,12 @@ import { Image, Pressable, StyleSheet, Text, TouchableOpacity, View } from 'reac
 import React, { useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useNavigation } from '@react-navigation/native'
-import Icons from '@/utils/libs/constants/Icons'
-import CustomPasswordInput from '@/components/CustomPasswordInput'
-import CustomButton from '@/components/CustomButton'
+import Icons from '../../utils/libs/constants/Icons'
+import CustomPasswordInput from '../../components/CustomPasswordInput'
 import ReactNativeModal from 'react-native-modal'
-import Images from '@/utils/libs/constants/Images'
-import CustomSecondaryButton from '@/components/CustomSecondaryButton'
+import CustomButton from '../../components/CustomButton'
+import Images from '../../utils/libs/constants/Images'
+import CustomSecondaryButton from '../../components/CustomSecondaryButton'
 
 
 

@@ -11,9 +11,10 @@ import { useNavigation } from "@react-navigation/native";
 
 import { useState } from "react";
 import CustomInput from "../../components/CustomInput";
-import CustomPasswordInput from "@/components/CustomPasswordInput";
-import Icons from "@/utils/libs/constants/Icons";
-import CustomButton from "@/components/CustomButton";
+import CustomPasswordInput from "../../components/CustomPasswordInput";
+import CustomButton from "../../components/CustomButton";
+import Icons from "../../utils/libs/constants/Icons";
+
 
 
 
@@ -60,7 +61,7 @@ const SignIn = () => {
 
 
           <View className="mt-6">
-            <CustomButton label={'Login'} link={'(drawer)'} />
+            <CustomButton label={'Login'} link={'drawer'} />
           </View>
           <View className="mx-auto mt-8 items-center gap-5">
             <Text onPress={() => navigation.navigate('sign-up')} className="text-[#253237] text-base font-medium">

@@ -1,16 +1,18 @@
-import CustomButton from '@/components/CustomButton';
-import PatientCard from '@/components/PatientCard';
-import Images from '@/utils/libs/constants/Images';
+import CustomButton from '../../components/CustomButton';
+import PatientCard from '../../components/PatientCard';
+import Images from '../../utils/libs/constants/Images';
 import React, { useEffect, useRef, useState } from 'react';
-import { Animated, FlatList, Image, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { Animated, Dimensions, FlatList, Image, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { IconButton } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
+
 
 
 const DashBoard = () => {
   const [patients] = useState([1, 2, 3, 4, 5, 6, 7, 8, 9]);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [show, setShow] = useState(false);
+  const {height }= Dimensions.get('window');
 
   const handleDateChange = (_event: any, newDate?: Date) => {
     setShow(false); 
@@ -55,17 +57,11 @@ const DashBoard = () => {
 
   return (
     <SafeAreaView className="flex-1 bg-white">
-      <View className="h-[31%] justify-center pt-10 px-7">
-        {/* <LinearGradient
-          start={{ x: 0, y: 0.1 }}
-          end={{ x: 1, y: 1.5 }}
-          colors={[
-            'rgba(30, 50, 80, 0.9)',
-            'rgba(50, 130, 190, 0.75)',
-            'rgba(180, 230, 250, 0.6)',
-          ]}
-          className="absolute inset-0"
-        /> */}
+      <View className="h-[31%] justify-center pt-10 px-7 border">
+       
+        <View className='bg-secondary h-20 w-20'>
+          <View className='border h-'></View>
+        </View>
         <View className="flex-row justify-around items-center">
           <View className="flex-col items-start justify-center">
             <Text className="text-3xl font-bold text-white">Welcome!</Text>
@@ -136,19 +132,21 @@ const DashBoard = () => {
           </View>
         </ScrollView>
 
-        <View className="flex-1 mt-3">
-          <FlatList
-            className="max-h-[53%] px-4 mb-2"
-            data={patients}
-            keyExtractor={(item, index) => index.toString()}
-            renderItem={({ item, index }) => <PatientCard index={index + 1} />}
-            showsVerticalScrollIndicator={true}
-          />
+        <View className="flex-1 mt-3 relative">
+  <FlatList
+    data={patients}
+    keyExtractor={(item, index) => index.toString()}
+    renderItem={({ item, index }) => <PatientCard index={index + 1} />}
+    showsVerticalScrollIndicator={true}
+    contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 120 }} // enough space for button
+  />
 
-          <View className="items-center justify-center">
-            <CustomButton label="New Appointment" link="newAppointment" />
-          </View>
-        </View>
+  {/* Fixed Bottom Button */}
+  <View className="absolute bottom-0 left-0 right-0 px-4 pb-5 bg-white">
+    <CustomButton label="Make Appointment" />
+  </View>
+</View>
+
 
         {/* {show && (
           <DateTimePicker

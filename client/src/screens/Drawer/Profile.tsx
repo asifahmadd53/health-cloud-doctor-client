@@ -7,12 +7,12 @@ import { KeyboardAvoidingView } from 'react-native';
 import { TouchableOpacity } from 'react-native';
 import ReactNativeModal from 'react-native-modal';
 import { useNavigation } from '@react-navigation/native';
-import Icons from '@/utils/libs/constants/Icons';
-import Images from '@/utils/libs/constants/Images';
-import CustomInput from '@/components/CustomInput';
-import CustomPasswordInput from '@/components/CustomPasswordInput';
-import CustomButton from '@/components/CustomButton';
-import CustomSecondaryButton from '@/components/CustomSecondaryButton';
+import Icons from '../../utils/libs/constants/Icons';
+import Images from '../../utils/libs/constants/Images';
+import CustomInput from '../../components/CustomInput';
+import CustomPasswordInput from '../../components/CustomPasswordInput';
+import CustomButton from '../../components/CustomButton';
+import CustomSecondaryButton from '../../components/CustomSecondaryButton';
 
 
 const Profile = () => {

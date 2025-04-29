@@ -4,8 +4,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Checkbox, Button } from 'react-native-paper';
 
 import { useNavigation } from '@react-navigation/native';
-import Icons from '@/utils/libs/constants/Icons';
-import CustomSimpleInput from '@/components/CustomSimpleInput';
+import Icons from '../../utils/libs/constants/Icons';
+import CustomSimpleInput from '../../components/CustomSimpleInput';
+
 
 
 const GeneratePrescription = () => {

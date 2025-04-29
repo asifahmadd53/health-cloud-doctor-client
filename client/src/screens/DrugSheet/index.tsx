@@ -6,11 +6,11 @@ import Modal from "react-native-modal";
 
 import { RadioButton, TextInput } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
-import Icons from '@/utils/libs/constants/Icons';
-import CustomSecondaryButton from '@/components/CustomSecondaryButton';
 import { Dropdown } from 'react-native-element-dropdown';
-import CustomButton from '@/components/CustomButton';
-import CustomSimpleInput from '@/components/CustomSimpleInput';
+import CustomSimpleInput from '../../components/CustomSimpleInput';
+import CustomSecondaryButton from '../../components/CustomSecondaryButton';
+import CustomButton from '../../components/CustomButton';
+
 
 
 const DrugSheet = () => {

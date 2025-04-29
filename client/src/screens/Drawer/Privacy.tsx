@@ -2,7 +2,7 @@ import { StyleSheet, Text, View, ScrollView, Pressable, Image, TouchableOpacity 
 import React from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
-import Icons from '@/utils/libs/constants/Icons';
+import Icons from '../../utils/libs/constants/Icons';
 
 
 const Privacy = () => {
