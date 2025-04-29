@@ -140,7 +140,7 @@ const DashBoard = () => {
 
         <View className="flex-1 mt-3">
           <FlatList
-            className="max-h-[53%] px-4 mb-2"
+            className="max-h-[63%] px-4 mb-2"
             data={patients}
             keyExtractor={(item, index) => index.toString()}
             renderItem={({ item, index }) => <PatientCard index={index + 1} />}
