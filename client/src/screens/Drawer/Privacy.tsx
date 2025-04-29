@@ -81,14 +81,14 @@ const Privacy = () => {
     );
 };
 
-const Section = ({ title, children }) => (
+const Section = ({ title, children }:any) => (
     <View>
         <Text className="text-lg font-semibold mt-4">{title}</Text>
         <Text className="text-base text-gray-700 mt-2">{children}</Text>
     </View>
 );
 
-const BulletPoint = ({ children }) => (
+const BulletPoint = ({ children }:any) => (
     <Text className="text-base text-gray-700 pl-5">• {children}</Text>
 );
 
