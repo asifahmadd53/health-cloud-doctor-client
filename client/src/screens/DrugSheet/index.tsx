@@ -11,6 +11,7 @@ import CustomSimpleInput from '../../components/CustomSimpleInput';
 import CustomSecondaryButton from '../../components/CustomSecondaryButton';
 import CustomButton from '../../components/CustomButton';
 import Icons from '../../utils/libs/constants/Icons';
+import Header from '../../components/Header';
 
 
 
@@ -162,19 +163,12 @@ const DrugSheet = () => {
     return (
         <>
              
-            <SafeAreaView className="flex-1 bg-gray-50 ">
-  <View className="flex-row gap-4 items-center shadow-xl bg-white rounded-xl px-4">
-                <TouchableOpacity
-                  activeOpacity={0.90}
-                  onPress={() => navigation.goBack()}
-                  className="my-3 w-12 h-12 items-center justify-center bg-[#ECECEC] rounded-full shadow-md">
-                  <Image className="w-8 h-8 object-cover" source={Icons.leftIcon} />
-                </TouchableOpacity>
-                <Text className="text-xl font-semibold text-gray-800">Prescription</Text>
-              </View>
+            <SafeAreaView className="flex-1 bg-gray-50 px-5">
+
+            <Header title='Prescription'/>
 
 
-                <View className="bg-white  p-5 rounded-lg shadow-sm mx-4 border-gray-200 border mt-4">
+                <View className="bg-white  p-5 rounded-lg shadow-sm mx-4 border-gray-200 border mt-10">
                     <Text className="text-lg font-semibold text-gray-800 mb-3">Prescribed Medications</Text>
                     <View className="mt-3 space-y-3">
     {drugsList.length > 0 ? (

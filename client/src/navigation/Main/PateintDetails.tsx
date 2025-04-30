@@ -2,47 +2,24 @@ import { View, Text, TouchableOpacity } from 'react-native';
 import React from 'react';
 import { PatientDetails, PreviouseData } from '../../screens';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import Icon from 'react-native-ionicons'
 
 const Stack = createNativeStackNavigator();
 
-const PateintDetailsLayout = () => {
+const PatientDetailsLayout = () => {
   return (
     <Stack.Navigator>
-     <Stack.Screen
-  name="patientDetails"
-  component={PatientDetails}
-  options={({ navigation }) => ({
-    headerShadowVisible: false,
-    headerTitle: 'Patient Details',
-    headerLeft: () => (
-      <TouchableOpacity
-        onPress={() => navigation.goBack()}
-        style={{ marginLeft: 10 }}
-      >
-        <Icon ios="ios-add" android="md-add" />
-      </TouchableOpacity>
-    ),
-  })}
-/>
-
+      <Stack.Screen
+        name="patientDetails"
+        component={PatientDetails}
+        options={{headerShown: false}}
+      />
       <Stack.Screen
         name="previouseData"
         component={PreviouseData}
-        options={({ navigation }) => ({
-          headerShadowVisible: false,
-          headerTitle: 'Previous Data',
-          headerLeft: () => (
-            <TouchableOpacity
-              onPress={() => navigation.goBack()}
-              style={{ marginLeft: 10 }}
-            >
-            </TouchableOpacity>
-          ),
-        })}
+        options={{headerShown: false}}
       />
     </Stack.Navigator>
   );
 };
 
-export default PateintDetailsLayout;
+export default PatientDetailsLayout;

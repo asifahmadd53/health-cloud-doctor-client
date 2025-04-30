@@ -6,8 +6,31 @@ import { Animated, Dimensions, FlatList, Image, ScrollView, Text, TouchableOpaci
 import { IconButton } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import LinearGradient from 'react-native-linear-gradient';
+import { LocaleConfig, Calendar } from 'react-native-calendars';
+import CustomHeader from '../../components/CustomHeader';
 
+LocaleConfig.locales['fr'] = {
+  monthNames: [
+    'Janvier',
+    'Février',
+    'Mars',
+    'Avril',
+    'Mai',
+    'Juin',
+    'Juillet',
+    'Août',
+    'Septembre',
+    'Octobre',
+    'Novembre',
+    'Décembre'
+  ],
+  monthNamesShort: ['Janv.', 'Févr.', 'Mars', 'Avril', 'Mai', 'Juin', 'Juil.', 'Août', 'Sept.', 'Oct.', 'Nov.', 'Déc.'],
+  dayNames: ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'],
+  dayNamesShort: ['Dim.', 'Lun.', 'Mar.', 'Mer.', 'Jeu.', 'Ven.', 'Sam.'],
+  today: "Aujourd'hui"
+};
 
+LocaleConfig.defaultLocale = 'fr';
 
 const DashBoard = () => {
   const [patients] = useState([1, 2, 3, 4, 5, 6, 7, 8, 9]);
@@ -58,8 +81,9 @@ const DashBoard = () => {
 
   return (
     <SafeAreaView className="flex-1 bg-white">
-      <View className="h-[31%] justify-center pt-10 px-7">
-        <LinearGradient
+      <View className="h-[29%] justify-center pt-10 px-7">
+      <CustomHeader/>
+      <LinearGradient
           start={{ x: 0, y: 0.1 }}
           end={{ x: 1, y: 1.5 }}
           colors={[
@@ -69,6 +93,7 @@ const DashBoard = () => {
           ]}
           className="absolute inset-0"
         />
+        
         <View className="flex-row justify-around items-center">
           <View className="flex-col items-start justify-center">
             <Text className="text-3xl font-bold text-white">Welcome!</Text>

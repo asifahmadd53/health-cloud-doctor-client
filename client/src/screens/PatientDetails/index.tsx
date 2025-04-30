@@ -10,6 +10,7 @@ import ReactNativeModal from 'react-native-modal'
 import PatientText from '../../components/PatientText'
 import Icons from '../../utils/libs/constants/Icons'
 import CustomButton from '../../components/CustomButton'
+import Header from '../../components/Header'
 
 
 
@@ -17,20 +18,10 @@ const PatientDetails = () => {
     const [showModal, setShowModal] = useState(false)
     const navigation = useNavigation<any>();
     return (
-        <SafeAreaView className="px-5 pt-6 flex-1 bg-white">
-             <View className="flex-row items-center justify-between mt-6 py-3 mb-3">
-        <TouchableOpacity
-          activeOpacity={0.9}
-          onPress={() => navigation.goBack()}
-          className="w-12 h-12 items-center justify-center bg-[#ECECEC] rounded-full"
-        >
-          <Image className="w-6 h-6" source={Icons.leftIcon} />
-        </TouchableOpacity>
-        <Text className="text-xl font-bold tracking-wide text-center absolute left-0 right-0">
-          Patient Biodata
-        </Text>
-      </View>
-            <View className="gap-4 bg-white p-5 rounded-2xl shadow-2xl">
+        <SafeAreaView className="px-5 flex-1 bg-white">
+             <Header title="Patient Profile" />
+
+            <View className="gap-4 bg-white p-5 rounded-2xl shadow-2xl mt-10">
 
                 <PatientText label="Name:" item="Muhammad Hassan" />
                 <PatientText label="Age:" item="18" />

@@ -18,6 +18,7 @@ const AppLayout = () => {
       <Stack.Screen name="tabs" component={TabLayout} />
       {/* <Stack.Screen name="home" component={HomeRoutes} /> */}
       <Stack.Screen name="patientDetails" component={PateintDetailsLayout} />
+
       <Stack.Screen name="prescriptionLayout" component={PrescriptionLayout} />
       <Stack.Screen name="newAppointment" component={NewAppoinmentLayout} />
     </Stack.Navigator>

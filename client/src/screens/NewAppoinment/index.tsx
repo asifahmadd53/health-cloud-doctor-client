@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { RadioButton } from 'react-native-paper';
 import CustomSimpleInput from '../../components/CustomSimpleInput';
 import CustomButton from '../../components/CustomButton';
+import Header from '../../components/Header';
 
 
 const NewAppointment = () => {
@@ -14,8 +15,9 @@ const NewAppointment = () => {
   const [paymentMethod, setPaymentMethod] = useState<'cash' | 'online' | null>(null);
 
   return (
-    <SafeAreaView className='px-4 py-5 flex-1 bg-white'>
-      <Text className='text-2xl font-bold text-gray-800 text-center mb-6'>New Appointment</Text>
+    <SafeAreaView className='px-5 py-5 flex-1 bg-white'>
+      <Header title=''/>
+      <Text className='text-2xl font-bold text-gray-800 text-center mb-6 mt-6'>New Appointment</Text>
 
       <View className='bg-white rounded-2xl p-5 shadow-md'>
         {/* Patient Details */}

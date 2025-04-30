@@ -3,6 +3,7 @@ import React from 'react'
 
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { NewAppointment } from '../../screens';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
 
 
@@ -11,17 +12,8 @@ const NewAppoinmentLayout = () => {
   return (
     <Stack.Navigator>
       <Stack.Screen name='newAppointment' component={NewAppointment}
-      options={({ navigation }) => ({
-        headerShadowVisible: false,
-        headerTitle: '',
-        headerLeft: () => (
-          <TouchableOpacity 
-            onPress={() => navigation.goBack()} 
-            style={{ marginLeft: 10 }}
-          >
-          </TouchableOpacity>
-        ),
-      })}
+     options={{
+        headerShown: false}}
       
       />
     </Stack.Navigator>

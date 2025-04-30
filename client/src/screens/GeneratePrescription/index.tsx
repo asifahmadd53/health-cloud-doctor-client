@@ -6,6 +6,7 @@ import { Checkbox, Button } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 import Icons from '../../utils/libs/constants/Icons';
 import CustomSimpleInput from '../../components/CustomSimpleInput';
+import Header from '../../components/Header';
 
 
 
@@ -32,20 +33,11 @@ const GeneratePrescription = () => {
   const navigation = useNavigation();
 
   return (
-    <SafeAreaView className="flex-1 bg-white ">
-        <View className="flex-row gap-4 items-center shadow-xl bg-white rounded-xl px-4">
-  <TouchableOpacity
-    activeOpacity={0.90}
-    onPress={() => navigation.goBack()}
-    className="my-3 w-12 h-12 items-center justify-center bg-[#ECECEC] rounded-full shadow-md">
-    <Image className="w-8 h-8 object-cover" source={Icons.leftIcon} />
-  </TouchableOpacity>
-  <Text className="text-xl font-semibold text-gray-800">Prescription</Text>
-</View>
-
+    <SafeAreaView className="flex-1 bg-white px-5">
+       <Header title='Prescription'/>
 
       <ScrollView 
-      className='px-4'
+      className=''
         showsVerticalScrollIndicator={false} 
         contentContainerStyle={{ paddingBottom: 20,paddingTop:20 }}
       >
