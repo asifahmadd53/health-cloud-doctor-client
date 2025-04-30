@@ -26,12 +26,14 @@
     "react-native-element-dropdown": "^2.12.4",
     "react-native-gesture-handler": "^2.25.0",
     "react-native-image-picker": "^8.2.0",
+    "react-native-ionicons": "^4.6.5",
     "react-native-linear-gradient": "^2.8.3",
     "react-native-modal": "^14.0.0-rc.1",
     "react-native-paper": "^5.13.5",
     "react-native-reanimated": "^3.17.4",
     "react-native-safe-area-context": "^5.4.0",
     "react-native-screens": "^4.10.0",
+    "react-native-vector-icons": "^10.2.0",
     "tailwindcss": "^3.4.17"
   },
   "devDependencies": {
