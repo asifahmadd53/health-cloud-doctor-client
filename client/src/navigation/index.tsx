@@ -8,6 +8,7 @@ import PrescriptionLayout from './Main/Prescription';
 import NewAppoinmentLayout from './Main/NewAppointment';
 import PateintDetailsLayout from './Main/PateintDetails';
 
+
 const AppLayout = () => {
 
     const Stack = createNativeStackNavigator();
