@@ -2,7 +2,14 @@ import { StyleSheet, Text, View, Image } from 'react-native'
 import React from 'react'
 import { TextInput } from 'react-native-paper'
 
-const CustomInput = ({ placeholder, icon, value, onChange }) => {
+interface CustomInputProps {
+  placeholder: string;
+  icon: any;
+  value: string;
+  onChange: (text: string) => void;
+}
+
+const CustomInput = ({ placeholder, icon, value, onChange }:CustomInputProps) => {
   return (
     <TextInput
       onChangeText={onChange}
