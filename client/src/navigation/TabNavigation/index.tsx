@@ -15,7 +15,7 @@ const TabLayout = () => {
   return (
     <SafeAreaView className="flex-1 bg-white">
       {/* Custom Header */}
-      <View className="absolute top-3 left-3 right-0 z-30 p-4">
+      <View className="absolute top-3 left-3 right-0 z-50 p-4">
         <CustomHeader />
       </View>
 

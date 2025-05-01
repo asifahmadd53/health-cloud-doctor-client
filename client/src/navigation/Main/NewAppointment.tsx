@@ -14,7 +14,6 @@ const NewAppoinmentLayout = () => {
       <Stack.Screen name='newAppointment' component={NewAppointment}
      options={{
         headerShown: false}}
-      
       />
     </Stack.Navigator>
   )

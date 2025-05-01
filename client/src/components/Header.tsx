@@ -13,13 +13,13 @@ const Header = ({title}:HeaderProps) => {
   
     const navigation = useNavigation()
   return (
-    <View className="flex-row items-center justify-between relative">
+    <View className="flex-row items-center justify-between relative mt-5">
                 <TouchableOpacity
                     activeOpacity={0.9}
                     onPress={() => navigation.goBack()}
                     className="w-12 h-12 items-center justify-center bg-gray-200 rounded-full shadow-sm"
                 >
-                    <Image className="w-6 h-6" source={Icons.leftIcon} />
+                    <Image className="w-7 h-7" source={Icons.leftIcon} />
                 </TouchableOpacity>
 
                 {/* Centered Title */}

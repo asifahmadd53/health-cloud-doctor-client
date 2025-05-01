@@ -8,7 +8,7 @@ const PatientCard = ({ index }) => {
 
   // Memoized function to avoid re-renders
   const handlePress = useCallback(() => {
-    navigation.navigate('patientDetails' as never, );
+    navigation.navigate('patientDetailsLayout' as never, );
   }, [navigation]);
 
   // Memoize patient age string
@@ -61,7 +61,7 @@ const PatientCard = ({ index }) => {
           <Text className="text-base font-semibold">/ Male</Text>
         </View>
 
-        <View className="flex-row justify-between mt-3">
+        <View className="flex-row justify-between mt-2">
           <View className="flex-row items-center gap-2">
             <Text className="text-sm font-medium text-gray-800">History Access</Text>
             <Image style={{ width: 17, height: 17, resizeMode: 'contain' }} source={Icons.historyyes} />

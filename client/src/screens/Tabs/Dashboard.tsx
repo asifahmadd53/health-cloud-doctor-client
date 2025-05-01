@@ -72,14 +72,11 @@ const DashBoard = () => {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        style={{ flex: 1 }}
-      >
+    <SafeAreaView className="flex-1 bg-white" edges={['top']}>
+      
         {/* Header */}
         <View className="h-[30%] justify-center pt-10 px-7">
-          <CustomHeader />
+      
           <LinearGradient
             start={{ x: 0, y: 0.1 }}
             end={{ x: 1, y: 1.5 }}
@@ -97,13 +94,13 @@ const DashBoard = () => {
               <Text className="text-base font-bold text-white">Surgeon</Text>
             </View>
             <View className="w-1/2">
-              <Image className="w-full h-full" source={Images.dashboard} resizeMode="cover" />
+              <Image className="w-full h-full bottom-1" source={Images.dashboard} resizeMode="cover" />
             </View>
           </View>
         </View>
 
         {/* Content Area */}
-        <View className="flex-1 bg-white -top-[1.90%] rounded-t-[1.8rem] pt-3 px-2">
+        <View className="flex-1 bg-white -top-[1.50%] rounded-t-[1.8rem] pt-3 px-2">
           {/* Date Selector */}
           <View className="flex-row items-center justify-between px-7">
             <TouchableOpacity activeOpacity={0.9} className="flex-row items-center" onPress={() => setShow(true)}>
@@ -133,7 +130,7 @@ const DashBoard = () => {
           </View>
 
           {/* Week Scroll */}
-          <ScrollView horizontal className="py-2" showsHorizontalScrollIndicator={false}>
+          <ScrollView horizontal className="py-2 flex-none" showsHorizontalScrollIndicator={false}>
             <View className="flex-row gap-3 px-3">
               {generateWeekDates().map((item, index) => {
                 const isActive = item.fullDate === selectedDate.toDateString();
@@ -161,8 +158,8 @@ const DashBoard = () => {
           {/* Patient List */}
           <FlatList
             data={patients}
-            className="px-4 mb-2"
-            contentContainerStyle={{ paddingBottom: 100 }}
+            className="px-4"
+            contentContainerStyle={{ paddingBottom: 60 }}
             keyExtractor={(item, index) => index.toString()}
             renderItem={({ item, index }) => <PatientCard index={index + 1} />}
             showsVerticalScrollIndicator={false}
@@ -170,6 +167,7 @@ const DashBoard = () => {
         </View>
 
         {/* Fixed Bottom Button */}
+
         <View
           style={{
             position: 'absolute',
@@ -184,7 +182,6 @@ const DashBoard = () => {
         >
           <CustomButton label="New Appointment" link="newAppointment" />
         </View>
-      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 };
