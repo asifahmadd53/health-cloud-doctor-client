@@ -1,4 +1,4 @@
-import { Pressable, StyleSheet, Text } from 'react-native';
+import { Pressable, Text } from 'react-native';
 import React from 'react';
 import { useNavigation } from '@react-navigation/native';
 
@@ -24,4 +24,3 @@ const CustomSecondaryButton = ({ label, link, onPress }: ButtonProps) => {
 
 export default CustomSecondaryButton;
 
-const styles = StyleSheet.create({});
