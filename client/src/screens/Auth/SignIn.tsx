@@ -63,7 +63,11 @@ const SignIn = () => {
           <View className="mt-6">
             <CustomButton label={'Login'} link={'drawer'} />
           </View>
-          
+          <View className="mx-auto mt-8 items-center gap-5">
+            <Text onPress={() => navigation.navigate('sign-up')} className="text-[#253237] text-base font-medium">
+              Don’t have an account?<Text className="text-secondary"> Join us</Text>
+            </Text>
+          </View>
           {/* ✅ Modal 1 */}
 
         </KeyboardAvoidingView>
