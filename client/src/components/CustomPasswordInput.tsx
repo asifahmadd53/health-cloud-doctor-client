@@ -3,7 +3,13 @@ import React, { useState } from 'react';
 import { TextInput } from 'react-native-paper';
 import Icons from '../utils/libs/constants/Icons';
 
-const CustomPasswordInput = ({ placeholder, value, onChange }) => {
+interface CustomPasswordInputProps {
+  placeholder: string;
+  value: string;
+  onChange: (text: string) => void;
+}
+
+const CustomPasswordInput = ({ placeholder, value, onChange }:CustomPasswordInputProps) => {
   const [showPassword, setShowPassword] = useState(false);
 
   return (
