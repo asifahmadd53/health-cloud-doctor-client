@@ -2,7 +2,14 @@ import React from 'react';
 import { Text, View } from 'react-native';
 import { TextInput } from 'react-native-paper';
 
-const CustomSimpleInput = ({ label, placeholder, value, onChange }) => {
+interface CustomSimpleInputProps {
+  label: string;
+  placeholder: string;
+  value: string;
+  onChange: (text: string) => void;
+}
+
+const CustomSimpleInput = ({ label, placeholder, value, onChange }:CustomSimpleInputProps) => {
   return (
     <View className="mb-3">
       <Text className="text-base font-semibold mb-2">{label}</Text>

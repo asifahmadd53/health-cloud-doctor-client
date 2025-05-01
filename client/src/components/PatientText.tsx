@@ -1,7 +1,12 @@
 import { StyleSheet, Text, View } from 'react-native'
 import React from 'react'
 
-const PatientText = ({label,item}) => {
+interface PatientTextProps {
+  label: string;
+  item: string | number;
+}
+
+const PatientText = ({label,item}:PatientTextProps) => {
   return (
     <View className='flex-row gap-4'>
           <Text className='text-lg md:text-2xl font-semibold'>{label}</Text>
