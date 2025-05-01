@@ -11,7 +11,7 @@ import {
   } from "react-native";
   import React, { useEffect, useState } from "react";
   import { SafeAreaView } from "react-native-safe-area-context";
-  import { TextInput } from "react-native-paper";
+
   import { Checkbox } from "react-native-paper";
 
   import { useNavigation } from "@react-navigation/native";

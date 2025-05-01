@@ -8,7 +8,6 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
 
 
-
 import { useState } from "react";
 import CustomInput from "../../components/CustomInput";
 import CustomPasswordInput from "../../components/CustomPasswordInput";
