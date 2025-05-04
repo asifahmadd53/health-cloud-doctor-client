@@ -1,21 +1,23 @@
-import { View, Text, StatusBar } from 'react-native'
-import React from 'react'
+import { View, Text, StatusBar, StyleSheet } from 'react-native'
+import React, { useEffect } from 'react'
 import { NavigationContainer } from '@react-navigation/native';
 import '../gesture-handler.native';
 import AppLayout from './navigation';
 
-import { foo } from '@/foo'
 
 const RootLayout = () => {
+  
   return (
    <>
    <StatusBar
         barStyle="dark-content"
         backgroundColor="#FFFFFF"
-        translucent={false}
-      />
+        translucent={false}/>
+       
     <NavigationContainer>
+  
     <AppLayout/>
+   
     </NavigationContainer>
    </>
   )

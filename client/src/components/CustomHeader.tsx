@@ -12,8 +12,8 @@ const CustomHeader = () => {
       position: 'absolute',
       left: 6,
       top: insets.top + 8,
-      height: 38,
-      width: 38,
+      height: 32,
+      width: 32,
       zIndex: 40
     }}>
       <Pressable onPress={() => navigation.dispatch(DrawerActions.openDrawer())}>

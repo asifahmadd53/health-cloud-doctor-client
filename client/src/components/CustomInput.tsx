@@ -32,3 +32,8 @@ const CustomInput = ({ placeholder, icon, value, onChange }:CustomInputProps) =>
 export default CustomInput
 
 const styles = StyleSheet.create({})
+
+
+
+ 
+

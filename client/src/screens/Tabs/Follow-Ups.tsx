@@ -1,14 +1,12 @@
-import { StyleSheet, Text, View } from 'react-native'
+import { View, Text } from 'react-native'
 import React from 'react'
 
 const FollowUps = () => {
   return (
     <View>
-      <Text>FollowUps</Text>
+      <Text>Profile</Text>
     </View>
   )
 }
 
 export default FollowUps
-
-const styles = StyleSheet.create({})

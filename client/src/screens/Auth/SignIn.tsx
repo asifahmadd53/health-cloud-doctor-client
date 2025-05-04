@@ -3,32 +3,45 @@ import {
   Text,
   View,
   KeyboardAvoidingView,
+  Alert,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
-
-
 import { useState } from "react";
 import CustomInput from "../../components/CustomInput";
 import CustomPasswordInput from "../../components/CustomPasswordInput";
 import CustomButton from "../../components/CustomButton";
 import Icons from "../../utils/libs/constants/Icons";
+import axios from "axios";
+import { API_URL } from "../../utils/libs/constants/api/api";
+
 
 
 
 
 const SignIn = () => {
 
-  const [pmdc, setpmcd] = useState('')
+  const [pmdcNumber, setpmcd] = useState('')
   const [password, setPassword] = useState('')
-  const [phone, setPhone] = useState('')
-  const [currentModal, setCurrentModal] = useState("")
-  const [resetPassword, setResetPassword] = useState('')
-  const [reresetPassword, setReResetPassword] = useState('')
 
-  const navigation = useNavigation()
+  const navigation: any = useNavigation()
 
-
+  // const handleSignIn = async()=>{
+  //   if(!pmdcNumber || !password){
+  //     Alert.alert('Please fill all the fields')
+  //     return
+  //   }
+  //   const formData = new FormData();
+  //   formData.append('pmdcNumber',pmdcNumber)
+  //   formData.append('password',password)
+  //   const response = await axios.post(`${API_URL}/api/auth/login`,formData)
+  //   if(response.data.success){
+  //     Alert.alert('Login successful')
+  //     navigation.navigate('drawer')
+  //   }else{
+  //     Alert.alert(response.data.message)
+  //   }
+  // }
 
   return (
     <SafeAreaView className="bg-white px-3">
@@ -44,9 +57,9 @@ const SignIn = () => {
             </Text>
           </View>
           <View className="mt-16 w-[97%] mx-auto gap-5">
-           {/* <Text className="text-base md:text-lg">Enter your PMDC #</Text> */}
-            <CustomInput placeholder={'PMDC #'} icon={Icons.tick} value={pmdc} onChange={setpmcd} />
-            {/* <Text className="text-base md:text-lg">Enter your Password</Text> */}
+           <Text className="text-base md:text-lg">Enter your PMDC #</Text>
+            <CustomInput placeholder={'PMDC #'} icon={Icons.tick} value={pmdcNumber} onChange={setpmcd} />
+            <Text className="text-base md:text-lg">Enter your Password</Text>
             <CustomPasswordInput placeholder={'Password'} value={password} onChange={setPassword} />
 
             <View className="items-end">
@@ -60,7 +73,7 @@ const SignIn = () => {
 
 
           <View className="mt-6">
-            <CustomButton label={'Login'} link={'drawer'} />
+            <CustomButton label={'Login'} link={'drawer'} onPress={()=>{}}/>
           </View>
           <View className="mx-auto mt-8 items-center gap-5">
             <Text onPress={() => navigation.navigate('sign-up')} className="text-[#253237] text-base font-medium">

@@ -5,7 +5,7 @@ import { ForgetPassword, NewPassword, OTP, SignIn, SignUp, SignUpComplete } from
 const AuthLayout = () => {
 
     const Stack = createNativeStackNavigator();
-
+    
     return (
         <Stack.Navigator initialRouteName="sign-in">
             <Stack.Screen name="sign-in" options={{ headerShown: false }} component={SignIn} />

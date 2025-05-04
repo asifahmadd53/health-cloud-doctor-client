@@ -3,7 +3,7 @@ import { View, Image, SafeAreaView } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import CustomHeader from '../../components/CustomHeader';
 import DashBoard from '../../screens/Tabs/Dashboard';
-import { Billing, EConsults, FollowUps } from '../../screens';
+import { Billing, EConsults, Profile } from '../../screens';
 import Icons from '../../utils/libs/constants/Icons';
 
 
@@ -62,7 +62,7 @@ const TabLayout = () => {
         />
         <Tab.Screen
           name="Follow Ups"
-          component={FollowUps}
+          component={Profile}
           options={{
             tabBarIcon: () => <Image className="w-7 h-7" source={Icons.sign} />,
             tabBarLabel: 'Follow Ups',
