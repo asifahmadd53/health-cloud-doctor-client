@@ -14,7 +14,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import LinearGradient from 'react-native-linear-gradient';
 import { IconButton } from 'react-native-paper';
-import { LocaleConfig } from 'react-native-calendars';
+import {Calendar, LocaleConfig} from 'react-native-calendars';
 
 import CustomButton from '../../components/CustomButton';
 import PatientCard from '../../components/PatientCard';
@@ -24,12 +24,26 @@ import CustomHeader from '../../components/CustomHeader';
 const { height } = Dimensions.get('window');
 
 LocaleConfig.locales['fr'] = {
-  monthNames: ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'],
+  monthNames: [
+    'Janvier',
+    'Février',
+    'Mars',
+    'Avril',
+    'Mai',
+    'Juin',
+    'Juillet',
+    'Août',
+    'Septembre',
+    'Octobre',
+    'Novembre',
+    'Décembre'
+  ],
   monthNamesShort: ['Janv.', 'Févr.', 'Mars', 'Avril', 'Mai', 'Juin', 'Juil.', 'Août', 'Sept.', 'Oct.', 'Nov.', 'Déc.'],
   dayNames: ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'],
   dayNamesShort: ['Dim.', 'Lun.', 'Mar.', 'Mer.', 'Jeu.', 'Ven.', 'Sam.'],
   today: "Aujourd'hui"
 };
+
 LocaleConfig.defaultLocale = 'fr';
 
 const DashBoard = () => {
@@ -112,7 +126,7 @@ const DashBoard = () => {
                   year: 'numeric',
                 })}
               </Text>
-              <IconButton icon={'chevron-down'} />
+              <IconButton className='-ml-8' icon={'chevron-down'} />
             </TouchableOpacity>
             <Animated.View
               className="bg-secondary"
@@ -180,7 +194,39 @@ const DashBoard = () => {
             paddingHorizontal: 16,
           }}
         >
-          <CustomButton label="New Appointment" link="newAppointment" />
+          <CustomButton label="New Appointment" link="newAppointmentLayout" />
+          {show && (
+  <View
+    style={{
+      position: 'absolute',
+      top: height * 0.15,
+      left: 20,
+      right: 20,
+      zIndex: 100,
+      backgroundColor: 'white',
+      borderRadius: 12,
+      elevation: 10,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.25,
+      shadowRadius: 4,
+    }}
+  >
+    <Calendar
+      onDayPress={(day) => {
+        setSelectedDate(new Date(day.dateString));
+        setShow(false);
+      }}
+      markedDates={{
+        [selectedDate.toISOString().split('T')[0]]: {
+          selected: true,
+          selectedColor: '#2C415C',
+        },
+      }}
+    />
+  </View>
+)}
+
         </View>
     </SafeAreaView>
   );
