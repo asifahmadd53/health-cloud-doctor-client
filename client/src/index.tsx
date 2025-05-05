@@ -4,7 +4,6 @@ import { NavigationContainer } from '@react-navigation/native';
 import '../gesture-handler.native';
 import AppLayout from './navigation';
 
-import { foo } from '@/foo'
 
 const RootLayout = () => {
   return (
