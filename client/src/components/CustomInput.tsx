@@ -9,7 +9,7 @@ interface CustomInputProps {
   onChange: (text: string) => void;
 }
 
-const CustomInput = ({ placeholder, icon, value, onChange }:CustomInputProps) => {
+const CustomInput = ({ placeholder, icon, value, onChange }: CustomInputProps) => {
   return (
     <TextInput
       onChangeText={onChange}
@@ -18,22 +18,19 @@ const CustomInput = ({ placeholder, icon, value, onChange }:CustomInputProps) =>
       value={value}
       mode="outlined"
       outlineColor="lightgray"
-      left={<TextInput.Icon icon={() => <Image source={icon} style={{ width: 20, height:20 }} />} />}
-      activeOutlineColor={"#a5a5a5"}
-      placeholderTextColor={'#393d3f'}
+      left={<TextInput.Icon icon={() => <Image source={icon} style={{ width: 20, height: 20 }} />} />}
+      activeOutlineColor="#a5a5a5"
       style={{ backgroundColor: "white" }}
       theme={{
         roundness: 12,
+        colors: {
+          placeholder: '#a9a9a9', // light gray placeholder color
+          text: '#000', // optional: text color
+        },
       }}
     />
   )
 }
 
 export default CustomInput
-
-const styles = StyleSheet.create({})
-
-
-
- 
 

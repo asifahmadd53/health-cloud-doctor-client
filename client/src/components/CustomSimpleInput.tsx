@@ -20,7 +20,7 @@ const CustomSimpleInput = ({ label, placeholder, value, onChange }:CustomSimpleI
         value={value}
         mode="outlined"
         outlineColor="lightgray"
-        activeOutlineColor="gray"
+        activeOutlineColor="transparent"
         style={{ backgroundColor: 'white', fontSize: 14 }}
         theme={{
           roundness: 12,

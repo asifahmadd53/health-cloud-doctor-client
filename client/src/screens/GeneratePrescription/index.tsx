@@ -6,6 +6,7 @@ import { Checkbox, Button } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 import CustomSimpleInput from '../../components/CustomSimpleInput';
 import Header from '../../components/Header';
+import FormInput from '../../components/Doctor/FormInput';
 
 
 
@@ -36,30 +37,30 @@ const GeneratePrescription = () => {
        <Header title='Prescription'/>
 
       <ScrollView 
-      className=''
+      className='pt-5'
         showsVerticalScrollIndicator={false} 
         contentContainerStyle={{ paddingBottom: 20,paddingTop:20 }}
       >
 
 
-        <CustomSimpleInput
+        <FormInput
           label="Presenting Complaints"
           placeholder="Cough etc"
-          onChange={setComplaints}
+          onChangeText={setComplaints}
           value={complaints}
         />
-        <CustomSimpleInput
+        <FormInput
           label="HOPI (Optional)"
           placeholder="Additional Medical History Details"
-          onChange={setHopi}
+          onChangeText={setHopi}
           value={hopi}
         />
 
         {/* Past Medical History */}
-        <Text className="text-lg font-semibold text-gray-800 mt-6 mb-3">
+        <Text className="text-base font-semibold text-gray-800 mt-2 mb-3">
           Past Medical History (Optional)
         </Text>
-        <View className="bg-white p-3 rounded-lg shadow-sm border border-gray-200 flex-row flex-wrap w-[97%] mx-auto items-center justify-evenly">
+        <View className="bg-white p-3 rounded-lg shadow-sm border border-gray-200 flex-row flex-wrap w-[99%] mx-auto items-center justify-evenly">
           {[
             { key: 'dm', label: 'DM' },
             { key: 'htn', label: 'HTN' },
@@ -89,22 +90,22 @@ const GeneratePrescription = () => {
         <Text className="text-xl font-semibold text-gray-800 mt-6 mb-3">
           Diagnosis & Tests
         </Text>
-        <CustomSimpleInput
+        <FormInput
           label="Diagnosis (Optional)"
           placeholder="Eg. Viral Infection"
-          onChange={setDiagnosis}
+          onChangeText={setDiagnosis}
           value={diagnosis}
         />
-        <CustomSimpleInput
+        <FormInput
           label="Labs (Optional)"
           placeholder="Eg. CBC, CRP"
-          onChange={setLabs}
+          onChangeText={setLabs}
           value={labs}
         />
-        <CustomSimpleInput
+        <FormInput
           label="Radiology (Optional)"
           placeholder="Eg. X-Ray CT Scan"
-          onChange={setRadiology}
+          onChangeText={setRadiology}
           value={radiology}
         />
       <View className="w-full bg-white border-gray-300 items-end mt-4">
