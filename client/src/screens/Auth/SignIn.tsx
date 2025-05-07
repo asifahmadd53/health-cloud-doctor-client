@@ -72,7 +72,7 @@ const SignIn = () => {
   // };
 
   return (
-    <SafeAreaView className="bg-white px-3">
+    <SafeAreaView className="bg-white px-4">
       <ScrollView className="flex-grow min-h-full pb-5">
         <KeyboardAvoidingView>
           <View className="pt-20">

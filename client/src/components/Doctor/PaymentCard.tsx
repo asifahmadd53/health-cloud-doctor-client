@@ -1,6 +1,7 @@
 import type React from "react"
 import { View, Text, TouchableOpacity } from "react-native"
 
+// import { CreditCard, CheckCircle, XCircle, Clock } from "lucide-react-native"
 
 type PaymentCardProps = {
   payment: {
@@ -15,7 +16,6 @@ type PaymentCardProps = {
   onPress: (id: string) => void
   className?: string
 }
-
 
 
 const PaymentCard: React.FC<PaymentCardProps> = ({ payment, onPress, className = "" }) => {
@@ -35,11 +35,11 @@ const PaymentCard: React.FC<PaymentCardProps> = ({ payment, onPress, className =
   // const getStatusIcon = () => {
   //   switch (payment.status) {
   //     case "completed":
-  //       // return <CheckCircle size={16} color="#10b981" />
+  //       return <CheckCircle size={16} color="#10b981" />
   //     case "pending":
-  //       // return <Clock size={16} color="#f59e0b" />
+  //       return <Clock size={16} color="#f59e0b" />
   //     case "failed":
-  //       // return <XCircle size={16} color="#ef4444" />
+  //       return <XCircle size={16} color="#ef4444" />
   //     default:
   //       return null
   //   }
@@ -71,13 +71,13 @@ const PaymentCard: React.FC<PaymentCardProps> = ({ payment, onPress, className =
       </View>
 
       {payment.cardType && payment.cardLast4 && (
-        <StyledView className="pt-3 border-t border-gray-200">
-          <StyledText className="text-sm text-gray-500">
+        <View className="pt-3 border-t border-gray-200">
+          <Text className="text-sm text-gray-500">
             {payment.cardType} •••• {payment.cardLast4}
-          </StyledText>
-        </StyledView>
+          </Text>
+        </View>
       )}
-    </StyledTouchableOpacity>
+    </TouchableOpacity>
   )
 }
 

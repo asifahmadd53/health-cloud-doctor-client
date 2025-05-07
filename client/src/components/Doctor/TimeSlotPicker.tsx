@@ -1,7 +1,7 @@
-
 import type React from "react"
 import { useState } from "react"
 import { View, Text, TouchableOpacity, ScrollView } from "react-native"
+
 
 type TimeSlot = {
   id: string
@@ -16,7 +16,6 @@ type TimeSlotPickerProps = {
   onTimeSlotsChange: (day: string, timeSlots: TimeSlot[]) => void
   className?: string
 }
-
 
 
 const DEFAULT_TIME_SLOTS: TimeSlot[] = [

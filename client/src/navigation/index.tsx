@@ -7,6 +7,7 @@ import TabLayout from './TabNavigation';
 import PrescriptionLayout from './Main/Prescription';
 import NewAppoinmentLayout from './Main/NewAppointment';
 import PateintDetailsLayout from './Main/PateintDetails';
+import StaffLayout from './StaffNavigation';
 
 
 const AppLayout = () => {
@@ -20,6 +21,7 @@ const AppLayout = () => {
       <Stack.Screen name="patientDetailsLayout" component={PateintDetailsLayout} />
       <Stack.Screen name="prescriptionLayout" component={PrescriptionLayout} />
       <Stack.Screen name="newAppointmentLayout" component={NewAppoinmentLayout} />
+      <Stack.Screen name="staffLayout" component={StaffLayout} />
     </Stack.Navigator>
   )
 }
