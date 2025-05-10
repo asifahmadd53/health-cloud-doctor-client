@@ -1,9 +1,9 @@
 "use client"
 
-import { Text, TouchableOpacity, View, KeyboardAvoidingView, Platform } from "react-native"
+import { Text, TouchableOpacity, View, KeyboardAvoidingView, Platform, Alert } from "react-native"
 import { useState, useEffect } from "react"
 import { SafeAreaView } from "react-native-safe-area-context"
-import { useNavigation } from "@react-navigation/native"
+import { useNavigation, useRoute } from "@react-navigation/native"
 import CustomPasswordInput from "../../components/CustomPasswordInput"
 import ReactNativeModal from "react-native-modal"
 import CustomButton from "../../components/CustomButton"
@@ -11,36 +11,38 @@ import CustomSecondaryButton from "../../components/CustomSecondaryButton"
 import MaterialIcons from "react-native-vector-icons/MaterialIcons"
 import axios from "axios"
 import { API_URL } from "../../utils/libs/constants/api/api"
-import * as Burnt from "burnt"
 
 const NewPassword = () => {
-  const [newPassword, setNewpassword] = useState("")
+  const [password, setPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
   const [showModal, setShowModal] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [errors, setErrors] = useState({ password: "", confirmPassword: "" })
   const [passwordStrength, setPasswordStrength] = useState(0)
-  const navigation = useNavigation()
+
+  const navigation = useNavigation<any>()
+  const route = useRoute<any>()
+  const resetToken = route.params?.resetToken
 
   // Calculate password strength
   useEffect(() => {
-    if (!newPassword) {
+    if (!password) {
       setPasswordStrength(0)
       return
     }
 
     let strength = 0
     // Length check
-    if (newPassword.length >= 8) strength += 0.25
+    if (password.length >= 8) strength += 0.25
     // Contains uppercase
-    if (/[A-Z]/.test(newPassword  )) strength += 0.25
+    if (/[A-Z]/.test(password)) strength += 0.25
     // Contains lowercase
-    if (/[a-z]/.test(newPassword)) strength += 0.25
+    if (/[a-z]/.test(password)) strength += 0.25
     // Contains number or special char
-    if (/[0-9!@#$%^&*(),.?":{}|<>]/.test(newPassword)) strength += 0.25
+    if (/[0-9!@#$%^&*(),.?":{}|<>]/.test(password)) strength += 0.25
 
     setPasswordStrength(strength)
-  }, [newPassword])
+  }, [password])
 
   // Get password strength label
   const getPasswordStrengthLabel = () => {
@@ -65,10 +67,10 @@ const NewPassword = () => {
     const newErrors = { password: "", confirmPassword: "" }
     let isValid = true
 
-    if (!newPassword) {
+    if (!password) {
       newErrors.password = "Password is required"
       isValid = false
-    } else if (newPassword.length < 8) {
+    } else if (password.length < 8) {
       newErrors.password = "Password must be at least 8 characters"
       isValid = false
     } else if (passwordStrength < 0.5) {
@@ -79,7 +81,7 @@ const NewPassword = () => {
     if (!confirmPassword) {
       newErrors.confirmPassword = "Please confirm your password"
       isValid = false
-    } else if (newPassword !== confirmPassword) {
+    } else if (password !== confirmPassword) {
       newErrors.confirmPassword = "Passwords do not match"
       isValid = false
     }
@@ -90,44 +92,47 @@ const NewPassword = () => {
 
   // Handle update password
   const handleUpdatePassword = async () => {
-    if (!validatePasswords()) return;
-  
-    setIsLoading(true); // <-- This was missing before validation
+    if (!validatePasswords()) {
+      return
+    }
+
+    if (!resetToken) {
+      Alert.alert("Error", "Reset token is missing. Please try again.")
+      navigation.navigate("forget-password")
+      return
+    }
+
+    setIsLoading(true)
+
     try {
-      const response = await axios.patch(
-        `${API_URL}/api/auth/update-password`,
+      const response = await axios.put(
+        `${API_URL}/api/auth/reset-password`,
         {
-          newPassword,
+          newPassword: password,
         },
         {
           headers: {
             "Content-Type": "application/json",
+             Authorization: `Bearer ${resetToken}`,
           },
-        }
-      );
-  
+        },
+      )
+
       if (response.status === 200) {
-        setTimeout(() => {
-          setIsLoading(false);
-          setShowModal(true);
-        }, 1500);
+        setIsLoading(false)
+        setShowModal(true)
       }
-    } catch (error) {
-      setIsLoading(false);
-      Burnt.toast({
-        title: "Password update failed",
-        preset: "error",
-      });
-    } finally {
-      setIsLoading(false);
+    } catch (error: any) {
+      setIsLoading(false)
+      Alert.alert("Error", error.response?.data?.message || "Password update failed. Please try again.")
     }
-  };
-  
+  }
 
   // Handle continue after success
   const handleContinue = () => {
     setShowModal(false)
-    navigation.navigate("sign-in" as never)
+    // Navigate to login screen
+    navigation.navigate("sign-in")
   }
 
   return (
@@ -155,15 +160,16 @@ const NewPassword = () => {
             <Text className="text-base font-semibold mb-2 text-gray-700">New Password</Text>
             <CustomPasswordInput
               placeholder="Enter new password"
-              value={newPassword}
+              value={password}
               onChange={(text) => {
-                setNewpassword(text)
+                setPassword(text)
                 if (errors.password) setErrors({ ...errors, password: "" })
               }}
+              error={errors.password}
             />
 
             {/* Password strength indicator */}
-            {newPassword ? (
+            {password ? (
               <View className="mt-2">
                 <View className="flex-row justify-between mb-1">
                   <Text className="text-xs text-gray-500">Password Strength</Text>
@@ -183,32 +189,30 @@ const NewPassword = () => {
               </View>
             ) : null}
 
-            {errors.password ? <Text className="text-red-500 text-sm mt-1">{errors.password}</Text> : null}
-
             {/* Password requirements */}
             <View className="mt-2">
               <Text className="text-xs text-gray-500 mb-1">Password must contain:</Text>
               <View className="flex-row items-center">
                 <MaterialIcons
-                  name={newPassword.length >= 8 ? "check-circle" : "cancel"}
+                  name={password.length >= 8 ? "check-circle" : "cancel"}
                   size={12}
-                  color={newPassword.length >= 8 ? "#10b981" : "#9ca3af"}
+                  color={password.length >= 8 ? "#10b981" : "#9ca3af"}
                 />
                 <Text className="text-xs ml-1 text-gray-500">At least 8 characters</Text>
               </View>
               <View className="flex-row items-center">
                 <MaterialIcons
-                  name={/[A-Z]/.test(newPassword) ? "check-circle" : "cancel"}
+                  name={/[A-Z]/.test(password) ? "check-circle" : "cancel"}
                   size={12}
-                  color={/[A-Z]/.test(newPassword) ? "#10b981" : "#9ca3af"}
+                  color={/[A-Z]/.test(password) ? "#10b981" : "#9ca3af"}
                 />
                 <Text className="text-xs ml-1 text-gray-500">At least 1 uppercase letter</Text>
               </View>
               <View className="flex-row items-center">
                 <MaterialIcons
-                  name={/[0-9]/.test(newPassword) ? "check-circle" : "cancel"}
+                  name={/[0-9]/.test(password) ? "check-circle" : "cancel"}
                   size={12}
-                  color={/[0-9]/.test(newPassword) ? "#10b981" : "#9ca3af"}
+                  color={/[0-9]/.test(password) ? "#10b981" : "#9ca3af"}
                 />
                 <Text className="text-xs ml-1 text-gray-500">At least 1 number</Text>
               </View>
@@ -225,30 +229,27 @@ const NewPassword = () => {
                 setConfirmPassword(text)
                 if (errors.confirmPassword) setErrors({ ...errors, confirmPassword: "" })
               }}
+              error={errors.confirmPassword}
             />
 
             {/* Password match indicator */}
-            {newPassword && confirmPassword && (
+            {password && confirmPassword && (
               <View className="flex-row items-center mt-1">
                 <MaterialIcons
-                  name={newPassword === confirmPassword ? "check-circle" : "error"}
+                  name={password === confirmPassword ? "check-circle" : "error"}
                   size={14}
-                  color={newPassword === confirmPassword ? "#10b981" : "#ef4444"}
+                  color={password === confirmPassword ? "#10b981" : "#ef4444"}
                 />
                 <Text
                   className="text-xs ml-1"
                   style={{
-                    color: newPassword === confirmPassword ? "#10b981" : "#ef4444",
+                    color: password === confirmPassword ? "#10b981" : "#ef4444",
                   }}
                 >
-                  {newPassword === confirmPassword ? "Passwords match" : "Passwords don't match"}
+                  {password === confirmPassword ? "Passwords match" : "Passwords don't match"}
                 </Text>
               </View>
             )}
-
-            {errors.confirmPassword ? (
-              <Text className="text-red-500 text-sm mt-1">{errors.confirmPassword}</Text>
-            ) : null}
           </View>
 
           {/* Update Button */}

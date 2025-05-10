@@ -3,18 +3,19 @@
 import { StyleSheet, Text, View, TouchableOpacity, KeyboardAvoidingView, Platform, Alert } from "react-native"
 import { useRef, useState, useEffect } from "react"
 import { SafeAreaView } from "react-native-safe-area-context"
+import { TextInput } from "react-native"
 import { useNavigation, useRoute } from "@react-navigation/native"
 import MaterialIcons from "react-native-vector-icons/MaterialIcons"
 import CustomButton from "../../components/CustomButton"
 import { API_URL } from "../../utils/libs/constants/api/api"
 import axios from "axios"
-import { TextInput } from "react-native"
 
 const OTP = () => {
-  const navigation = useNavigation()
-  const route = useRoute()
+  const navigation = useNavigation<any>()
+  const route = useRoute<any>()
   const email = route.params?.email || "your email"
   const [error, setError] = useState("")
+
   // Create refs for each input
   const inputRefs = [useRef<TextInput>(null), useRef<TextInput>(null), useRef<TextInput>(null), useRef<TextInput>(null)]
 
@@ -52,19 +53,18 @@ const OTP = () => {
       inputRefs[3].current?.focus()
       return
     }
-  
+
     // Otherwise process single digit input
     if (/^[0-9]?$/.test(text)) {
       const newOtp = [...otp]
       newOtp[index] = text
       setOtp(newOtp)
-  
+
       if (text && index < inputRefs.length - 1) {
         inputRefs[index + 1].current?.focus()
       }
     }
   }
-  
 
   // Handle backspace key
   const handleKeyPress = (e: any, index: number) => {
@@ -74,31 +74,18 @@ const OTP = () => {
     }
   }
 
-  // Handle paste (for accessibility)
-  const handlePaste = (text: string) => {
-    // Extract only numbers and limit to 4 digits
-    const pastedData = text.replace(/[^0-9]/g, "").slice(0, 4)
-
-    if (pastedData.length === 4) {
-      const newOtp = pastedData.split("")
-      setOtp(newOtp)
-
-      // Focus the last input
-      inputRefs[3].current?.focus()
-    }
-  }
-
   // Verify OTP
   const verifyOtp = async () => {
-    const otpValue = otp.join("");
-  
+    const otpValue = otp.join("")
+
     if (otpValue.length !== 4) {
-      Alert.alert("Error", "Please enter the complete 4-digit code");
-      return;
+      Alert.alert("Error", "Please enter the complete 4-digit code")
+      return
     }
-  
-    setIsLoading(true);
-  
+
+    setIsLoading(true)
+    setError("")
+
     try {
       const response = await axios.patch(
         `${API_URL}/api/auth/verify-verification-code`,
@@ -110,54 +97,56 @@ const OTP = () => {
           headers: {
             "Content-Type": "application/json",
           },
-        }
-      );
-  
+        },
+      )
+
       if (response.status === 200) {
-        setIsLoading(false);
-        navigation.navigate("NewPassword" as never);
-      } else {
-        setIsLoading(false);
-        Alert.alert("Error", "Verification failed. Please try again.");
+        setIsLoading(false)
+        // Store the reset token for the next step
+        const resetToken = response.data.resetToken
+        navigation.navigate("NewPassword", { resetToken })
       }
     } catch (error: any) {
-      console.log("Error verifying code:", error?.response?.data);
-      Alert.alert("Verification Failed", error.response?.data?.message || "Please try again");
+      setIsLoading(false)
+      setError(error.response?.data?.message || "Verification failed. Please try again.")
+      Alert.alert("Error", error.response?.data?.message || "Verification failed. Please try again.")
     }
-  };
-  
+  }
+
   // Resend OTP
   const resendOtp = async () => {
     if (!canResend) return
-    try{
-      const response = await axios.patch(`${API_URL}/api/auth/send-verification-code`,{
-        email
-      },{
-        headers:{
-          "Content-Type":'application/json'
-        }
-      })
-      if(response.status === 200){
+
+    setIsLoading(true)
+    setError("")
+
+    try {
+      const response = await axios.patch(
+        `${API_URL}/api/auth/send-verification-code`,
+        { email },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        },
+      )
+
+      if (response.status === 200) {
         setTimeLeft(60)
         setCanResend(false)
         Alert.alert("Success", "A new code has been sent to your email")
       }
-    } catch (error) {
-      setError("An error occurred while sending the reset code")
-    }finally{
+    } catch (error: any) {
+      setError(error.response?.data?.message || "Failed to resend code. Please try again.")
+      Alert.alert("Error", error.response?.data?.message || "Failed to resend code. Please try again.")
+    } finally {
       setIsLoading(false)
     }
-    
-    setTimeLeft(60)
-    setCanResend(false)
-
-    // Show confirmation
-    Alert.alert("Success", "A new code has been sent to your email")
   }
 
   return (
-        <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} className="flex-1">
-    <SafeAreaView className="px-5 bg-white flex-1">
+    <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} className="flex-1">
+      <SafeAreaView className="px-5 bg-white flex-1">
         {/* Header */}
         <TouchableOpacity
           activeOpacity={0.8}
@@ -188,15 +177,14 @@ const OTP = () => {
               keyboardType="numeric"
               maxLength={1}
               selectionColor="#0891b2"
-              mode="outlined"
-              activeOutlineColor="#0891b2"
-              outlineColor="#e5e7eb"
               textAlign="center"
               textContentType="oneTimeCode" // For iOS autofill
-              
             />
           ))}
         </View>
+
+        {/* Error message */}
+        {error ? <Text className="text-red-500 text-sm text-center mb-4">{error}</Text> : null}
 
         {/* Timer and Resend */}
         <View className="flex-row justify-center items-center mb-8">
@@ -232,5 +220,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#F5F5F5",
     borderRadius: 12,
     textAlign: "center",
+    borderWidth: 1,
+    borderColor: "#e5e5e5",
   },
 })

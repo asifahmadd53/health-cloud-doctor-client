@@ -12,7 +12,7 @@ import axios from "axios"
 import { API_URL } from "../../utils/libs/constants/api/api"
 
 const ForgetPassword = () => {
-  const navigation = useNavigation()
+  const navigation = useNavigation<any>()
   const [email, setEmail] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
@@ -23,105 +23,104 @@ const ForgetPassword = () => {
   }
 
   const handleResetPassword = async () => {
-
+    // Clear previous errors
     setError("")
 
-    try {
-      if (!email.trim()) {
-        setError("Please enter an email address")
-        return
-      }
-      if (!validateEmail(email)) {
-        setError("Please enter a valid email address")
-        return
-      }
-      setIsLoading(true)
-     const response  = await axios.patch(`${API_URL}/api/auth/send-verification-code`,{
-      email
-     },{
-      headers:{
-        "Content-Type":'application/json'
-      }
-     })
+    // Validate email
+    if (!email.trim()) {
+      setError("Please enter your email address")
+      return
+    }
 
+    if (!validateEmail(email)) {
+      setError("Please enter a valid email address")
+      return
+    }
+
+    // Show loading state
+    setIsLoading(true)
+
+    try {
+      const response = await axios.patch(
+        `${API_URL}/api/auth/send-verification-code`,
+        { email },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        },
+      )
 
       if (response.status === 200) {
-        setTimeout(() => {
-          setIsLoading(false)
-          navigation.navigate("otp" as never, { email } as never)
-        }, 1000)
+        setIsLoading(false)
+        // Navigate to OTP screen
+        navigation.navigate("otp", { email })
       }
-
-      if (!validateEmail(email)) {
-        setError("Please enter a valid email address")
-        return
-      }
-      setIsLoading(true)
-    } catch (error) {
-      console.log(error)
+    } catch (error: any) {
       setIsLoading(false)
-      setError("An error occurred while sending the reset code")
+      setError(error.response?.data?.message || "An error occurred while sending the reset code")
+      console.error("Reset password error:", error)
     }
   }
 
   return (
-      <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} className="flex-1">
-        <SafeAreaView className="px-5 bg-white flex-1">
-          {/* Header */}
-          <TouchableOpacity
-            activeOpacity={0.8}
-            onPress={() => navigation.goBack()}
-            className="my-6 w-12 h-12 items-center justify-center bg-[#F5F5F5] rounded-full"
-          >
-            <MaterialIcons name="arrow-back" size={24} color="#333" />
-          </TouchableOpacity>
+    <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} className="flex-1">
+      <SafeAreaView className="px-5 bg-white flex-1">
+        {/* Header */}
+        <TouchableOpacity
+          activeOpacity={0.8}
+          onPress={() => navigation.goBack()}
+          className="my-6 w-12 h-12 items-center justify-center bg-[#F5F5F5] rounded-full"
+        >
+          <MaterialIcons name="arrow-back" size={24} color="#333" />
+        </TouchableOpacity>
 
-          {/* Title and description */}
-          <View className="mb-8">
-            <Text className="text-2xl font-bold text-gray-800">Forgot Password</Text>
-            <Text className="text-base pt-2 text-gray-600">
-              Enter your email address and we'll send you a code to reset your password
-            </Text>
-          </View>
+        {/* Title and description */}
+        <View className="mb-8">
+          <Text className="text-2xl font-bold text-gray-800">Forgot Password</Text>
+          <Text className="text-base pt-2 text-gray-600">
+            Enter your email address and we'll send you a code to reset your password
+          </Text>
+        </View>
 
-          {/* Form */}
+        {/* Form */}
+        <View>
           <View>
-            <View>
-              <Text className="text-base font-semibold mb-2 text-gray-700">Email Address</Text>
-              <CustomInput
-                icon={Icons.email}
-                onChange={(text) => {
-                  setEmail(text)
-                  setError("")
-                }}
-                placeholder="Enter your email address"
-                value={email}
-                keyboardType="email-address"
-                autoCapitalize="none"
-              />
-              {error ? <Text className="text-red-500 text-sm mt-1">{error}</Text> : null}
-            </View>
-
-            <View className="mt-8">
-              <CustomButton
-                label="Send Reset Code"
-                onPress={handleResetPassword}
-                loading={isLoading}
-                disabled={isLoading}
-              />
-            </View>
-
-            {/* Help text */}
-            <TouchableOpacity
-              className="mt-6 items-center"
-              onPress={() => Alert.alert("Help", "Contact support at support@healthcloud.com for assistance")}
-            >
-              <Text className="text-cyan-600 font-medium">Need help?</Text>
-            </TouchableOpacity>
+            <Text className="text-base font-semibold mb-2 text-gray-700">Email Address</Text>
+            <CustomInput
+              onChange={(text) => {
+                setEmail(text)
+                setError("")
+              }}
+              placeholder="Enter your email address"
+              value={email}
+              icon={Icons.email}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              error={error}
+            />
           </View>
-        </SafeAreaView>
-      </KeyboardAvoidingView>
-    )
-  }
 
-  export default ForgetPassword
+          <View className="mt-8">
+            <CustomButton
+              label="Send Reset Code"
+              onPress={handleResetPassword}
+              loading={isLoading}
+              disabled={isLoading}
+            />
+          </View>
+
+          {/* Help text */}
+          <TouchableOpacity
+            className="mt-6 items-center"
+            onPress={() => Alert.alert("Help", "Contact support at support@healthcloud.com for assistance")}
+          >
+            <Text className="text-cyan-600 font-medium">Need help?</Text>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+    </KeyboardAvoidingView>
+  )
+}
+
+export default ForgetPassword

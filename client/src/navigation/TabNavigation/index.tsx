@@ -29,11 +29,16 @@ const TabLayout = () => {
             backgroundColor: '#f8f9fa',
             borderTopWidth: 1,
             borderTopColor: '#e0e0e0',
+            borderTopLeftRadius: 20,
+            borderTopRightRadius: 20,
           },
           
           tabBarLabelStyle: {
             fontSize: 12,
             fontWeight: '600',
+
+    
+
           },
           tabBarIconStyle: {
             width: 24,

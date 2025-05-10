@@ -13,7 +13,6 @@ const RootLayout = () => {
         backgroundColor="#FFFFFF"
         translucent={false}
       />
-
       <NavigationContainer>
         <Toaster
           position="top-center"
