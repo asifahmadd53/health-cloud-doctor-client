@@ -1,47 +1,127 @@
-import { Image, Pressable, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
-import React, { useState } from 'react'
-import { IconButton, TextInput } from 'react-native-paper'
-import { SafeAreaView } from 'react-native-safe-area-context'
-import { useNavigation } from '@react-navigation/native'
-import Icons from '../../utils/libs/constants/Icons'
-import CustomInput from '../../components/CustomInput'
-import CustomButton from '../../components/CustomButton'
+"use client"
 
-
-
-
+import { Text, TouchableOpacity, View, KeyboardAvoidingView, Platform, Alert } from "react-native"
+import { useState } from "react"
+import { SafeAreaView } from "react-native-safe-area-context"
+import { useNavigation } from "@react-navigation/native"
+import Icons from "../../utils/libs/constants/Icons"
+import CustomInput from "../../components/CustomInput"
+import CustomButton from "../../components/CustomButton"
+import MaterialIcons from "react-native-vector-icons/MaterialIcons"
+import axios from "axios"
+import { API_URL } from "../../utils/libs/constants/api/api"
 
 const ForgetPassword = () => {
-
   const navigation = useNavigation()
-  const [phone, setPhone] = useState('')
+  const [email, setEmail] = useState("")
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState("")
+
+  const validateEmail = (email: string) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    return emailRegex.test(email)
+  }
+
+  const handleResetPassword = async () => {
+
+    setError("")
+
+    try {
+      if (!email.trim()) {
+        setError("Please enter an email address")
+        return
+      }
+      if (!validateEmail(email)) {
+        setError("Please enter a valid email address")
+        return
+      }
+      setIsLoading(true)
+     const response  = await axios.patch(`${API_URL}/api/auth/send-verification-code`,{
+      email
+     },{
+      headers:{
+        "Content-Type":'application/json'
+      }
+     })
+
+
+      if (response.status === 200) {
+        setTimeout(() => {
+          setIsLoading(false)
+          navigation.navigate("otp" as never, { email } as never)
+        }, 1000)
+      }
+
+      if (!validateEmail(email)) {
+        setError("Please enter a valid email address")
+        return
+      }
+      setIsLoading(true)
+    } catch (error) {
+      console.log(error)
+      setIsLoading(false)
+      setError("An error occurred while sending the reset code")
+    }
+  }
+
   return (
-    <SafeAreaView className='px-4 bg-white flex-1'>
-      <TouchableOpacity activeOpacity={.90} onPress={() => navigation.goBack()}
-      className='my-6 w-12 h-12 items-center justify-center bg-[#ECECEC] rounded-full'>
-        <Image className='w-8 h-8 object-cover'source={Icons.leftIcon}/>
-      </TouchableOpacity>
-      <Text className='text-2xl font-semibold '>Forget Password</Text>
-      <Text className='text-base pt-2 text-gray-600'>Please enter your phone # to reset the password</Text>
-      <View className='pt-1'>
-        <View className=''>
-          <Text className='text-base font-semibold my-3'>Phone #</Text>
-          <CustomInput
-            onChange={setPhone}
-            placeholder={'Enter your phone #'}
-            value={phone}
-            icon={Icons.phone}
-          />
-        </View>
-        <View className='mt-8'>
-          <CustomButton label='Reset Password' link='new-password' />
-        </View>
-      </View>
-      
-    </SafeAreaView>
-  )
-}
+      <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} className="flex-1">
+        <SafeAreaView className="px-5 bg-white flex-1">
+          {/* Header */}
+          <TouchableOpacity
+            activeOpacity={0.8}
+            onPress={() => navigation.goBack()}
+            className="my-6 w-12 h-12 items-center justify-center bg-[#F5F5F5] rounded-full"
+          >
+            <MaterialIcons name="arrow-back" size={24} color="#333" />
+          </TouchableOpacity>
 
-export default ForgetPassword
+          {/* Title and description */}
+          <View className="mb-8">
+            <Text className="text-2xl font-bold text-gray-800">Forgot Password</Text>
+            <Text className="text-base pt-2 text-gray-600">
+              Enter your email address and we'll send you a code to reset your password
+            </Text>
+          </View>
 
-const styles = StyleSheet.create({})
+          {/* Form */}
+          <View>
+            <View>
+              <Text className="text-base font-semibold mb-2 text-gray-700">Email Address</Text>
+              <CustomInput
+                icon={Icons.email}
+                onChange={(text) => {
+                  setEmail(text)
+                  setError("")
+                }}
+                placeholder="Enter your email address"
+                value={email}
+                keyboardType="email-address"
+                autoCapitalize="none"
+              />
+              {error ? <Text className="text-red-500 text-sm mt-1">{error}</Text> : null}
+            </View>
+
+            <View className="mt-8">
+              <CustomButton
+                label="Send Reset Code"
+                onPress={handleResetPassword}
+                loading={isLoading}
+                disabled={isLoading}
+              />
+            </View>
+
+            {/* Help text */}
+            <TouchableOpacity
+              className="mt-6 items-center"
+              onPress={() => Alert.alert("Help", "Contact support at support@healthcloud.com for assistance")}
+            >
+              <Text className="text-cyan-600 font-medium">Need help?</Text>
+            </TouchableOpacity>
+          </View>
+        </SafeAreaView>
+      </KeyboardAvoidingView>
+    )
+  }
+
+  export default ForgetPassword

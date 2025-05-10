@@ -64,7 +64,7 @@ const DrawerLayout = () => {
     >
       <Drawer.Screen name="Home" component={TabLayout} options={{ drawerItemStyle: { display: "none" } }} />
 
-      <Drawer.Screen
+      {/* <Drawer.Screen
         name="Profile"
         component={Profile}
         options={{
@@ -82,7 +82,7 @@ const DrawerLayout = () => {
             </View>
           ),
         }}
-      />
+      /> */}
 
       <Drawer.Screen
         name="Privacy"

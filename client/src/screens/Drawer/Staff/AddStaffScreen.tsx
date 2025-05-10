@@ -5,10 +5,10 @@ import { View, ScrollView, KeyboardAvoidingView, Platform, Alert } from "react-n
 
 import { useNavigation } from "@react-navigation/native"
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack"
-import Card from "../../components/Doctor/Card"
-import PhotoUpload from "../../components/Doctor/PhotoUpload"
-import FormInput from "../../components/Doctor/FormInput"
-import Button from "../../components/Doctor/Button"
+import Card from "../../../components/Doctor/Card"
+import PhotoUpload from "../../../components/Doctor/PhotoUpload"
+import FormInput from "../../../components/Doctor/FormInput"
+import Button from "../../../components/Doctor/Button"
 
 export type RootStackParamList = {
   MainTabs: undefined

@@ -1,18 +1,16 @@
 import {
   Alert,
-  Button,
   Image,
   KeyboardAvoidingView,
-  Platform,
   Pressable,
   ScrollView,
   Text,
-  Touchable,
   TouchableOpacity,
   View,
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
+import * as Burnt from "burnt";
 
 import { Checkbox } from "react-native-paper";
 import Icons from "../../utils/libs/constants/Icons";
@@ -41,76 +39,46 @@ const SignUp = ({ navigation }: SignUpProps) => {
   const [checked, setChecked] = useState(false);
   const [pmdcCopy, setPmdcCopy] = useState<any>(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isLoading, setIsLoading] = useState(false)
 
 
-  // const handleSignUp = async () => {
-  //   if (!name || !pmdcNumber || !email || !phoneNumber || !password || !confirmPassword || !checked || !pmdcCopy) {
-  //     Alert.alert('Please fill all the fields')
-  //     return
-  //   }
-  //   if (password !== confirmPassword) {
-  //     Alert.alert('Password and confirm password do not match')
-  //     return
-  //   }
-
-  //   const formData = new FormData();
-  //   formData.append('name', name);
-  //   formData.append('pmdcNumber', pmdcNumber);
-  //   formData.append('email', email);
-  //   formData.append('phoneNumber', phoneNumber); // match backend's field: phoneNumber
-  //   formData.append('password', password);
-
-
-  //   if (pmdcCopy?.uri) {
-  //     formData.append("pmdcCopy", {
-  //       uri: Platform.OS === "ios" ? pmdcCopy.uri.replace("file://", "") : pmdcCopy.uri,
-  //       type: pmdcCopy.type || "image/jpeg",
-  //       name: pmdcCopy.fileName || `pmdc_${Date.now()}.jpg`,
-  //     });
-  //   } else {
-  //     Alert.alert("Invalid image selected");
-  //     return;
-  //   }
-
-  //   try {
-  //     const response = await axios.post(`${API_URL}/api/auth/signup`, formData,
-  //       {
-  //         headers: {
-  //           'Content-Type': 'multipart/form-data',
-  //         },
-  //         withCredentials: true
-  //       }
-  //     )
-  //     if (response.data.success) {
-  //       Alert.alert('Sign up successful')
-  //       navigation.navigate('sign-up-completed')
-  //     } else {
-  //       Alert.alert(response.data.message)
-  //     }
-  //   } catch (err: any) {
-  //     console.error('Signup error:', err);
-  //     Alert.alert('Signup failed', err?.response?.data?.message || err.message || 'Unknown error');
-  //   }
-  // }
-
+  
   const handleSignUp = async () => {
+    if(isLoading){
+      return
+    }
+
+
+
     if (!name || !pmdcNumber || !email || !phoneNumber || !password || !confirmPassword) {
-      Alert.alert("Error", "Please fill out all fields");
+      Burnt.toast({
+        title: "Please fill out all fields",
+        preset: "error"
+      });
       return;
     }
   
     if (password !== confirmPassword) {
-      Alert.alert("Error", "Passwords do not match");
+      Burnt.toast({
+        title: "Passwords do not match",
+        preset: "error"
+      });
       return;
     }
   
     if (!checked) {
-      Alert.alert("Error", "You must agree to the terms");
+      Burnt.toast({
+        title: "You must agree to the terms",
+        preset: "error"
+      });
       return;
     }
   
     if (!pmdcCopy) {
-      Alert.alert("Error", "Please upload your PMDC copy");
+      Burnt.toast({
+        title: "Please upload your PMDC copy",
+        preset: "error"
+      });
       return;
     }
   
@@ -132,10 +100,19 @@ const SignUp = ({ navigation }: SignUpProps) => {
         headers: {
           "Content-Type": "multipart/form-data",
         },
+        withCredentials: true
       });
+      const data = response.data
   
-      if (response.data.success) {
-        Alert.alert("Success", "Account created successfully");
+      if(data.success){
+        setIsLoading(true)
+        setTimeout(()=>{
+          Burnt.toast({
+            title: "Login successful",
+            preset: "done"
+          })
+        }, 1000)
+
         navigation.navigate("sign-up-completed");
         setName("");
         setPmdc("");
@@ -146,10 +123,18 @@ const SignUp = ({ navigation }: SignUpProps) => {
         setPmdcCopy(null);
         setChecked(false);
       } else {
-        Alert.alert("Error", response.data.message || "Signup failed");
+        Burnt.toast({
+          title: response.data.message || "Signup failed",
+          preset: "error"
+        });
       }
     } catch (error: any) {
-      Alert.alert("Error", error.response?.data?.message || "Something went wrong");
+      Burnt.toast({
+        title: error.response?.data?.message || "Something went wrong",
+        preset: "error"
+      });
+    }finally{
+      setIsLoading(false)
     }
   };
   
@@ -200,24 +185,29 @@ const SignUp = ({ navigation }: SignUpProps) => {
 
           <View className="pt-10 w-[97%] mx-auto gap-4 ">
             <CustomInput
+              keyboardType="default"
               placeholder={"Name"}
               value={name}
               icon={Icons.user}
               onChange={setName}
             />
             <CustomInput
+              keyboardType="numeric"
               placeholder={"PMDC #"}
               value={pmdcNumber}
               icon={Icons.tick}
               onChange={setPmdc}
             />
             <CustomInput
+              keyboardType="email-address"
               placeholder={"Email"}
               value={email}
               icon={Icons.email}
               onChange={setEmail}
+              autoCapitalize="none"
             />
             <CustomInput
+              keyboardType="phone-pad"
               placeholder={"Phone"}
               value={phoneNumber}
               icon={Icons.phone}
@@ -232,6 +222,7 @@ const SignUp = ({ navigation }: SignUpProps) => {
             <CustomPasswordInput
               placeholder={"Confirm Password"}
               value={confirmPassword}
+             
               onChange={setConfirmPassword}
             />
             <View>
@@ -266,7 +257,11 @@ const SignUp = ({ navigation }: SignUpProps) => {
               </Text>
             </Pressable>
             <View className="my-2">
-              <CustomButton label="Sign Up" onPress={handleSignUp} />
+            <CustomButton
+            loading={isLoading}
+            label="Sign Up"
+            onPress={handleSignUp}
+            />
             </View>
           </View>
 

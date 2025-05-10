@@ -1,13 +1,13 @@
 "use client"
 
 import { useState } from "react"
-import { View, Text, ScrollView, Switch } from "react-native"
+import { View, Text, ScrollView, Switch, Alert } from "react-native"
+import { useNavigation } from "@react-navigation/native"
+import MaterialIcons from "react-native-vector-icons/MaterialIcons"
 
-import Card from "../../components/Doctor/Card"
-import TimeSlotPicker from "../../components/Doctor/TimeSlotPicker copy"
-import Button from "../../components/Doctor/Button"
-
-
+import Card from "../../../components/Doctor/Card"
+import TimeSlotPicker from "../../../components/Doctor/TimeSlotPicker"
+import Button from "../../../components/Doctor/Button"
 
 type DaySchedule = {
   day: string
@@ -21,6 +21,8 @@ type DaySchedule = {
 }
 
 const ScheduleScreen = () => {
+  const navigation = useNavigation()
+
   const [schedule, setSchedule] = useState<DaySchedule[]>([
     {
       day: "Monday",
@@ -136,22 +138,31 @@ const ScheduleScreen = () => {
 
   const handleSaveSchedule = () => {
     // In a real app, you would save to a server
-    alert("Schedule saved successfully!")
+    Alert.alert("Success", "Schedule saved successfully!")
   }
 
   return (
     <ScrollView className="flex-1 bg-gray-100">
       <View className="p-4">
         <Card>
-          <Text className="text-xl font-bold text-gray-800 mb-4">Working Schedule</Text>
-          <Text className="text-gray-600 mb-4">
-            Set your working days and available time slots for appointments.
-          </Text>
+          <View className="flex-row items-center mb-4">
+            <MaterialIcons name="schedule" size={24} color="#0891b2" />
+            <Text className="text-xl font-bold text-gray-800 ml-2">Working Schedule</Text>
+          </View>
+
+          <Text className="text-gray-600 mb-4">Set your working days and available time slots for appointments.</Text>
 
           {schedule.map((daySchedule) => (
             <View key={daySchedule.day} className="mb-6">
-              <View className="flex-row items-center justify-between mb-2">
-                <Text className="text-lg font-bold text-gray-800">{daySchedule.day}</Text>
+              <View className="flex-row items-center justify-between mb-2 bg-gray-50 p-3 rounded-lg">
+                <View className="flex-row items-center">
+                  <MaterialIcons
+                    name={daySchedule.isWorking ? "event-available" : "event-busy"}
+                    size={20}
+                    color={daySchedule.isWorking ? "#0891b2" : "#9ca3af"}
+                  />
+                  <Text className="text-lg font-bold text-gray-800 ml-2">{daySchedule.day}</Text>
+                </View>
                 <View className="flex-row items-center">
                   <Text className="mr-2 text-gray-600">{daySchedule.isWorking ? "Working" : "Off"}</Text>
                   <Switch
@@ -173,7 +184,13 @@ const ScheduleScreen = () => {
             </View>
           ))}
 
-          <Button title="Save Schedule" onPress={handleSaveSchedule} variant="primary" fullWidth />
+          <Button
+            title="Save Schedule"
+            onPress={handleSaveSchedule}
+            variant="primary"
+            fullWidth
+            icon={<MaterialIcons name="save" size={20} color="white" />}
+          />
         </Card>
       </View>
     </ScrollView>

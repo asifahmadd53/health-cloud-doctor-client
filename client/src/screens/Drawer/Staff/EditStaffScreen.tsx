@@ -4,10 +4,10 @@ import { View, ScrollView, KeyboardAvoidingView, Platform, Alert } from "react-n
 
 import { useNavigation, useRoute, type RouteProp } from "@react-navigation/native"
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack"
-import Card from "../../components/Doctor/Card"
-import FormInput from "../../components/Doctor/FormInput"
-import PhotoUpload from "../../components/Doctor/PhotoUpload"
-import Button from "../../components/Doctor/Button"
+import Card from "../../../components/Doctor/Card"
+import FormInput from "../../../components/Doctor/FormInput"
+import PhotoUpload from "../../../components/Doctor/PhotoUpload"
+import Button from "../../../components/Doctor/Button"
 import { RootStackParamList } from "./AddStaffScreen"
 
 

@@ -6,10 +6,10 @@ import { View, Text, ScrollView, Alert } from "react-native"
 import { useNavigation } from "@react-navigation/native"
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack"
 import { UserPlus } from "lucide-react-native"
-import Button from "../../components/Doctor/Button"
-import StaffCard from "../../components/Staff/StaffCard"
+import Button from "../../../components/Doctor/Button"
+import StaffCard from "../../../components/Staff/StaffCard"
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import Header from "../../components/Header"
+import Header from "../../../components/Header"
 import { SafeAreaView } from "react-native-safe-area-context"
 
 

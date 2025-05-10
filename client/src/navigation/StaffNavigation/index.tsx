@@ -1,10 +1,10 @@
 import { StyleSheet, Text, View } from 'react-native'
 import React from 'react'
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import StaffScreen from '../../screens/Staff/StaffScreen';
-import AddStaffScreen from '../../screens/Staff/AddStaffScreen';
-import EditStaffScreen from '../../screens/Staff/EditStaffScreen';
-import StaffDetailsScreen from '../../screens/Staff/StaffDetailsScreen';
+import StaffScreen from '../../screens/Drawer/Staff/StaffScreen';
+import AddStaffScreen from '../../screens/Drawer/Staff/AddStaffScreen';
+import EditStaffScreen from '../../screens/Drawer/Staff/EditStaffScreen';
+import StaffDetailsScreen from '../../screens/Drawer/Staff/StaffDetailsScreen';
 
 const StaffLayout = () => {
     const Stack = createNativeStackNavigator();

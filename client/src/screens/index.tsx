@@ -23,11 +23,9 @@ export {default as PatientDetails} from './PatientDetails';
 export {default as PreviouseData} from './PreviouseData';
 
 export {default as EConsults} from './Tabs/E-Consults';
-export {default as FollowUps} from './Tabs/Follow-Ups';
-export {default as Billing} from './Tabs/Billing';
 export {default as DashBoard} from './Tabs/Dashboard';
 
-export {default as DrProfile} from './DrProfile/ProfileScreen';
-export {default as DrSchedule} from './DrProfile/ScheduleScreen';
+export {default as DrProfile} from './Tabs/DrProfile/ProfileScreen';
+export {default as DrSchedule} from './Tabs/DrProfile/ScheduleScreen';
 
 
