@@ -64,25 +64,7 @@ const DrawerLayout = () => {
     >
       <Drawer.Screen name="Home" component={TabLayout} options={{ drawerItemStyle: { display: "none" } }} />
 
-      {/* <Drawer.Screen
-        name="Profile"
-        component={Profile}
-        options={{
-          drawerIcon: ({ color, focused }) => (
-            <View className={`w-10 h-10 items-center justify-center rounded-full ${focused ? "bg-indigo-100" : ""}`}>
-              <MaterialCommunityIcons name="account" size={24} color={color} />
-            </View>
-          ),
-          drawerLabel: ({ color }) => (
-            <View className="flex-row justify-between items-center w-full">
-              <Text className="text-lg font-semibold" style={{ color }}>
-                Profile
-              </Text>
-              <MaterialCommunityIcons name="chevron-right" size={22} color={color} />
-            </View>
-          ),
-        }}
-      /> */}
+     
 
       <Drawer.Screen
         name="Privacy"

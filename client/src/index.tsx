@@ -25,7 +25,7 @@ const RootLayout = () => {
               padding: "12px 16px",
               boxShadow: "0 4px 8px rgba(0,0,0,0.2)",
             },
-            icon: () => null, // Fully disables icon rendering
+            
           }}
         />
         <AppLayout />

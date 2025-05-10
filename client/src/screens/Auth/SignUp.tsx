@@ -112,7 +112,6 @@ const SignUp = ({ navigation }: SignUpProps) => {
             preset: "done"
           })
         }, 1000)
-
         navigation.navigate("sign-up-completed");
         setName("");
         setPmdc("");

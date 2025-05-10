@@ -164,7 +164,7 @@ const SignIn = () => {
           {/* Staff Login Button */}
           <TouchableOpacity
             activeOpacity={0.9}
-            onPress={() => navigation.navigate("staff-login")}
+            onPress={() => navigation.navigate("staffLogin")}
             className="bg-white border border-secondary w-[70%] mx-auto rounded-full py-3 h-[50px] justify-center items-center mb-8"
           >
             <Text className="text-secondary text-base font-medium">Login as Staff</Text>

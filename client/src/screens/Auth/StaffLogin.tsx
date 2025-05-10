@@ -19,6 +19,7 @@ import CustomPasswordInput from "../../components/CustomPasswordInput"
 import Icons from "../../utils/libs/constants/Icons"
 import axios from "axios"
 import { API_URL } from "../../utils/libs/constants/api/api"
+import CustomButton from "../../components/CustomButton"
 
 
 const StaffLogin = () => {
@@ -119,18 +120,13 @@ const StaffLogin = () => {
           </View>
 
           <View className="mt-6 items-center">
-            <Pressable
-            //   onPress={handleLogin}
-              className="bg-secondary w-[70%] mx-auto rounded-full py-3 md:py-5 h-[50px] justify-center items-center"
-            >
-              {isLoading ? (
-                <ActivityIndicator size="small" color="white" />
-              ) : (
-                <Animated.Text style={{ opacity: _fadeOut }} className="text-white text-xl text-center font-semibold">
-                  Login
-                </Animated.Text>
-              )}
-            </Pressable>
+            <CustomButton 
+              label="Login"
+              onPress={() => navigation.navigate("staffLayout", {
+                screen: "AppointmentList"
+              })}
+              loading={isLoading}
+            />
           </View>
 
           <View className="mx-auto mt-8 items-center gap-5">
