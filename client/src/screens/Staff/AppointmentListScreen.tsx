@@ -141,8 +141,8 @@ const AppointmentListScreen = () => {
             >
                 <MemoizedAppointmentCard
                     appointment={item}
-                    onPress={() => navigation.navigate("AppointmentDetails", { id: item.id })}
-                    onEdit={() => navigation.navigate("EditAppointment", { id: item.id })}
+                    onPress={() => navigation.navigate("AppointmentDetailsScreen" as never  , { id: item.id })}
+                    onEdit={() => navigation.navigate("EditAppointment" as never, { id: item.id })}
                     onDelete={() => handleDeleteAppointment(item.id)}
                 />
             </Animated.View>
