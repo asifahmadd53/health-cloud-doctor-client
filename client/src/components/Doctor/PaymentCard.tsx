@@ -1,8 +1,5 @@
 import type React from "react"
 import { View, Text, TouchableOpacity } from "react-native"
-
-// import { CreditCard, CheckCircle, XCircle, Clock } from "lucide-react-native"
-
 type PaymentCardProps = {
   payment: {
     id: string
