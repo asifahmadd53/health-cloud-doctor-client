@@ -74,6 +74,7 @@ const EditStaffScreen = () => {
   const [errors, setErrors] = useState<Partial<Record<keyof StaffForm, string>>>({})
   const [loading, setLoading] = useState(false)
 
+
   useEffect(() => {
     // In a real app, you would fetch staff details from an API
     const staffDetails = mockStaffDetails[staffId as keyof typeof mockStaffDetails]
