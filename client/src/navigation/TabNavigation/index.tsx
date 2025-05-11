@@ -1,7 +1,6 @@
 import React from 'react';
-import { View, Image, SafeAreaView } from 'react-native';
+import {Image, SafeAreaView } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import CustomHeader from '../../components/CustomHeader';
 import DashBoard from '../../screens/Tabs/Dashboard';
 import { EConsults, Profile } from '../../screens';
 import Icons from '../../utils/libs/constants/Icons';
