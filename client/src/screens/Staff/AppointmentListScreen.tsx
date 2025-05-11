@@ -20,7 +20,6 @@ import type { Appointment } from "../../utils/libs/types/appointment";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import React from "react";
 
-// Memoize the AppointmentCard to prevent unnecessary re-renders
 const MemoizedAppointmentCard = React.memo(AppointmentCard);
 
 const AppointmentListScreen = () => {
