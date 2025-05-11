@@ -2,11 +2,9 @@ import { createDrawerNavigator } from "@react-navigation/drawer"
 import { View, Text, Image, TouchableOpacity } from "react-native"
 import { DrawerContentScrollView, DrawerItemList } from "@react-navigation/drawer"
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons"
-import LinearGradient  from "react-native-linear-gradient"
-
 import Images from "../../utils/libs/constants/Images"
 import TabLayout from "../TabNavigation"
-import { Help, Privacy, Profile } from "../../screens"
+import { Help, Privacy } from "../../screens"
 import StaffLayout from "../StaffNavigation"
 
 const Drawer = createDrawerNavigator()
@@ -46,9 +44,6 @@ const DrawerLayout = () => {
     <Drawer.Navigator
       screenOptions={{
         headerShown: false,
-        drawerActiveBackgroundColor: "#EEF2FF", // Light indigo background
-        drawerActiveTintColor: "#4F46E5", // Indigo text
-        drawerInactiveTintColor: "#4B5563", // Gray text
         drawerLabelStyle: {
           marginLeft: -20, // Remove default left margin
           fontSize: 16,
@@ -57,25 +52,24 @@ const DrawerLayout = () => {
         drawerStyle: {
           width: 300,
         },
+        drawerActiveBackgroundColor: "transparent", 
+        drawerActiveTintColor: "#000", 
       }}
       drawerContent={(props) => <CustomDrawerContent {...props} />}
     >
       <Drawer.Screen name="Home" component={TabLayout} options={{ drawerItemStyle: { display: "none" } }} />
-
-     
-
       <Drawer.Screen
         name="Privacy"
         component={Privacy}
         options={{
           drawerIcon: ({ color, focused }) => (
-            <View className={`w-10 h-10 items-center justify-center rounded-full ${focused ? "bg-indigo-100" : ""}`}>
-              <MaterialCommunityIcons name="shield-lock" size={24} color={color} />
+            <View className={`w-10 h-10 items-center justify-center rounded-full`}>
+              <MaterialCommunityIcons name="shield-lock-outline" size={24} color={color} />
             </View>
           ),
           drawerLabel: ({ color }) => (
-            <View className="flex-row justify-between items-center w-full">
-              <Text className="text-lg font-semibold" style={{ color }}>
+            <View className="flex-row justify-between items-center w-full ">
+              <Text className="text-lg font-semibold">
                 Privacy
               </Text>
               <MaterialCommunityIcons name="chevron-right" size={22} color={color} />
@@ -89,13 +83,13 @@ const DrawerLayout = () => {
         component={Help}
         options={{
           drawerIcon: ({ color, focused }) => (
-            <View className={`w-10 h-10 items-center justify-center rounded-full ${focused ? "bg-indigo-100" : ""}`}>
-              <MaterialCommunityIcons name="help-circle" size={24} color={color} />
+            <View className={`w-10 h-10 items-center justify-center rounded-full`}>
+              <MaterialCommunityIcons name="help-circle-outline" size={24} color={color} />
             </View>
           ),
           drawerLabel: ({ color }) => (
-            <View className="flex-row justify-between items-center w-full">
-              <Text className="text-lg font-semibold" style={{ color }}>
+            <View className="flex-row justify-between items-center w-full ">
+              <Text className="text-lg font-semibold">
                 Help
               </Text>
               <MaterialCommunityIcons name="chevron-right" size={22} color={color} />
@@ -109,13 +103,13 @@ const DrawerLayout = () => {
         component={StaffLayout}
         options={{
           drawerIcon: ({ color, focused }) => (
-            <View className={`w-10 h-10 items-center justify-center rounded-full ${focused ? "bg-indigo-100" : ""}`}>
-              <MaterialCommunityIcons name="account-multiple-plus" size={24} color={color} />
+            <View className={`w-10 h-10 items-center justify-center rounded-full `}>
+              <MaterialCommunityIcons name="account-multiple-plus-outline" size={24} color={color} />
             </View>
           ),
           drawerLabel: ({ color }) => (
-            <View className="flex-row justify-between items-center w-full">
-              <Text className="text-lg font-semibold" style={{ color }}>
+            <View className="flex-row justify-between items-center w-full ">
+              <Text className="text-lg font-semibold">
                 Add Staff
               </Text>
               <MaterialCommunityIcons name="chevron-right" size={22} color={color} />
