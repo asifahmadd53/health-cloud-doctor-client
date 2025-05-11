@@ -1,5 +1,3 @@
-"use client"
-
 import { createDrawerNavigator } from "@react-navigation/drawer"
 import { View, Text, Image, TouchableOpacity } from "react-native"
 import { DrawerContentScrollView, DrawerItemList } from "@react-navigation/drawer"
