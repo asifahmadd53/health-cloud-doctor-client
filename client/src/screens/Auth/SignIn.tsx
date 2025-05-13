@@ -30,66 +30,66 @@ const SignIn = () => {
   const [isLoading, setLoading] = useState(false)
   
 
-  const handleLogin = async () => {
-    if(isLoading){
-      return
-    }
-    setLoading(true)
+  // const handleLogin = async () => {
+  //   if(isLoading){
+  //     return
+  //   }
+  //   setLoading(true)
 
-    if(!pmdcNumber){
-      setLoading(false)
-      Burnt.toast({
-        title: "Please enter your PMDC number",
-        preset: "error"
-      })
-      return
-    }
-    if(!password){
-      setLoading(false)
-      Burnt.toast({
-        title: "Please enter your password",
-        preset: "error"
-      })
-      return
-    }
-    try{
+  //   if(!pmdcNumber){
+  //     setLoading(false)
+  //     Burnt.toast({
+  //       title: "Please enter your PMDC number",
+  //       preset: "error"
+  //     })
+  //     return
+  //   }
+  //   if(!password){
+  //     setLoading(false)
+  //     Burnt.toast({
+  //       title: "Please enter your password",
+  //       preset: "error"
+  //     })
+  //     return
+  //   }
+  //   try{
       
-      const response = await axios.post(`${API_URL}/api/auth/login`, {pmdcNumber, password}, {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        withCredentials: true
-      })
+  //     const response = await axios.post(`${API_URL}/api/auth/login`, {pmdcNumber, password}, {
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //       },
+  //       withCredentials: true
+  //     })
 
-      const data = response.data
+  //     const data = response.data
       
-      if(data.success){
-        setLoading(true)
-        setTimeout(()=>{
-          Burnt.toast({
-            title: "Login successful",
-            preset: "done"
-          })
-        }, 1000)
-        // await AsyncStorage.setItem("user", JSON.stringify(data.user))
-        // await AsyncStorage.setItem("token", data.token)
-        await AsyncStorage.multiSet([
-          ["user", JSON.stringify(data.user)],
-          ["token", data.token],
-        ]);
-        navigation.navigate("drawer")
-      }
-    } catch (error) {
-      console.log(error)
-      setLoading(true)
-      Burnt.toast({
-        title: "Invalid PMDC number or password",
-        preset: "error"
-      })
-    }finally{
-      setLoading(false)
-    }
-  }
+  //     if(data.success){
+  //       setLoading(true)
+  //       setTimeout(()=>{
+  //         Burnt.toast({
+  //           title: "Login successful",
+  //           preset: "done"
+  //         })
+  //       }, 1000)
+  //       // await AsyncStorage.setItem("user", JSON.stringify(data.user))
+  //       // await AsyncStorage.setItem("token", data.token)
+  //       await AsyncStorage.multiSet([
+  //         ["user", JSON.stringify(data.user)],
+  //         ["token", data.token],
+  //       ]);
+  //       navigation.navigate("drawer")
+  //     }
+  //   } catch (error) {
+  //     console.log(error)
+  //     setLoading(true)
+  //     Burnt.toast({
+  //       title: "Invalid PMDC number or password",
+  //       preset: "error"
+  //     })
+  //   }finally{
+  //     setLoading(false)
+  //   }
+  // }
 
   return (
     <SafeAreaView className="bg-white px-4">
@@ -141,7 +141,8 @@ const SignIn = () => {
             <CustomButton
             loading={isLoading}
             label="Login"
-            onPress={handleLogin}
+            // onPress={handleLogin}
+            onPress={()=>navigation.navigate("drawer")}
             />
             </View>
           <View className="mx-auto mt-8 items-center gap-5">
