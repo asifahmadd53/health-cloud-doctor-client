@@ -1,15 +1,15 @@
-
 import { useState, useEffect } from "react"
 import { View, ScrollView, KeyboardAvoidingView, Platform, Alert } from "react-native"
-
 import { useNavigation, useRoute, type RouteProp } from "@react-navigation/native"
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack"
 import Card from "../../../components/Doctor/Card"
 import FormInput from "../../../components/Doctor/FormInput"
 import PhotoUpload from "../../../components/Doctor/PhotoUpload"
 import Button from "../../../components/Doctor/Button"
-import { RootStackParamList } from "./AddStaffScreen"
-
+import Header from "../../../components/Header"
+import axios from "axios"
+import { API_URL } from "../../../utils/libs/constants/api/api"
+import type { RootStackParamList } from "./StaffScreen"
 
 type EditStaffScreenRouteProp = RouteProp<RootStackParamList, "EditStaff">
 type EditStaffScreenNavigationProp = NativeStackNavigationProp<RootStackParamList>
@@ -23,38 +23,6 @@ interface StaffForm {
   bio: string
   profileImage: string | null
 }
-
-// Mock staff data - in a real app, you would fetch this from an API
-const mockStaffDetails = [
-  {
-    id: "1",
-    name: "Ahmed Ali",
-    role: "Nurse Practitioner",
-    email: "ahmed.ali@example.com",
-    phone: "(042) 123-4567",
-    image: null,
-  },
-  {
-    id: "2",
-    name: "Usman",
-    role: "Medical Assistant",
-    email: "usman.raza@example.com",
-    phone: "(021) 987-6543",
-    image: null,
-  },
-  {
-    id: "3",
-    name: "Bilal",
-    role: "Receptionist",
-    email: "bilal.zafar@example.com",
-    phone: "(051) 456-7890",
-    image: null,
-  },
-]
-
-
-
-
 
 const EditStaffScreen = () => {
   const navigation = useNavigation<EditStaffScreenNavigationProp>()
@@ -74,26 +42,42 @@ const EditStaffScreen = () => {
   const [errors, setErrors] = useState<Partial<Record<keyof StaffForm, string>>>({})
   const [loading, setLoading] = useState(false)
 
-
   useEffect(() => {
-    // In a real app, you would fetch staff details from an API
-    const staffDetails = mockStaffDetails[staffId as keyof typeof mockStaffDetails]
-    if (staffDetails) {
-      setForm({
-        name: staffDetails.name,
-        role: staffDetails.role,
-        email: staffDetails.email,
-        phone: staffDetails.phone,
-        address: staffDetails.address || "",
-        bio: staffDetails.bio || "",
-        profileImage: staffDetails.profileImage,
-      })
-    }
+    getStaffDetails()
   }, [staffId])
+
+  const getStaffDetails = async () => {
+    try {
+      setLoading(true)
+      const response = await axios.get(`${API_URL}/api/staff/get-staff/${staffId}`, {
+        withCredentials: true,
+      })
+
+      if (response.data && response.data.staff) {
+        const staffData = response.data.staff
+        setForm({
+          name: staffData.name || "",
+          role: staffData.role || "",
+          email: staffData.email || "",
+          phone: staffData.phone || "",
+          address: staffData.address || "",
+          bio: staffData.bio || "",
+          profileImage: staffData.profileImage || null,
+        })
+      } else {
+        Alert.alert("Error", "Received unexpected data format from server.")
+      }
+    } catch (error: any) {
+      Alert.alert("Error", "Could not load staff details. Please try again later.")
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const handleChange = (field: keyof StaffForm, value: string) => {
     setForm((prev) => ({ ...prev, [field]: value }))
     // Clear error when user types
+
     if (errors[field]) {
       setErrors((prev) => ({ ...prev, [field]: undefined }))
     }
@@ -124,19 +108,27 @@ const EditStaffScreen = () => {
       newErrors.phone = "Phone number is required"
     }
 
+   
+
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (validateForm()) {
-      setLoading(true)
-      // Simulate API call
-      setTimeout(() => {
-        setLoading(false)
+      try {
+        setLoading(true)
+        await axios.put(`${API_URL}/api/staff/update-staff/${staffId}`, form, {
+          withCredentials: true,
+        })
         Alert.alert("Success", "Staff member updated successfully!")
-        navigation.goBack()
-      }, 1000)
+        navigation.navigate<any>("Staff") 
+      } catch (error: any) {
+        console.error("Failed to update staff:", error?.response?.data?.message || error.message)
+        Alert.alert("Error", "Could not update staff member. Please try again later.")
+      } finally {
+        setLoading(false)
+      }
     }
   }
 
@@ -144,11 +136,11 @@ const EditStaffScreen = () => {
     <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} className="flex-1">
       <ScrollView className="flex-1 bg-gray-100">
         <View className="p-4">
+          <Header title="Edit Staff Member"  />
           <Card>
             <View className="items-center mb-4">
               <PhotoUpload initialImage={form.profileImage} onImageSelected={handleImageSelected} />
             </View>
-
             <FormInput
               label="Full Name"
               value={form.name}

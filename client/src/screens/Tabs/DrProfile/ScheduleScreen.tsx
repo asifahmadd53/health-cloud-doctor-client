@@ -1,5 +1,3 @@
-"use client"
-
 import { useState } from "react"
 import { View, Text, ScrollView, Switch, Alert } from "react-native"
 import { useNavigation } from "@react-navigation/native"

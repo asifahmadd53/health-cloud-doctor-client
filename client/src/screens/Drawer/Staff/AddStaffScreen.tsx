@@ -7,6 +7,8 @@ import Card from "../../../components/Doctor/Card"
 import PhotoUpload from "../../../components/Doctor/PhotoUpload"
 import FormInput from "../../../components/Doctor/FormInput"
 import Button from "../../../components/Doctor/Button"
+import axios from "axios"
+import { API_URL } from "../../../utils/libs/constants/api/api"
 
 export type RootStackParamList = {
   MainTabs: undefined
@@ -21,6 +23,7 @@ interface StaffForm {
   name: string
   role: string
   email: string
+  password: string
   phone: string
   address: string
   bio: string
@@ -36,6 +39,7 @@ const AddStaffScreen = () => {
     name: "",
     role: "",
     email: "",
+    password: "",
     phone: "",
     address: "",
     bio: "",
@@ -81,13 +85,46 @@ const AddStaffScreen = () => {
     return Object.keys(newErrors).length === 0
   }
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (validateForm()) {
-      // In a real app, you would save to a server
-      Alert.alert("Success", "Staff member added successfully!")
-      navigation.goBack()
+      try {
+        const formData = new FormData();
+  
+        formData.append("name", form.name);
+        formData.append("role", form.role);
+        formData.append("email", form.email);
+        formData.append("password", form.password);
+        formData.append("phone", form.phone);
+        formData.append("address", form.address);
+        formData.append("bio", form.bio);
+        
+        // Assuming form.profileImage is an image object from an image picker
+        if (form.profileImage) {
+          formData.append("profileImage", {
+            uri: form.profileImage,
+            name: "profile.jpg",
+            type: "image/jpeg",
+          });
+        }
+  
+        const response = await axios.post(`${API_URL}/api/staff/add-staff`, formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+          withCredentials: true,
+        });
+  
+        if (response.status === 201) {
+          Alert.alert("Success", "Staff member added successfully!");
+          navigation.goBack();
+        }
+      } catch (error) {
+        console.error(error);
+        Alert.alert("Error", "Failed to add staff member");
+      }
     }
-  }
+  };
+  
 
   return (
     <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} className="flex-1">
@@ -122,6 +159,16 @@ const AddStaffScreen = () => {
               keyboardType="email-address"
               autoCapitalize="none"
               error={errors.email}
+            />
+            <FormInput
+              label="Password"
+              value={form.password}
+              onChangeText={(value) => handleChange("password", value)}
+              placeholder="Enter password"
+              keyboardType="default"
+              autoCapitalize="none"
+              error={errors.password}
+              secureTextEntry={true}
             />
 
             <FormInput

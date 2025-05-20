@@ -1,44 +1,67 @@
-import type React from "react"
-import { View, Text } from "react-native"
+import { View, Text, Pressable } from "react-native"
+import { useNavigation } from "@react-navigation/native"
+import type { NativeStackNavigationProp } from "@react-navigation/native-stack"
+import Ionicons from "react-native-vector-icons/Ionicons"
+import type { RootStackParamList } from "../../screens/Drawer/Staff/StaffScreen"
 
+type StaffCardNavigationProp = NativeStackNavigationProp<RootStackParamList>
 
-type StatCardProps = {
-  title: string
-  value: string | number
-  icon: React.ReactNode
-  color: string
-  change?: {
-    value: number
-    isPositive: boolean
-  }
-  className?: string
+interface StaffMember {
+  _id: string
+  name: string
+  role: string
+  email: string
+  phone: string
+  image?: string | null
 }
 
+interface StaffCardProps {
+  staff: StaffMember
+  onDelete: (id: string) => void
+}
 
+const StaffCard = ({ staff, onDelete }: StaffCardProps) => {
+  const navigation = useNavigation<StaffCardNavigationProp>()
 
-const StatCard: React.FC<StatCardProps> = ({ title, value, icon, color, change, className = "" }) => {
+  const handleViewDetails = () => {
+    navigation.navigate("StaffDetails", { staffId: staff._id })
+  }
+
+  const handleEdit = () => {
+    navigation.navigate("EditStaff", { staffId: staff._id })
+  }
+
   return (
-    <View className={`bg-white rounded-xl p-4 flex-1 mx-1.5 shadow-md ${className}`}>
-      <View className="flex-row justify-between items-center mb-3">
-        <View
-          className={`w-10 h-10 rounded-full items-center justify-center bg-opacity-20`}
-          style={{ backgroundColor: `${color}20` }}
-        >
-          {icon}
+    <Pressable onPress={handleViewDetails} className="bg-white rounded-xl p-4 mb-4 shadow-sm border border-gray-100">
+      <View className="flex-row items-center">
+        <View className="w-12 h-12 rounded-full bg-cyan-50 items-center justify-center mr-4">
+          <Text className="text-xl font-bold text-cyan-600">{staff.name.charAt(0)}</Text>
         </View>
-        {change && (
-          <View className={`px-2 py-1 rounded-full ${change.isPositive ? "bg-green-100" : "bg-red-100"}`}>
-            <Text className={`text-xs font-semibold ${change.isPositive ? "text-green-600" : "text-red-600"}`}>
-              {change.isPositive ? "+" : "-"}
-              {Math.abs(change.value)}%
-            </Text>
-          </View>
-        )}
+
+        <View className="flex-1">
+          <Text className="text-lg font-semibold text-gray-800">{staff.name}</Text>
+          <Text className="text-sm text-cyan-600">{staff.role}</Text>
+          <Text className="text-xs text-gray-500">{staff.email}</Text>
+        </View>
+
+        <View className="flex-row">
+          <Pressable
+            onPress={handleEdit}
+            className="w-10 h-10 rounded-full bg-gray-50 items-center justify-center mr-2"
+          >
+            <Ionicons name="create-outline" size={20} color="#0891b2" />
+          </Pressable>
+
+          <Pressable
+            onPress={() => onDelete(staff._id)}
+            className="w-10 h-10 rounded-full bg-red-50 items-center justify-center"
+          >
+            <Ionicons name="trash-outline" size={20} color="#ef4444" />
+          </Pressable>
+        </View>
       </View>
-      <Text className="text-2xl font-bold text-gray-800 mb-1">{value}</Text>
-      <Text className="text-sm text-gray-500">{title}</Text>
-    </View>
+    </Pressable>
   )
 }
 
-export default StatCard
+export default StaffCard

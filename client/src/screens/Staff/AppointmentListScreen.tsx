@@ -131,15 +131,19 @@ const AppointmentListScreen = () => {
         [appointments, activeFilter, applyFilter],
     );
 
+   
+
     const renderAppointmentItem = useCallback(
         ({ item, index }: { item: Appointment; index: number }) => (
             <Animated.View 
                 entering={FadeInRight.delay(index * 50).duration(300)}
                 exiting={FadeOutLeft.duration(200)}
             >
+                
+
                 <MemoizedAppointmentCard
                     appointment={item}
-                    onPress={() => navigation.navigate("AppointmentDetailsScreen" as never  , { id: item.id })}
+                    onPress={() => navigation.navigate("AppointmentDetails" as never  , { id: item.id })}
                     onEdit={() => navigation.navigate("EditAppointment" as never, { id: item.id })}
                     onDelete={() => handleDeleteAppointment(item.id)}
                 />

@@ -1,42 +1,17 @@
-import { useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { View, Text, ScrollView, Alert } from "react-native"
 
-import { useNavigation } from "@react-navigation/native"
+import { useFocusEffect, useNavigation } from "@react-navigation/native"
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack"
 import Button from "../../../components/Doctor/Button"
 import StaffCard from "../../../components/Staff/StaffCard"
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Header from "../../../components/Header"
 import { SafeAreaView } from "react-native-safe-area-context"
+import { API_URL } from "../../../utils/libs/constants/api/api"
+import axios from "axios"
 
 
-// Mock staff data
-const mockStaff = [
-  {
-    id: "1",
-    name: "Ahmed Ali",
-    role: "Nurse Practitioner",
-    email: "ahmed.ali@example.com",
-    phone: "(042) 123-4567",
-    image: null,
-  },
-  {
-    id: "2",
-    name: "Usman",
-    role: "Medical Assistant",
-    email: "usman.raza@example.com",
-    phone: "(021) 987-6543",
-    image: null,
-  },
-  {
-    id: "3",
-    name: "Bilal",
-    role: "Receptionist",
-    email: "bilal.zafar@example.com",
-    phone: "(051) 456-7890",
-    image: null,
-  },
-]
 
 export type RootStackParamList = {
   MainTabs: undefined
@@ -50,7 +25,7 @@ type StaffScreenNavigationProp = NativeStackNavigationProp<RootStackParamList>
 
 const StaffScreen = () => {
   const navigation = useNavigation<StaffScreenNavigationProp>()
-  const [staff, setStaff] = useState(mockStaff)
+  const [staff, setStaff] = useState<any>([])
 
   const handleAddStaff = () => {
     navigation.navigate("AddStaff")
@@ -62,15 +37,61 @@ const StaffScreen = () => {
         text: "Cancel",
         style: "cancel",
       },
+
       {
         text: "Delete",
-        onPress: () => {
-          setStaff((prevStaff) => prevStaff.filter((member) => member.id !== id))
+        onPress: async () => {
+          try {
+            const response = await axios.delete(`${API_URL}/api/staff/delete-staff/${id}`, {
+              withCredentials: true,
+            })
+            if (response.status === 200) {
+              setStaff((prevStaff: any) => prevStaff.filter((member: any) => member._id !== id))
+              Alert.alert("Success", "Staff member deleted successfully!")
+            } else {
+              console.error("Failed to delete staff:", response.data)
+            }
+          } catch (error) {
+            console.error("Failed to delete staff:", error)
+          }
         },
         style: "destructive",
       },
     ])
   }
+  const getStaff = async () => {
+    try {
+      const response = await axios.get(`${API_URL}/api/staff/get-staff`, {
+        withCredentials: true,
+      })
+      if (response.data && response.data.staff) {
+        setStaff(response.data.staff)
+      } else {
+        console.error("Unexpected API response format:", response.data)
+        Alert.alert("Error", "Received unexpected data format from server.")
+      }
+    } catch (error) {
+      console.error("Failed to get staff:", error)
+    }
+  }
+
+  const getStaffById = async (id: string) => {
+    try {
+      const response = await axios.get(`${API_URL}/api/staff/get-staff/${id}`, {
+        withCredentials: true,
+      })
+      return response.data.staff
+    } catch (error) {
+      console.error("Failed to get staff:", error)
+    }
+  }
+
+  useFocusEffect(
+    useCallback(() => {
+      getStaff()
+    }, [])
+  )
+
 
   return (
     <SafeAreaView className="flex-1 bg-gray-100">
@@ -99,7 +120,7 @@ const StaffScreen = () => {
         </Text>
 
         {staff.length > 0 ? (
-          staff.map((member) => <StaffCard key={member.id} staff={member} onDelete={handleDeleteStaff} />)
+          staff.map((member: any) => <StaffCard key={member._id} staff={member} onDelete={()=> handleDeleteStaff(member._id)} />)
         ) : (
           <View className="bg-white rounded-xl p-6 items-center justify-center mt-4 shadow-md">
             <Text className="text-base text-gray-500 mb-4">No staff members found.</Text>

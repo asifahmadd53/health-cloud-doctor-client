@@ -1,3 +1,5 @@
+import axios from "axios";
+import { API_URL } from "../constants/api/api";
 import type { Appointment } from "../types/appointment"
 
 // Mock data for appointments
@@ -41,11 +43,14 @@ const mockAppointments: Appointment[] = [
 // Fetch all appointments
 export const fetchAppointments = async (): Promise<Appointment[]> => {
   // Simulate API call
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve(mockAppointments)
-    }, 1000)
-  })
+  const response = await axios.get(`${API_URL}/api/appointment/get-appointments`);
+   const data = response.data;
+   if (data.success) {
+    return data.appointments;
+   } else {
+    throw new Error(data.message);
+   }
+   
 }
 
 // Get appointment by ID

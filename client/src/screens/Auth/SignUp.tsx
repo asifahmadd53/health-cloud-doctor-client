@@ -48,8 +48,6 @@ const SignUp = ({ navigation }: SignUpProps) => {
       return
     }
 
-
-
     if (!name || !pmdcNumber || !email || !phoneNumber || !password || !confirmPassword) {
       Burnt.toast({
         title: "Please fill out all fields",

@@ -7,12 +7,12 @@ import type { NativeStackNavigationProp } from "@react-navigation/native-stack"
 
 type StaffCardProps = {
   staff: {
-    id: string
+    _id: string
     name: string
     role: string
     email: string
     phone: string
-    image: string | null
+    profileImage: string | null
   }
   onDelete: (id: string) => void
   className?: string
@@ -33,19 +33,19 @@ const StaffCard: React.FC<StaffCardProps> = ({ staff, onDelete, className = "" }
   const navigation = useNavigation<StaffNavigationProp>()
 
   const handleEdit = () => {
-    navigation.navigate("EditStaff", { staffId: staff.id })
+    navigation.navigate("EditStaff", { staffId: staff._id })
   }
 
   const handleView = () => {
-    navigation.navigate("StaffDetails", { staffId: staff.id })
+    navigation.navigate("StaffDetails", { staffId: staff._id })
   }
 
   return (
     <View className={`bg-white rounded-xl p-4 mb-4 shadow-md ${className}`}>
       <View className="flex-row justify-between items-center mb-3">
         <View className="flex-row items-center">
-          {staff.image ? (
-            <Image source={{ uri: staff.image }} className="w-12 h-12 rounded-full" />
+          {staff.profileImage ? (
+            <Image source={{ uri: staff.profileImage }} className="w-12 h-12 rounded-full" />
           ) : (
             <View className="w-12 h-12 rounded-full bg-gray-200 items-center justify-center">
               <Text className="text-xl font-bold text-gray-500">{staff.name.charAt(0)}</Text>
@@ -89,7 +89,7 @@ const StaffCard: React.FC<StaffCardProps> = ({ staff, onDelete, className = "" }
         </TouchableOpacity>
         <TouchableOpacity
           className="flex-row items-center py-1.5 px-3 rounded-md bg-danger-light"
-          onPress={() => onDelete(staff.id)}
+          onPress={() => onDelete(staff._id)}
         >
          <Ionicons name="trash-outline" size={16} color="#ef4444" />
 
