@@ -6,6 +6,7 @@ import { EConsults, Profile } from '../../screens';
 import Icons from '../../utils/libs/constants/Icons';
 import DrProfileLayout from '../DrProfileNavigation';
 import PaymentsScreen from '../../screens/Tabs/PaymentsScreen';
+import ScheduleScreen from '../../screens/Tabs/Shedule';
 
 
 
@@ -78,6 +79,7 @@ const TabLayout = () => {
             tabBarLabel: 'Profile',
           }}
         />
+        
       </Tab.Navigator>
     </SafeAreaView>
   );

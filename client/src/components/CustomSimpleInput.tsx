@@ -1,15 +1,23 @@
 import React from 'react';
 import { Text, View } from 'react-native';
-import { TextInput } from 'react-native-paper';
+import { TextInput, type TextInputProps } from 'react-native-paper';
 
-interface CustomSimpleInputProps {
+interface CustomSimpleInputProps extends TextInputProps {
   label: string;
   placeholder: string;
   value: string;
   onChange: (text: string) => void;
+  numberOfLines?: number;
 }
 
-const CustomSimpleInput = ({ label, placeholder, value, onChange }:CustomSimpleInputProps) => {
+const CustomSimpleInput = ({
+  label,
+  placeholder,
+  value,
+  numberOfLines,
+  onChange,
+  ...rest
+}: CustomSimpleInputProps) => {
   return (
     <View className="mb-3">
       <Text className="text-base font-semibold mb-2">{label}</Text>
@@ -17,6 +25,7 @@ const CustomSimpleInput = ({ label, placeholder, value, onChange }:CustomSimpleI
         onChangeText={onChange}
         keyboardAppearance="dark"
         placeholder={placeholder}
+        multiline={!!numberOfLines && numberOfLines > 1}
         value={value}
         mode="outlined"
         outlineColor="lightgray"
@@ -26,6 +35,7 @@ const CustomSimpleInput = ({ label, placeholder, value, onChange }:CustomSimpleI
           roundness: 12,
           colors: { placeholder: 'gray' },
         }}
+        {...rest} // Pass additional props
       />
     </View>
   );

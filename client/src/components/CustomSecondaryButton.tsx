@@ -8,6 +8,8 @@ interface ButtonProps {
   onPress?: () => void; // Allow custom onPress function
 }
 
+
+
 const CustomSecondaryButton = ({ label, link, onPress }: ButtonProps) => {
   const navigation = useNavigation();
 

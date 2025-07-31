@@ -12,9 +12,6 @@ const Drawer = createDrawerNavigator()
 const CustomDrawerContent = (props: any) => {
   return (
     <DrawerContentScrollView {...props} contentContainerStyle={{ flex: 1 }}>
-     
-       
-          
        <View className='flex-col items-center  mb-8 mt-4'>
         <Image className='w-28 h-28 md:w-36 md:h-36' source={Images.logo} />
         <Text className='font-bold text-2xl'>Health Cloud</Text>

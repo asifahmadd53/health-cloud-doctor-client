@@ -14,7 +14,7 @@ import CustomInput from "../../components/CustomInput";
 import CustomPasswordInput from "../../components/CustomPasswordInput";
 import Icons from "../../utils/libs/constants/Icons";
 import axios from "axios";
-import { API_URL } from "../../utils/libs/constants/api/api";
+import { API_URL } from "../../api/api";
 import CustomButton from "../../components/CustomButton";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
@@ -92,6 +92,9 @@ const StaffLogin = () => {
   //     );
   //   }
   // };
+
+
+
   const handleLogin = async () => {
     if (!email || !password) {
       Alert.alert("Please fill all the fields");
@@ -111,7 +114,7 @@ const StaffLogin = () => {
         duration: 250,
         useNativeDriver: false,
       }).start();
-  
+      
       const response = await axios.post(
         `${API_URL}/api/staff/login-staff`,
         { email, password },
@@ -120,39 +123,33 @@ const StaffLogin = () => {
           withCredentials: true,
         }
       );
-  
+
       if (response.data.success) {
-        const token = response.data.token;
-        const staffId = response.data.staff._id;
-  
-        // ✅ Save token and staffId
-        await AsyncStorage.setItem("staffToken", token);
-        await AsyncStorage.setItem("staffId", staffId);
-  
-        // ✅ Show confirmation alert
-        Alert.alert("Login Successful", `Token and Staff ID saved:\nToken: ${token}\nStaff ID: ${staffId}`);
-  
-        // Navigate to staff layout
+        const { token, staff } = response.data;
+        
+        // Store both token and staff data
+        await AsyncStorage.multiSet([
+          ["token", token],
+          ["staffId", staff._id],
+          ["staffData", JSON.stringify(staff)]
+        ]);
+        
+        // Navigate without showing sensitive data in alert
         navigation.navigate("staffLayout", {
           screen: "AppointmentList",
-          params: { token, staff: response.data.staff },
         });
-  
-        setLoading(false);
       } else {
         Alert.alert(response.data.message || "Login failed");
-        setLoading(false);
       }
     } catch (error: any) {
+      const errorMessage = error.response?.data?.message || 
+                          error.message || 
+                          "Login failed. Please try again.";
+      Alert.alert("Error", errorMessage);
+    } finally {
       setLoading(false);
-      Alert.alert(
-        error.response?.data?.message ||
-        error.message ||
-        "Something went wrong. Please try again."
-      );
     }
   };
-  
   return (
     <SafeAreaView className="bg-white px-4">
       <ScrollView className="flex-grow min-h-full pb-5">
@@ -199,7 +196,6 @@ const StaffLogin = () => {
           <View className="mt-6 items-center">
             <CustomButton label="Login" onPress={handleLogin} loading={isLoading} />
           </View>
-
           <View className="mx-auto mt-8 items-center gap-5">
             <Text className="text-[#253237] text-base font-medium">
               Need a staff account?

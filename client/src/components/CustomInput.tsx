@@ -1,12 +1,20 @@
-"use client"
-
-import { StyleSheet, Image, View, type ImageSourcePropType } from "react-native"
-import { TextInput, HelperText } from "react-native-paper"
+import { View } from "react-native"
+import { Input } from "@rneui/themed"
 import type { TextInputProps } from "react-native-paper"
+import { useState } from "react"
+import Icon from "react-native-vector-icons/Ionicons"
 
-interface CustomInputProps extends Omit<TextInputProps, "theme" | "left" | "right" | "onChange"> {
+export interface CustomInputProps
+  extends Omit<TextInputProps, "theme" | "left" | "right" | "onChange"> {
+  label?: string
   placeholder: string
-  icon: ImageSourcePropType
+  icon?: string
+  iconStyle?: {
+    size?: number
+    color?: string
+    focusColor?: string // ✅ New color on focus
+    marginRight?: number
+  }
   value: string
   onChange: (text: string) => void
   error?: string
@@ -24,8 +32,15 @@ interface CustomInputProps extends Omit<TextInputProps, "theme" | "left" | "righ
 }
 
 const CustomInput = ({
+  label,
   placeholder,
   icon,
+  iconStyle = {
+    size: 20,
+    color: "gray",
+    focusColor: "#2895cb",
+    marginRight: 8,
+  },
   value,
   onChange,
   error,
@@ -34,58 +49,61 @@ const CustomInput = ({
   autoCapitalize = "sentences",
   ...rest
 }: CustomInputProps) => {
+  const [isFocused, setIsFocused] = useState(false)
+
   return (
-    <View>
-      <TextInput
-        onChangeText={onChange}
-        keyboardAppearance="dark" // Keeping original dark keyboard
-        placeholder={placeholder}
-        value={value}
-        mode="outlined"
-        outlineColor={ "#e5e5e5"} // Lighter gray for default state
-        activeOutlineColor={"#9ca3af"} // Darker gray for active state
-        left={<TextInput.Icon icon={() => <Image source={icon} style={styles.iconStyle} />} />}
-        style={styles.input}
-        keyboardType={keyboardType}
-        secureTextEntry={secureTextEntry}
-        autoCapitalize={autoCapitalize}
-        cursorColor="black"
-        placeholderTextColor="gray"
-        theme={{
-          roundness: 12,
-          colors: {
-           
-            text: "#000", // Keeping original black text
-            error: "#ef4444",
-          },
-        }}
-        error={!!error}
-        {...rest}
-      />
-      {/* {error ? (
-        <HelperText type="error" visible={!!error} style={styles.errorText}>
-          {error}
-        </HelperText>
-      ) : null} */}
-    </View>
+    <Input
+      label={label}
+      labelStyle={{
+        fontSize: 14,
+        fontWeight: "400",
+        marginBottom: 8,
+        color: "black",
+      }}
+      placeholder={placeholder}
+      value={value}
+      onChangeText={onChange}
+      onFocus={() => setIsFocused(true)}
+      onBlur={() => setIsFocused(false)}
+      cursorColor="#2895cb"
+      keyboardType={keyboardType}
+      secureTextEntry={secureTextEntry}
+      autoCapitalize={autoCapitalize}
+      leftIcon={
+        icon ? (
+          <View style={{ marginRight: iconStyle.marginRight ?? 8 }}>
+            <Icon
+              name={icon}
+              size={iconStyle.size ?? 20}
+              color={isFocused ? iconStyle.focusColor : iconStyle.color}
+            />
+          </View>
+        ) : undefined
+      }
+      inputContainerStyle={{
+        borderRadius: 7,
+        backgroundColor: "#fff",
+        borderWidth: 1,
+        borderColor: isFocused ? "#2895cb" : "#d1d5db",
+        paddingHorizontal: 10,
+        paddingVertical: 2,
+      }}
+      inputStyle={{
+        fontSize: 16,
+        color: "black",
+      }}
+      containerStyle={{
+        paddingHorizontal: 0,
+        paddingVertical: 0,
+        marginBottom: 0,
+        marginLeft: 0,
+        marginRight: 0,
+      }}
+      errorMessage={error}
+      placeholderTextColor="#9ca3af"
+      {...rest}
+    />
   )
 }
 
 export default CustomInput
-
-const styles = StyleSheet.create({
-  input: {
-    backgroundColor: "white",
-    fontSize: 16,
-  },
-  iconStyle: {
-    width: 20,
-    height: 20,
-    resizeMode: "contain",
-  },
-  errorText: {
-    marginTop: -4,
-    marginBottom: 4,
-    fontSize: 12,
-  },
-})

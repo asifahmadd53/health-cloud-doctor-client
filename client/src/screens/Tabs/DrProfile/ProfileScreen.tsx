@@ -12,16 +12,13 @@ import {
 import { useNavigation } from "@react-navigation/native"
 import MaterialIcons from "react-native-vector-icons/MaterialIcons"
 import PhotoUpload from "../../../components/Doctor/PhotoUpload"
-import Button from "../../../components/Doctor/Button"
-import Card from "../../../components/Doctor/Card"
+import CustomSimpleInput from "../../../components/CustomSimpleInput"
 import FormInput from "../../../components/Doctor/FormInput"
+import CustomPasswordInput from "../../../components/CustomPasswordInput"
 
 const ProfileScreen = () => {
   const navigation = useNavigation()
-  const newPasswordRef = useRef<RNTextInput>(null)
-  const confirmPasswordRef = useRef<RNTextInput>(null)
 
-  // State for profile data
   const [profile, setProfile] = useState({
     name: "Dr. Sarah Johnson",
     specialty: "Cardiologist",
@@ -50,7 +47,6 @@ const ProfileScreen = () => {
   // Password strength calculation
   const calculatePasswordStrength = (password: string) => {
     if (!password) return 0
-
     let strength = 0
     // Length check
     if (password.length >= 8) strength += 0.25
@@ -60,37 +56,19 @@ const ProfileScreen = () => {
     if (/[a-z]/.test(password)) strength += 0.25
     // Contains number or special char
     if (/[0-9!@#$%^&*(),.?":{}|<>]/.test(password)) strength += 0.25
-
     return strength
   }
 
   const passwordStrength = calculatePasswordStrength(passwordData.newPassword)
 
-  const getPasswordStrengthLabel = () => {
-    if (passwordStrength === 0) return "No password"
-    if (passwordStrength <= 0.25) return "Weak"
-    if (passwordStrength <= 0.5) return "Fair"
-    if (passwordStrength <= 0.75) return "Good"
-    return "Strong"
-  }
 
-  const getPasswordStrengthColor = () => {
-    if (passwordStrength === 0) return "#e5e7eb"
-    if (passwordStrength <= 0.25) return "#ef4444"
-    if (passwordStrength <= 0.5) return "#f59e0b"
-    if (passwordStrength <= 0.75) return "#10b981"
-    return "#10b981"
-  }
 
   // Handle profile field changes
   const handleChange = (field: string, value: string) => {
     setProfile((prev) => ({ ...prev, [field]: value }))
   }
 
-  // Handle password field changes
-  const handlePasswordChange = (field: string, value: string) => {
-    setPasswordData((prev) => ({ ...prev, [field]: value }))
-  }
+
 
   // Handle image selection
   const handleImageSelected = (uri: string) => {
@@ -109,17 +87,14 @@ const ProfileScreen = () => {
       Alert.alert("Error", "Please enter your current password")
       return
     }
-
     if (!passwordData.newPassword) {
       Alert.alert("Error", "Please enter a new password")
       return
     }
-
     if (passwordData.newPassword !== passwordData.confirmPassword) {
       Alert.alert("Error", "New passwords don't match")
       return
     }
-
     if (passwordStrength < 0.5) {
       Alert.alert(
         "Weak Password",
@@ -144,264 +119,184 @@ const ProfileScreen = () => {
 
   return (
     <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} className="flex-1">
-      <ScrollView className="flex-1 bg-gray-100">
-        <View className="p-4">
-          {/* Profile Card */}
-          <Card>
+      <ScrollView className="flex-1 px-5 bg-slate-50" showsVerticalScrollIndicator={false}>
+        {/* Premium Header */}
+        <View className="bg-white pt-16 pb-10">
+          <View className="px-8">
             <View className="items-center">
-              <PhotoUpload initialImage={profile.profileImage} onImageSelected={handleImageSelected} />
-              <Text className="text-2xl font-bold text-gray-800 mb-1">{profile.name}</Text>
-              <Text className="text-cyan-600 font-medium mb-4">{profile.specialty}</Text>
-
-              <View className="w-full mb-2">
-                <Button
-                  title="Manage Schedule"
+              <View className="mb-3">
+                <PhotoUpload initialImage={profile.profileImage} onImageSelected={handleImageSelected} />
+              </View>
+              <Text className="text-3xl font-bold text-slate-900 mb-2">{profile.name}</Text>
+              <View className="bg-slate-100 px-4 py-2 rounded-full mb-8">
+                <Text className="text-base font-semibold text-slate-600">{profile.specialty}</Text>
+              </View>
+              <View className="w-full max-w-sm">
+                <TouchableOpacity
                   onPress={navigateToSchedule}
-                  variant="primary"
-                  fullWidth
-                  icon={<MaterialIcons name="schedule" size={20} color="white" />}
-                />
+                  className="bg-slate-900 py-4 px-6 rounded-2xl flex-row items-center justify-center shadow-lg"
+                >
+                  <MaterialIcons name="schedule" size={20} color="white" />
+                  <Text className="text-white text-base font-semibold ml-2">Manage Schedule</Text>
+                </TouchableOpacity>
               </View>
             </View>
-          </Card>
+          </View>
+        </View>
 
-          {/* Personal Information */}
-          <Card className="mt-4">
-            <View className="flex-row items-center mb-4">
-              <MaterialIcons name="person" size={24} color="#0891b2" />
-              <Text className="text-xl font-bold text-gray-800 ml-2">Personal Information</Text>
+        <View className="px-1 mt-6">
+          {/* Professional Information */}
+          <View className="mb-8">
+            <View className="mb-5">
+              <Text className="text-xl font-bold text-slate-900 mb-1">Professional Information</Text>
+              <Text className="text-sm text-slate-500">Manage your professional credentials and experience</Text>
             </View>
 
-            <FormInput label="Full Name" value={profile.name} onChangeText={(value) => handleChange("name", value)} />
+            <View className="bg-white rounded-3xl p-2 shadow-sm border border-slate-100">
+              <View className="space-y-6">
+                <View>
+                 
+                  
+                    <FormInput
+                      label="Full Name"
+                      value={profile.name}
+                    />
+                 
+                </View>
 
-            <FormInput
-              label="Specialty"
-              value={profile.specialty}
-              onChangeText={(value) => handleChange("specialty", value)}
-            />
+                <View className="flex-row space-x-4">
+                  <View className="flex-1 mr-2">
+                      <FormInput
+                        label="Specialty"
+                        value={profile.specialty}
+                      />
+                  </View>
+                  <View className="w-32">
 
-            <FormInput
-              label="Years of Experience"
-              value={profile.experience}
-              keyboardType="numeric"
-              onChangeText={(value) => handleChange("experience", value)}
-            />
+                      <FormInput
+                        label="Years"
+                        value={profile.experience}
+                        onChange={()=>''}
+                        placeholder=""
+                        keyboardType="numeric"
+                        className="text-base text-slate-900 font-medium"
+                        placeholderTextColor="#94a3b8"
+                      />
+                    
+                  </View>
+                </View>
 
-            <FormInput
-              label="License Number"
-              value={profile.licenseNumber}
-              onChangeText={(value) => handleChange("licenseNumber", value)}
-            />
+                <View>
+                  
+                    <FormInput
+                      value={profile.licenseNumber}
+                      label="PMDC #"
+                      placeholderTextColor="#94a3b8"
+                    />
+                </View>
 
-            <FormInput
-              label="Certifications"
-              value={profile.certifications}
-              multiline
-              numberOfLines={3}
-              onChangeText={(value) => handleChange("certifications", value)}
-            />
+                <View>
+                
+                  
+                    <FormInput
+                      label="Certifications"
+                      value={profile.certifications}
+                      multiline
+                      numberOfLines={4}
+                      
+                      className="text-base text-slate-900 font-medium min-h-20 "
+                      placeholderTextColor="#94a3b8"
+                    />
 
-            <FormInput
-              label="Professional Bio"
-              value={profile.bio}
-              multiline
-              numberOfLines={4}
-              onChangeText={(value) => handleChange("bio", value)}
-            />
-          </Card>
+                </View>
+
+                <View>
+                 
+                
+                    <FormInput
+                      label=" Professional Bio"
+                      value={profile.bio}
+                      onChangeText={(value) => handleChange("bio", value)}
+                      multiline
+                      numberOfLines={4}
+                      className="text-base text-slate-900 font-medium"
+                      placeholderTextColor="#94a3b8"
+                    />
+                 
+                </View>
+              </View>
+            </View>
+          </View>
 
           {/* Contact Information */}
-          <Card className="mt-4">
-            <View className="flex-row items-center mb-4">
-              <MaterialIcons name="contact-phone" size={24} color="#0891b2" />
-              <Text className="text-xl font-bold text-gray-800 ml-2">Contact Information</Text>
+          <View className="mb-8">
+            <View className="mb-5">
+              <Text className="text-xl font-bold text-slate-900 mb-1">Contact Information</Text>
+              <Text className="text-sm text-slate-500">Update your contact details and clinic information</Text>
             </View>
 
-            <View className="flex-row items-start mb-4">
-              <View className="w-10 h-10 rounded-full bg-cyan-50 items-center justify-center mt-2">
-                <MaterialIcons name="email" size={20} color="#0891b2" />
-              </View>
-              <View className="ml-3 flex-1">
-                <FormInput
-                  label="Email"
-                  value={profile.email}
-                  keyboardType="email-address"
-                  autoCapitalize="none"
-                  onChangeText={(value) => handleChange("email", value)}
-                  className="mb-0"
-                />
-              </View>
-            </View>
-
-            <View className="flex-row items-start mb-4">
-              <View className="w-10 h-10 rounded-full bg-cyan-50 items-center justify-center mt-2">
-                <MaterialIcons name="phone" size={20} color="#0891b2" />
-              </View>
-              <View className="ml-3 flex-1">
-                <FormInput
-                  label="Phone Number"
-                  value={profile.phone}
-                  keyboardType="phone-pad"
-                  onChangeText={(value) => handleChange("phone", value)}
-                  className="mb-0"
-                />
-              </View>
-            </View>
-
-            <View className="flex-row items-start mb-4">
-              <View className="w-10 h-10 rounded-full bg-cyan-50 items-center justify-center mt-2">
-                <MaterialIcons name="location-on" size={20} color="#0891b2" />
-              </View>
-              <View className="ml-3 flex-1">
-                <FormInput
-                  label="Clinic Address"
-                  value={profile.clinicAddress}
-                  multiline
-                  numberOfLines={2}
-                  onChangeText={(value) => handleChange("clinicAddress", value)}
-                  className="mb-0"
-                />
-              </View>
-            </View>
-          </Card>
-
-          {/* Password Management */}
-          <Card className="mt-4">
-            <View className="flex-row items-center mb-4">
-              <MaterialIcons name="security" size={24} color="#0891b2" />
-              <Text className="text-xl font-bold text-gray-800 ml-2">Password Management</Text>
-            </View>
-
-            <Text className="text-gray-600 mb-4">Update your password regularly to keep your account secure.</Text>
-
-            {/* Current Password */}
-            <View className="mb-4">
-              <Text className="text-gray-700 font-medium mb-1.5">Current Password</Text>
-              <View className="flex-row items-center border border-gray-200 rounded-lg bg-gray-50 overflow-hidden">
-                <TextInput
-                  value={passwordData.currentPassword}
-                  onChangeText={(value) => handlePasswordChange("currentPassword", value)}
-                  secureTextEntry={!showCurrentPassword}
-                  placeholder="Enter current password"
-                  className="flex-1 p-4 text-gray-800"
-                  placeholderTextColor="#9ca3af"
-                  returnKeyType="next"
-                  onSubmitEditing={() => newPasswordRef.current?.focus()}
-                />
-                <TouchableOpacity onPress={() => setShowCurrentPassword(!showCurrentPassword)} className="px-4">
-                  <MaterialIcons
-                    name={showCurrentPassword ? "visibility-off" : "visibility"}
-                    size={24}
-                    color="#6b7280"
-                  />
-                </TouchableOpacity>
-              </View>
-            </View>
-
-            {/* New Password */}
-            <View className="mb-4">
-              <Text className="text-gray-700 font-medium mb-1.5">New Password</Text>
-              <View className="flex-row items-center border border-gray-200 rounded-lg bg-gray-50 overflow-hidden">
-                <TextInput
-                  ref={newPasswordRef}
-                  value={passwordData.newPassword}
-                  onChangeText={(value) => handlePasswordChange("newPassword", value)}
-                  secureTextEntry={!showNewPassword}
-                  placeholder="Enter new password"
-                  className="flex-1 p-4 text-gray-800"
-                  placeholderTextColor="#9ca3af"
-                  returnKeyType="next"
-                  onSubmitEditing={() => confirmPasswordRef.current?.focus()}
-                />
-                <TouchableOpacity onPress={() => setShowNewPassword(!showNewPassword)} className="px-4">
-                  <MaterialIcons name={showNewPassword ? "visibility-off" : "visibility"} size={24} color="#6b7280" />
-                </TouchableOpacity>
-              </View>
-
-              {/* Password strength indicator */}
-              {passwordData.newPassword ? (
-                <View className="mt-2">
-                  <View className="flex-row justify-between mb-1">
-                    <Text className="text-xs text-gray-500">Password Strength</Text>
-                    <Text className="text-xs font-medium" style={{ color: getPasswordStrengthColor() }}>
-                      {getPasswordStrengthLabel()}
-                    </Text>
+            <View className="bg-white rounded-3xl p-1 shadow-sm border border-slate-100">
+              <View className="space-y-7">
+                {/* Email */}
+                <View>
+                  <View className="flex-row items-center mb-3">
+                    
                   </View>
-                  <View className="h-1 bg-gray-200 rounded-full overflow-hidden">
-                    <View
-                      className="h-full"
-                      style={{
-                        width: `${passwordStrength * 100}%`,
-                        backgroundColor: getPasswordStrengthColor(),
-                      }}
+                  
+                    <FormInput
+                      value={profile.email}
+                      label="Email"
+                      keyboardType="email-address"
+                      autoCapitalize="none"
+                      className="text-base text-slate-900 font-medium"
+                      placeholderTextColor="#94a3b8"
                     />
-                  </View>
+                  
                 </View>
-              ) : null}
-            </View>
 
-            {/* Confirm Password */}
-            <View className="mb-4">
-              <Text className="text-gray-700 font-medium mb-1.5">Confirm New Password</Text>
-              <View className="flex-row items-center border border-gray-200 rounded-lg bg-gray-50 overflow-hidden">
-                <TextInput
-                  ref={confirmPasswordRef}
-                  value={passwordData.confirmPassword}
-                  onChangeText={(value) => handlePasswordChange("confirmPassword", value)}
-                  secureTextEntry={!showConfirmPassword}
-                  placeholder="Confirm new password"
-                  className="flex-1 p-4 text-gray-800"
-                  placeholderTextColor="#9ca3af"
-                />
-                <TouchableOpacity onPress={() => setShowConfirmPassword(!showConfirmPassword)} className="px-4">
-                  <MaterialIcons
-                    name={showConfirmPassword ? "visibility-off" : "visibility"}
-                    size={24}
-                    color="#6b7280"
-                  />
-                </TouchableOpacity>
+                {/* Phone */}
+                <View>
+                    <FormInput
+                      label="Phone Number"
+                      value={profile.phone}
+                      onChangeText={(value) => handleChange("phone", value)}
+                      keyboardType="phone-pad"
+                      className="text-base text-slate-900 font-medium"
+                      placeholderTextColor="#94a3b8"
+                    />
+                 
+                </View>
+
+                {/* Address */}
+                <View>
+                 
+                  
+                    <FormInput
+                      label="Clinic Address"
+                      value={profile.clinicAddress}
+                      onChangeText={(value) => handleChange("clinicAddress", value)}
+                      multiline
+                      numberOfLines={4}
+                      className="text-base text-slate-900 font-medium"
+                      placeholderTextColor="#94a3b8"
+                    />
+                </View>
               </View>
-
-              {/* Password match indicator */}
-              {passwordData.newPassword && passwordData.confirmPassword && (
-                <View className="flex-row items-center mt-1">
-                  <MaterialIcons
-                    name={passwordData.newPassword === passwordData.confirmPassword ? "check-circle" : "error"}
-                    size={16}
-                    color={passwordData.newPassword === passwordData.confirmPassword ? "#10b981" : "#ef4444"}
-                  />
-                  <Text
-                    className="text-xs ml-1"
-                    style={{
-                      color: passwordData.newPassword === passwordData.confirmPassword ? "#10b981" : "#ef4444",
-                    }}
-                  >
-                    {passwordData.newPassword === passwordData.confirmPassword
-                      ? "Passwords match"
-                      : "Passwords don't match"}
-                  </Text>
-                </View>
-              )}
             </View>
+          </View>
 
-            <Button
-              title="Update Password"
-              onPress={handleUpdatePassword}
-              variant="primary"
-              icon={<MaterialIcons name="lock" size={20} color="white" />}
-            />
-          </Card>
+          {/* Security & Privacy */}
+         
 
-          {/* Save Button */}
-          <View className="mt-6 mb-8">
-            <Button
-              title="Save Profile Changes"
+          {/* Save Changes */}
+          <View className="mb-5">
+            <TouchableOpacity
               onPress={handleSave}
-              variant="primary"
-              fullWidth
-              className="shadow-sm"
-              icon={<MaterialIcons name="save" size={20} color="white" />}
-            />
+              className="bg-slate-900 py-5 px-8 rounded-2xl flex-row items-center justify-center shadow-xl"
+            >
+              <MaterialIcons name="save" size={24} color="white" />
+              <Text className="text-white text-lg font-bold ml-3">Save All Changes</Text>
+            </TouchableOpacity>
           </View>
         </View>
       </ScrollView>

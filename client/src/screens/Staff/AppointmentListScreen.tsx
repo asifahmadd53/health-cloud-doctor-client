@@ -15,7 +15,7 @@ import AppointmentCard from "../../components/Staff/AppointmentCard";
 import SearchBar from "../../components/Staff/SearchBar";
 import EmptyState from "../../components/Staff/EmptyState";
 import FilterChip from "../../components/Staff/FilterChip";
-import { fetchAppointments } from "../../utils/libs/services/appointmentService";
+import { deleteAppointment, fetchAppointments } from "../../utils/libs/services/appointmentService";
 import type { Appointment } from "../../utils/libs/types/appointment";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import React from "react";
@@ -117,12 +117,18 @@ const AppointmentListScreen = () => {
                     {
                         text: "Delete",
                         style: "destructive",
-                        onPress: () => {
-                            const updatedAppointments = appointments.filter(
-                                (appointment) => appointment.id !== id,
-                            );
-                            setAppointments(updatedAppointments);
-                            applyFilter(activeFilter, updatedAppointments);
+                        onPress: async () => {
+                            try {
+                                await deleteAppointment(id);
+                                const updatedAppointments = appointments.filter(
+                                    (appointment) => appointment.id !== id,
+                                );
+                                setAppointments(updatedAppointments);
+                                applyFilter(activeFilter, updatedAppointments);
+                            } catch (error) {
+                                Alert.alert("Error", "Failed to delete appointment");
+                                console.error(error);
+                            }
                         },
                     },
                 ],
@@ -139,13 +145,11 @@ const AppointmentListScreen = () => {
                 entering={FadeInRight.delay(index * 50).duration(300)}
                 exiting={FadeOutLeft.duration(200)}
             >
-                
-
                 <MemoizedAppointmentCard
                     appointment={item}
-                    onPress={() => navigation.navigate("AppointmentDetails" as never  , { id: item.id })}
-                    onEdit={() => navigation.navigate("EditAppointment" as never, { id: item.id })}
-                    onDelete={() => handleDeleteAppointment(item.id)}
+                    onPress={() => navigation.navigate("AppointmentDetails" as never, { id: item._id })}
+                    onEdit={() => navigation.navigate("EditAppointment" as never, { id: item._id })}    
+                    onDelete={() => handleDeleteAppointment(item._id)}
                 />
             </Animated.View>
         ),
@@ -194,6 +198,7 @@ const AppointmentListScreen = () => {
                 </View>
             ) : (
                 <FlatList className="mt-3"
+                    key={filteredAppointments.length}
                     data={filteredAppointments}
                     keyExtractor={(item) => item.id}
                     renderItem={renderAppointmentItem}

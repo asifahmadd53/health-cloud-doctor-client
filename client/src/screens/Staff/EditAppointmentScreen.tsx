@@ -13,7 +13,6 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { RadioButton } from "react-native-paper";
 import { useNavigation, useRoute } from "@react-navigation/native";
-import { Calendar } from 'react-native-calendars'
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import FormInput from "../../components/Doctor/FormInput";
 import CustomButton from "../../components/CustomButton";
@@ -25,6 +24,7 @@ import {
   updateAppointment,
 } from "../../utils/libs/services/appointmentService";
 import RNDateTimePicker from "@react-native-community/datetimepicker";
+
 
 const EditAppointmentScreen = () => {
   const navigation = useNavigation();
@@ -41,7 +41,7 @@ const EditAppointmentScreen = () => {
   const [paymentMethod, setPaymentMethod] = useState<"cash" | "online" | null>(
     null
   );
-  const [age, setAge] = useState("");
+  const [age, setAge] = useState(Number);
   const [reason, setReason] = useState("");
 
   // Date and time pickers
@@ -58,21 +58,22 @@ const EditAppointmentScreen = () => {
     try {
       setInitialLoading(true);
       const appointment = await getAppointmentById(id);
+      
+      if(appointment.patientName){
+        setName(appointment.patientName)
+        setCnic(appointment.patientCNIC)
+        setMobile(appointment.patientPhone)
+        setAge(appointment.patientAge)
+        setGender(appointment.gender)
+        setPaymentMethod(appointment.paymentStatus)
+      }
+      
       if (appointment) {
-        // Populate form with appointment data
-        setName(appointment.patientName);
-        setCnic(appointment.cnic || "");
-        setMobile(appointment.contactNumber);
-        setGender(appointment.gender as "male" | "female");
-        setPaymentMethod(appointment.paymentMethod as "cash" | "online");
-        setAge(appointment.age.toString());
-        setReason(appointment.reason || "");
-
         // Set date and time
         if (appointment.date) {
           setDate(new Date(appointment.date));
         }
-
+  
         if (appointment.time) {
           const [hours, minutes] = appointment.time.split(":");
           const timeDate = new Date();
@@ -90,50 +91,49 @@ const EditAppointmentScreen = () => {
       setInitialLoading(false);
     }
   };
-
+  
   // Form validation
-  const validateForm = () => {
-    if (!name.trim()) {
-      Alert.alert("Error", "Patient name is required");
-      return false;
-    }
+  // const validateForm = () => {
+  //   if (!name.trim()) {
+  //     Alert.alert("Error", "Patient name is required");
+  //     return false;
+  //   }
 
-    if (!mobile.trim()) {
-      Alert.alert("Error", "Mobile number is required");
-      return false;
-    }
+  //   if (!mobile.trim()) {
+  //     Alert.alert("Error", "Mobile number is required");
+  //     return false;
+  //   }
 
-    if (!age.trim()) {
-      Alert.alert("Error", "Age is required");
-      return false;
-    }
+  //   if (!age.trim()) {
+  //     Alert.alert("Error", "Age is required");
+  //     return false;
+  //   }
 
-    if (!gender) {
-      Alert.alert("Error", "Please select gender");
-      return false;
-    }
+  //   if (!gender) {
+  //     Alert.alert("Error", "Please select gender");
+  //     return false;
+  //   }
 
-    if (!date) {
-      Alert.alert("Error", "Please select appointment date");
-      return false;
-    }
+  //   if (!date) {
+  //     Alert.alert("Error", "Please select appointment date");
+  //     return false;
+  //   }
 
-    if (!time) {
-      Alert.alert("Error", "Please select appointment time");
-      return false;
-    }
+  //   if (!time) {
+  //     Alert.alert("Error", "Please select appointment time");
+  //     return false;
+  //   }
 
-    if (!paymentMethod) {
-      Alert.alert("Error", "Please select payment method");
-      return false;
-    }
+  //   if (!paymentMethod) {
+  //     Alert.alert("Error", "Please select payment method");
+  //     return false;
+  //   }
 
-    return true;
-  };
+  //   return true;
+  // };
 
   // Handle form submission
   const handleSubmit = async () => {
-    if (!validateForm()) return;
     setLoading(true);
 
     try {

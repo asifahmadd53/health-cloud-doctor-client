@@ -8,7 +8,7 @@ import StaffCard from "../../../components/Staff/StaffCard"
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Header from "../../../components/Header"
 import { SafeAreaView } from "react-native-safe-area-context"
-import { API_URL } from "../../../utils/libs/constants/api/api"
+import { API_URL } from "../../../api/api"
 import axios from "axios"
 
 

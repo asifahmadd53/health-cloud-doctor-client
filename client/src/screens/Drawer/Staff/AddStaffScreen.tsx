@@ -8,7 +8,7 @@ import PhotoUpload from "../../../components/Doctor/PhotoUpload"
 import FormInput from "../../../components/Doctor/FormInput"
 import Button from "../../../components/Doctor/Button"
 import axios from "axios"
-import { API_URL } from "../../../utils/libs/constants/api/api"
+import { API_URL } from "../../../api/api"
 
 export type RootStackParamList = {
   MainTabs: undefined

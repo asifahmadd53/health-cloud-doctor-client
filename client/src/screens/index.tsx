@@ -24,8 +24,9 @@ export {default as PreviouseData} from './PreviouseData';
 
 export {default as EConsults} from './Tabs/E-Consults';
 export {default as DashBoard} from './Tabs/Dashboard';
+export {default as PaymentScreen } from './Tabs/PaymentsScreen'
 
 export {default as DrProfile} from './Tabs/DrProfile/ProfileScreen';
-export {default as DrSchedule} from './Tabs/DrProfile/ScheduleScreen';
+
 
 

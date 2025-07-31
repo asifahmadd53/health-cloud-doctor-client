@@ -1,116 +1,162 @@
-import axios from "axios";
-import { API_URL } from "../constants/api/api";
-import type { Appointment } from "../types/appointment"
+import axios from 'axios';
+import { API_URL } from '../../../api/api';
+import type { Appointment } from '../types/appointment';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Alert } from 'react-native';
 
-// Mock data for appointments
-const mockAppointments: Appointment[] = [
-  {
-    id: "1",
-    patientName: "Ahmed Ali",
-    age: 35,
-    gender: "male",
-    contactNumber: "0300-1234567",
-    date: "2025-05-15",
-    time: "10:00",
-    reason: "Regular checkup",
-    paymentMethod: "cash",
-    cnic: "12345-6789012-3",
-  },
-  {
-    id: "2",
-    patientName: "Fatima Khan",
-    age: 28,
-    gender: "female",
-    contactNumber: "0321-9876543",
-    date: "2025-05-10",
-    time: "14:30",
-    reason: "Fever and cough",
-    paymentMethod: "online",
-  },
-  {
-    id: "3",
-    patientName: "Muhammad Usman",
-    age: 42,
-    gender: "male",
-    contactNumber: "0333-5556667",
-    date: "2025-05-12",
-    time: "09:15",
-    reason: "Follow-up appointment",
-    paymentMethod: "cash",
-  },
-]
+// Helper function to get auth headers
+const getAuthHeaders = async () => {
+  const token = await AsyncStorage.getItem('token');
+  if (!token) {
+    throw new Error('No authentication token found');
+  }
+  return {
+    'Content-Type': 'application/json',
+    Authorization: `Bearer ${token}`,
+  };
+};
 
-// Fetch all appointments
+// Fetch all appointments for current staff member
 export const fetchAppointments = async (): Promise<Appointment[]> => {
-  // Simulate API call
-  const response = await axios.get(`${API_URL}/api/appointment/get-appointments`);
-   const data = response.data;
-   if (data.success) {
-    return data.appointments;
-   } else {
-    throw new Error(data.message);
-   }
-   
-}
+  try {
+    const headers = await getAuthHeaders();
+    const staffId = await AsyncStorage.getItem('staffId');
 
-// Get appointment by ID
+    const response = await axios.get(
+      `${API_URL}/api/appointment/get-appointments`,
+      {
+        headers,
+        params: { staffId },
+      },
+    );
+
+    if (!response.data.success) {
+      throw new Error(response.data.message || 'Failed to fetch appointments');
+    }
+    return response.data.appointments;
+  } catch (error: any) {
+    console.error('Error fetching appointments:', error.message);
+    if (error.response?.status === 401) {
+      Alert.alert('Session Expired', 'Please login again');
+    }
+    throw new Error(
+      error.response?.data?.message || 'Failed to fetch appointments',
+    );
+  }
+};
+
+// Get appointment by ID with ownership check
 export const getAppointmentById = async (id: string): Promise<Appointment> => {
-  // Simulate API call
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      const appointment = mockAppointments.find((a) => a.id === id)
-      if (appointment) {
-        resolve(appointment)
-      } else {
-        reject(new Error("Appointment not found"))
-      }
-    }, 1000)
-  })
-}
+  try {
+    const headers = await getAuthHeaders(); // optional, only if your API needs it
+
+    const response = await axios.get(
+      `${API_URL}/api/appointment/get-appointment/${id}`,
+      {
+        headers,
+      },
+    );
+
+    if (!response.data.success) {
+      throw new Error(response.data.message || 'Appointment not found');
+    }
+
+    return response.data.appointment;
+  } catch (error: any) {
+    console.error('Error fetching appointment:', error.message);
+    if (error.response?.status === 404) {
+      throw new Error('Appointment not found');
+    }
+    throw new Error(
+      error.response?.data?.message || 'Failed to fetch appointment',
+    );
+  }
+};
 
 // Create new appointment
-export const createAppointment = async (appointmentData: Omit<Appointment, "id">): Promise<Appointment> => {
-  // Simulate API call
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      const newAppointment = {
-        id: Math.random().toString(36).substring(2, 9),
-        ...appointmentData,
-      }
-      mockAppointments.push(newAppointment)
-      resolve(newAppointment)
-    }, 1500)
-  })
-}
+export const createAppointment = async (
+  appointmentData: Omit<Appointment, '_id' | 'createdAt' | 'updatedAt'>,
+): Promise<Appointment> => {
+  try {
+    const headers = await getAuthHeaders();
+    const staffId = await AsyncStorage.getItem('staffId');
 
-// Update appointment
+    if (!staffId) {
+      throw new Error('Staff ID not found. Please login again.');
+    }
+
+    const response = await axios.post(
+      `${API_URL}/api/appointment/create-appointment`,
+      { ...appointmentData, staffId },
+      { headers },
+    );
+
+    if (!response.data.success) {
+      throw new Error(response.data.message);
+    }
+
+    return response.data.appointment;
+  } catch (error: any) {
+    console.error('Error creating appointment:', error.message);
+    throw new Error(
+      error.response?.data?.message ||
+      error.message ||
+      'Failed to create appointment',
+    );
+  }
+};
+
+// Update appointment with ownership check
 export const updateAppointment = async (id: string, appointmentData: Partial<Appointment>): Promise<Appointment> => {
-  // Simulate API call
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      const index = mockAppointments.findIndex((a) => a.id === id)
-      if (index !== -1) {
-        mockAppointments[index] = { ...mockAppointments[index], ...appointmentData }
-        resolve(mockAppointments[index])
-      } else {
-        reject(new Error("Appointment not found"))
-      }
-    }, 1500)
-  })
-}
+  try {
+    const headers = await getAuthHeaders();
+    const staffId = await AsyncStorage.getItem('staffId');
 
-// Delete appointment
+    const response = await axios.put(
+      `${API_URL}/api/appointment/update-appointment/${id}`,
+      { ...appointmentData, staffId },
+      { headers },
+    );
+
+    if (!response.data.success) {
+      throw new Error(response.data.message);
+    }
+    return response.data.appointment;
+  } catch (error: any) {
+    console.error('Error updating appointment:', error.message);
+    if (error.response?.status === 404) {
+      throw new Error('Appointment not found');
+    }
+    throw new Error(
+      error.response?.data?.message || 'Failed to update appointment',
+    );
+  }
+};
+
+// Delete appointment with ownership check
 export const deleteAppointment = async (id: string): Promise<void> => {
-  // Simulate API call
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      const index = mockAppointments.findIndex((a) => a.id === id)
-      if (index !== -1) {
-        mockAppointments.splice(index, 1)
-        resolve()
-      } else {
-        reject(new Error("Appointment not found"))
-      }
-    }, 1000)
-  })
-}
+  try {
+    const headers = await getAuthHeaders();
+    const staffId = await AsyncStorage.getItem('staffId');
+
+    const response = await axios.delete(
+      `${API_URL}/api/appointment/delete-appointment/${id}`,
+      {
+        headers,
+        data: { staffId }, // Send staffId in request body for delete
+      },
+    );
+
+    if (!response.data.success) {
+      throw new Error(response.data.message);
+    }
+  } catch (error: any) {
+    console.error('Error deleting appointment:', error.message);
+    if (error.response?.status === 404) {
+      throw new Error('Appointment not found');
+    }
+    throw new Error(
+      error.response?.data?.message || 'Failed to delete appointment',
+    );
+  }
+};

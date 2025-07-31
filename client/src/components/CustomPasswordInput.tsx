@@ -1,54 +1,75 @@
-"use client"
-
-import { StyleSheet, Image, View } from "react-native"
+import { StyleSheet, Image, View, Pressable } from "react-native"
 import { useState } from "react"
-import { TextInput, HelperText } from "react-native-paper"
-import Icons from "../utils/libs/constants/Icons"
+import { Input } from "@rneui/themed"
+import type { TextInputProps } from "react-native-paper"
+import Icon from "react-native-vector-icons/Ionicons" // ⬅️ You must install react-native-vector-icons
+
 
 interface CustomPasswordInputProps {
   placeholder: string
   value: string
   onChange: (text: string) => void
   error?: string
+  label?: string
 }
 
-const CustomPasswordInput = ({ placeholder, value, onChange, error }: CustomPasswordInputProps) => {
+const CustomPasswordInput = ({
+  label,
+  placeholder,
+  value,
+  onChange,
+  error,
+  ...rest
+}: CustomPasswordInputProps) => {
   const [showPassword, setShowPassword] = useState(false)
+  const [isFocused, setIsFocused] = useState(false)
 
   return (
-    <View>
-      <TextInput
+    <View className="w-full">
+      <Input
+      {...(label ? { label } : undefined)}
+        secureTextEntry={!showPassword}
+         labelStyle={{
+          fontSize: 14,
+          fontWeight: "400",
+          marginBottom: 8,
+          color: "black",
+        }}
+        placeholder={placeholder}
         value={value}
         onChangeText={onChange}
-        placeholder={placeholder}
-        mode="outlined"
-        outlineColor={"lightgray"} // Keeping original lightgray
-        activeOutlineColor={ "gray"} // Keeping original gray
-        secureTextEntry={!showPassword}
-        placeholderTextColor="gray"
-        left={<TextInput.Icon icon={() => <Image source={Icons.locker} style={styles.iconStyle} />} />}
-        right={
-          <TextInput.Icon
-            icon={showPassword ? "eye" : "eye-off"} // Using built-in icons as in original
-            onPress={() => setShowPassword(!showPassword)}
-          />
+        onFocus={() => setIsFocused(true)}
+        onBlur={() => setIsFocused(false)}
+        cursorColor="#2895cb"
+        leftIcon={<Icon name="lock-closed-outline" size={20}  color={ isFocused ? "#2895cb" : "#6b7280"} />}
+        rightIcon={
+          <Pressable onPress={() => setShowPassword(prev => !prev)} hitSlop={10}>
+            <Icon
+              name={showPassword ? "eye-outline" : "eye-off-outline"}
+              size={20}
+              color={ isFocused ? "#2895cb" : "#6b7280"} 
+            />
+          </Pressable>
         }
-        style={styles.input}
-        theme={{
-          roundness: 12,
-          colors: {
-            placeholder: "#a9a9a9", // Matching CustomInput
-            text: "#000", // Matching CustomInput
-            error: "#ef4444",
-          },
+        inputContainerStyle={{
+          borderRadius: 7,
+          backgroundColor: "#fff",
+          borderWidth: 1,
+          borderColor: isFocused ? "#2895cb" : "#d1d5db", // Tailwind gray-300
+          paddingHorizontal: 10,
+          paddingVertical: 2,
         }}
-        error={!!error}
+        inputStyle={{
+          fontSize: 16,
+          color: "black",
+        }}
+        containerStyle={{
+          paddingHorizontal: 0,
+        }}
+        errorMessage={error}
+        placeholderTextColor="#9ca3af"
+        {...rest}
       />
-      {/* {error ? (
-        <HelperText type="error" visible={!!error} style={styles.errorText}>
-          {error}
-        </HelperText>
-      ) : null} */}
     </View>
   )
 }
@@ -56,18 +77,10 @@ const CustomPasswordInput = ({ placeholder, value, onChange, error }: CustomPass
 export default CustomPasswordInput
 
 const styles = StyleSheet.create({
-  input: {
-    backgroundColor: "white",
-    fontSize: 16,
-  },
   iconStyle: {
-    width: 30, // Keeping original size
-    height: 30, // Keeping original size
+    width: 24,
+    height: 24,
     resizeMode: "contain",
-  },
-  errorText: {
-    marginTop: -4,
-    marginBottom: 4,
-    fontSize: 12,
+    marginRight: 6,
   },
 })

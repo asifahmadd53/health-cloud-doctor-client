@@ -1,13 +1,13 @@
 export interface Appointment {
-    id: string
-    patientName: string
-    age: number
-    gender: string
-    contactNumber: string
-    date: string
-    time: string
-    reason?: string
-    paymentMethod: string
-    cnic?: string
-  }
-  
+  _id: string;
+  staffId: string;
+  patientName: string;
+  patientCNIC: string;
+  patientPhone: string;
+  patientAge: number;
+  gender: string;
+  date: string;
+  time: string;
+  paymentStatus: string;
+  createdAt: string;
+}

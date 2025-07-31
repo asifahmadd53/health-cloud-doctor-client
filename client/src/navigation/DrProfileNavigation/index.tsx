@@ -8,7 +8,7 @@ import ScheduleScreen from '../../screens/Tabs/DrProfile/ScheduleScreen';
 const DrProfileLayout = () => {
     const Stack = createNativeStackNavigator();
   return (
-    <Stack.Navigator>
+    <Stack.Navigator screenOptions={{headerShown:false}}>
         <Stack.Screen name="DrProfile" component={ProfileScreen} />
         <Stack.Screen name="ScheduleScreen" component={ScheduleScreen} />
     </Stack.Navigator>

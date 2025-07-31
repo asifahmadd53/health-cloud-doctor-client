@@ -10,7 +10,8 @@ import CustomButton from "../../components/CustomButton"
 import CustomSecondaryButton from "../../components/CustomSecondaryButton"
 import MaterialIcons from "react-native-vector-icons/MaterialIcons"
 import axios from "axios"
-import { API_URL } from "../../utils/libs/constants/api/api"
+import { BASE_URL } from "../../api/api"
+
 
 const NewPassword = () => {
   const [password, setPassword] = useState("")
@@ -106,7 +107,7 @@ const NewPassword = () => {
 
     try {
       const response = await axios.put(
-        `${API_URL}/api/auth/reset-password`,
+        `${BASE_URL}/auth/reset-password`,
         {
           newPassword: password,
         },

@@ -7,8 +7,8 @@ import { TextInput } from "react-native"
 import { useNavigation, useRoute } from "@react-navigation/native"
 import MaterialIcons from "react-native-vector-icons/MaterialIcons"
 import CustomButton from "../../components/CustomButton"
-import { API_URL } from "../../utils/libs/constants/api/api"
 import axios from "axios"
+import { BASE_URL } from "../../api/api"
 
 const OTP = () => {
   const navigation = useNavigation<any>()
@@ -88,7 +88,7 @@ const OTP = () => {
 
     try {
       const response = await axios.patch(
-        `${API_URL}/api/auth/verify-verification-code`,
+        `${BASE_URL}/auth/verify-verification-code`,
         {
           email,
           verificationCode: otpValue,
@@ -122,7 +122,7 @@ const OTP = () => {
 
     try {
       const response = await axios.patch(
-        `${API_URL}/api/auth/send-verification-code`,
+        `${BASE_URL}/auth/send-verification-code`,
         { email },
         {
           headers: {

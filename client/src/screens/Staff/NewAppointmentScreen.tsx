@@ -19,7 +19,7 @@ import Header from "../../components/Header";
 import { formatDate, formatTime } from "../../utils/dateUtils";
 import RNDateTimePicker from "@react-native-community/datetimepicker";
 import axios from "axios";
-import { API_URL } from "../../utils/libs/constants/api/api";
+import { API_URL } from "../../api/api";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const NewAppointmentScreen = () => {
@@ -88,22 +88,25 @@ const NewAppointmentScreen = () => {
 
   const handleSubmit = async () => {
     if (!validateForm()) return;
-
+  
     setLoading(true);
-
+  
     try {
-      const token = await AsyncStorage.getItem("token");
-      const staffId = await AsyncStorage.getItem("staffId");
-
-
-      if (!staffId) {
-        Alert.alert("Error", "Staff ID not found. Please login again.");
-        setLoading(false);
-        return; // Stop if staff ID is missing
+      // Get token and staffId consistently
+      const [token, staffId] = await Promise.all([
+        AsyncStorage.getItem("token"),
+        AsyncStorage.getItem("staffId")
+      ]);
+  
+      if (!token || !staffId) {
+        Alert.alert("Session Expired", "Please login again");
+        navigation.navigate("StaffLogin");
+        return;
       }
+  
       const dateString = date?.toISOString().split("T")[0] || "";
       const timeString = time?.toTimeString().split(" ")[0].substring(0, 5) || "";
-
+  
       const response = await axios.post(
         `${API_URL}/api/appointment/create-appointment`,
         {
@@ -115,7 +118,8 @@ const NewAppointmentScreen = () => {
           date: dateString,
           time: timeString,
           paymentStatus: paymentMethod,
-          staffId, 
+          reason,
+          staffId,
         },
         {
           headers: {
@@ -124,22 +128,37 @@ const NewAppointmentScreen = () => {
           },
         }
       );
-      const data = response.data;
-      if (data.success) {
+  
+      if (response.data.success) {
         Alert.alert(
           "Success",
           "Appointment created successfully",
           [{ text: "OK", onPress: () => navigation.goBack() }]
         );
       } else {
-        Alert.alert("Error", data.message);
+        Alert.alert("Error", response.data.message);
       }
     } catch (error: any) {
-      console.error("Appointment creation error:", error.response?.data || error.message);
-      Alert.alert(
-        "Error",
-        error.response?.data?.message || "Failed to create appointment"
-      );
+      console.error("Appointment error:", error);
+      
+      if (error.response?.status === 401) {
+        // Token expired or invalid
+        Alert.alert(
+          "Session Expired",
+          "Your session has expired. Please login again.",
+          [
+            {
+              text: "OK",
+              onPress: () => navigation.navigate("StaffLogin"),
+            },
+          ]
+        );
+      } else {
+        Alert.alert(
+          "Error",
+          error.response?.data?.message || "Failed to create appointment"
+        );
+      }
     } finally {
       setLoading(false);
     }

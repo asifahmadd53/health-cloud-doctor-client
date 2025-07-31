@@ -9,7 +9,7 @@ import CustomInput from "../../components/CustomInput"
 import CustomButton from "../../components/CustomButton"
 import MaterialIcons from "react-native-vector-icons/MaterialIcons"
 import axios from "axios"
-import { API_URL } from "../../utils/libs/constants/api/api"
+import { BASE_URL } from "../../api/api"
 
 const ForgetPassword = () => {
   const navigation = useNavigation<any>()
@@ -42,7 +42,7 @@ const ForgetPassword = () => {
 
     try {
       const response = await axios.patch(
-        `${API_URL}/api/auth/send-verification-code`,
+        `${BASE_URL}/auth/send-verification-code`,
         { email },
         {
           headers: {

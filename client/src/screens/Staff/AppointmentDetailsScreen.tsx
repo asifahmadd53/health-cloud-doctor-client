@@ -11,7 +11,7 @@ import { SafeAreaView } from "react-native-safe-area-context"
 import { useNavigation, useRoute } from "@react-navigation/native"
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons"
 import Header from "../../components/Header"
-import { getAppointmentById } from "../../utils/libs/services/appointmentService"
+import { deleteAppointment, getAppointmentById } from "../../utils/libs/services/appointmentService"
 import { formatDate, formatTime } from "../../utils/dateUtils"
 import type { Appointment } from "../../utils/libs/types/appointment"
 import CustomButton from "../../components/CustomButton"
@@ -48,7 +48,7 @@ const AppointmentDetailsScreen = () => {
         text: "Delete",
         style: "destructive",
         onPress: () => {
-          // API logic goes here
+          
           navigation.goBack()
         },
       },
@@ -105,7 +105,7 @@ const AppointmentDetailsScreen = () => {
             <View className="ml-3">
               <Text className="text-xl font-bold text-gray-800">{appointment.patientName}</Text>
               <Text className="text-gray-500">
-                {appointment.age} years • {appointment.gender}
+                {appointment.patientAge} years • {appointment.gender}
               </Text>
             </View>
           </View>
@@ -115,7 +115,7 @@ const AppointmentDetailsScreen = () => {
               <MaterialCommunityIcons name="phone" size={18} color="#6b7280" style={{ marginRight: 12 }} />
               <View>
                 <Text className="text-xs text-gray-500">Contact Number</Text>
-                <Text className="text-base text-gray-800">{appointment.contactNumber}</Text>
+                <Text className="text-base text-gray-800">{appointment.patientPhone}</Text>
               </View>
             </View>
 
@@ -131,7 +131,7 @@ const AppointmentDetailsScreen = () => {
               <MaterialCommunityIcons name="clock-outline" size={18} color="#6b7280" style={{ marginRight: 12 }} />
               <View>
                 <Text className="text-xs text-gray-500">Appointment Time</Text>
-                <Text className="text-base text-gray-800">{formatTime(appointment.time)}</Text>
+                <Text className="text-base text-gray-800">{formatTime(appointment.date)}</Text>
               </View>
             </View>
 
@@ -139,7 +139,7 @@ const AppointmentDetailsScreen = () => {
               <MaterialCommunityIcons name="credit-card-outline" size={18} color="#6b7280" style={{ marginRight: 12 }} />
               <View>
                 <Text className="text-xs text-gray-500">Payment Method</Text>
-                <Text className="text-base text-gray-800 capitalize">{appointment.paymentMethod}</Text>
+                <Text className="text-base text-gray-800 capitalize">{appointment.paymentStatus}</Text>
               </View>
             </View>
 

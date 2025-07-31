@@ -8,7 +8,7 @@ import PhotoUpload from "../../../components/Doctor/PhotoUpload"
 import Button from "../../../components/Doctor/Button"
 import Header from "../../../components/Header"
 import axios from "axios"
-import { API_URL } from "../../../utils/libs/constants/api/api"
+import { API_URL } from "../../../api/api"
 import type { RootStackParamList } from "./StaffScreen"
 
 type EditStaffScreenRouteProp = RouteProp<RootStackParamList, "EditStaff">
