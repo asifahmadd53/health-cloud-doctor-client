@@ -8,7 +8,7 @@ import PhotoUpload from "../../../components/Doctor/PhotoUpload"
 import Button from "../../../components/Doctor/Button"
 import Header from "../../../components/Header"
 import axios from "axios"
-import { API_URL } from "../../../api/api"
+import { BASE_URL } from "../../../api/api"
 import type { RootStackParamList } from "./StaffScreen"
 
 type EditStaffScreenRouteProp = RouteProp<RootStackParamList, "EditStaff">
@@ -49,7 +49,7 @@ const EditStaffScreen = () => {
   const getStaffDetails = async () => {
     try {
       setLoading(true)
-      const response = await axios.get(`${API_URL}/api/staff/get-staff/${staffId}`, {
+      const response = await axios.get(`${BASE_URL}/staff/get-staff/${staffId}`, {
         withCredentials: true,
       })
 
@@ -118,7 +118,7 @@ const EditStaffScreen = () => {
     if (validateForm()) {
       try {
         setLoading(true)
-        await axios.put(`${API_URL}/api/staff/update-staff/${staffId}`, form, {
+        await axios.put(`${BASE_URL}/staff/update-staff/${staffId}`, form, {
           withCredentials: true,
         })
         Alert.alert("Success", "Staff member updated successfully!")

@@ -8,7 +8,7 @@ import PhotoUpload from "../../../components/Doctor/PhotoUpload"
 import FormInput from "../../../components/Doctor/FormInput"
 import Button from "../../../components/Doctor/Button"
 import axios from "axios"
-import { API_URL } from "../../../api/api"
+import { BASE_URL } from "../../../api/api"
 
 export type RootStackParamList = {
   MainTabs: undefined
@@ -107,7 +107,7 @@ const AddStaffScreen = () => {
           });
         }
   
-        const response = await axios.post(`${API_URL}/api/staff/add-staff`, formData, {
+        const response = await axios.post(`${BASE_URL}/staff/add-staff`, formData, {
           headers: {
             "Content-Type": "multipart/form-data",
           },

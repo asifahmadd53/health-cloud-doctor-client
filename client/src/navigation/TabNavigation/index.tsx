@@ -1,88 +1,85 @@
-import React from 'react';
-import {Image, SafeAreaView } from 'react-native';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import DashBoard from '../../screens/Tabs/Dashboard';
-import { EConsults, Profile } from '../../screens';
-import Icons from '../../utils/libs/constants/Icons';
-import DrProfileLayout from '../DrProfileNavigation';
-import PaymentsScreen from '../../screens/Tabs/PaymentsScreen';
-import ScheduleScreen from '../../screens/Tabs/Shedule';
+import { Image, SafeAreaView } from "react-native"
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs"
+import DashBoard from "../../screens/Tabs/Dashboard"
+import Icons from "../../utils/libs/constants/Icons"
+import DrProfileLayout from "../DrProfileNavigation"
+import PaymentsScreen from "../../screens/Tabs/PaymentsScreen"
 
-
-
-const Tab = createBottomTabNavigator();
+const Tab = createBottomTabNavigator()
 
 const TabLayout = () => {
-
   return (
     <SafeAreaView className="flex-1 bg-white">
-      
-
       <Tab.Navigator
         screenOptions={{
           headerShown: false,
           tabBarStyle: {
-            padding:10,
-            height: 58,
-            paddingBottom: 4,
-            paddingTop: 5,
-            backgroundColor: '#f8f9fa',
-            borderTopWidth: 1,
-            borderTopColor: '#e0e0e0',
-            borderTopLeftRadius: 20,
-            borderTopRightRadius: 20,
+            height: 70,
+            paddingBottom: 8,
+            paddingTop: 8,
+            paddingHorizontal: 20,
+            backgroundColor: "#ffffff",
+            borderTopWidth: 0,
+            shadowColor: "#000",
+            shadowOffset: {
+              width: 0,
+              height: -2,
+            },
+            shadowOpacity: 0.1,
+            shadowRadius: 8,
+            elevation: 10,
           },
-          
           tabBarLabelStyle: {
-            fontSize: 12,
-            fontWeight: '600',
-
-    
-
+            fontSize: 11,
+            fontWeight: "600",
+            marginTop: 4,
+            letterSpacing: 0.3,
           },
           tabBarIconStyle: {
             width: 24,
             height: 24,
+            marginBottom: 2,
           },
-          tabBarActiveTintColor:'#2895cb'
+          tabBarActiveTintColor: "#2563eb",
+          tabBarInactiveTintColor: "#6b7280",
+          tabBarItemStyle: {
+            paddingVertical: 4,
+          },
         }}
       >
         <Tab.Screen
-          name="Clinc"
+          name="Clinic"
           component={DashBoard}
           options={{
-            tabBarIcon: () => <Image className="w-5 h-5" source={Icons.dashboard} />,
-            tabBarLabel: 'Clinc',
-          }}
-        />
-        <Tab.Screen
-          name="E-Consults"
-          component={EConsults}
-          options={{
-            tabBarIcon: () => <Image className="w-7 h-7" source={Icons.consultation} />,
-            tabBarLabel: 'E-Consults',
+            tabBarIcon: ({ focused, color }) => (
+              <Image className="w-6 h-6" source={Icons.dashboard} style={{ tintColor: color }} />
+            ),
+            tabBarLabel: "Clinic",
           }}
         />
         <Tab.Screen
           name="Payments"
           component={PaymentsScreen}
           options={{
-            tabBarIcon: () => <Image className="w-7 h-7" source={Icons.sign} />,
-            tabBarLabel: 'Payments',
+            tabBarIcon: ({ focused, color }) => (
+              <Image className="w-6 h-6" source={Icons.sign} style={{ tintColor: color }} />
+            ),
+            tabBarLabel: "Payments",
           }}
         />
         <Tab.Screen
-          name="DrProfileLayout"
+          name="Profile"
           component={DrProfileLayout}
           options={{
-            tabBarIcon: () => <Image className="w-7 h-7" source={Icons.user} />,
-            tabBarLabel: 'Profile',
+            tabBarIcon: ({ focused, color }) => (
+              <Image className="w-6 h-6" source={Icons.user} style={{ tintColor: color }} />
+            ),
+            tabBarLabel: "Profile",
           }}
         />
-        
       </Tab.Navigator>
     </SafeAreaView>
-  );
-};
+  )
+}
 
-export default TabLayout;
+export default TabLayout

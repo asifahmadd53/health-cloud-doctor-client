@@ -24,8 +24,10 @@ import locker from '../../../assets/icons/lock_2.png'
 import tick from '../../../assets/icons/tick.png'
 import phone from '../../../assets/icons/telephone.png'
 import email from '../../../assets/icons/email_2.png'
-
-
+import camera from '../../../assets/icons/camera.png'
+import gallery from '../../../assets/icons/gallery.png'
+import profileIcon from '../../../assets/icons/profileIcon.png'
+import saveIcon from '../../../assets/icons/saveIcon.png'
 export default {
     rightIcon,
     credit,
@@ -52,5 +54,9 @@ export default {
     locker,
     tick,
     phone,
-    email
+    email,
+    camera,
+    gallery,
+    profileIcon,
+    saveIcon
 }

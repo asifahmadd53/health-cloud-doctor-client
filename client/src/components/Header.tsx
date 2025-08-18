@@ -1,37 +1,42 @@
-import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
-import React from 'react'
-import { useNavigation } from '@react-navigation/native'
-import Icons from '../utils/libs/constants/Icons'
-
+import { Image, Text, TouchableOpacity, View } from "react-native"
+import React from "react"
+import { useNavigation } from "@react-navigation/native"
+import Icons from "../utils/libs/constants/Icons"
 
 interface HeaderProps {
-    title: string;
+  title: string
 }
 
-const Header = ({title}:HeaderProps) => {
+const Header = ({ title }: HeaderProps) => {
+  const navigation = useNavigation()
 
-  
-    const navigation = useNavigation()
   return (
-    <View className="flex-row items-center justify-between relative mt-5">
-                <TouchableOpacity
-                    activeOpacity={0.9}
-                    onPress={() => navigation.goBack()}
-                    className="w-12 h-12 items-center justify-center bg-gray-200 rounded-full shadow-sm"
-                >
-                    <Image className="w-7 h-7" source={Icons.leftIcon} />
-                </TouchableOpacity>
+    <View
+      style={{
+        backgroundColor: "white",
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.8,
+        shadowRadius: 10,
+        elevation: 12, 
+      }}
+      className="flex-row items-center justify-between py-4 px-5"
+    >
+      <TouchableOpacity
+        activeOpacity={0.9}
+        onPress={() => navigation.goBack()}
+        className="w-10 h-10 items-center justify-center shadow-2xl bg-gray-200 rounded-xl"
+        
+      >
+        <Image className="w-6 h-6" source={Icons.leftIcon} />
+      </TouchableOpacity>
 
-                {/* Centered Title */}
-                <View className="absolute left-0 right-0 items-center">
-                    <Text className="text-xl font-semibold text-gray-800 tracking-wide">
-                        {title}
-                    </Text>
-                </View>
-            </View>
+      <Text className="text-lg font-semibold text-gray-800">{title}</Text>
+
+     
+      <View className="w-10 h-10" />
+    </View>
   )
 }
 
 export default Header
-
-const styles = StyleSheet.create({})

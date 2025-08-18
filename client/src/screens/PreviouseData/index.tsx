@@ -1,29 +1,20 @@
-import React, { useState } from 'react';
-import { View, Text, Dimensions } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { Button } from 'react-native-paper';
+import React, { useState } from "react";
+import { View, Text, ScrollView, Pressable, Dimensions } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import Animated, { useSharedValue, useAnimatedStyle, withTiming } from "react-native-reanimated";
+import Header from "../../components/Header";
+import Ionicons from "react-native-vector-icons/Ionicons";
 
-import Animated, { useSharedValue, useAnimatedStyle, withTiming } from 'react-native-reanimated';
-
-const { width } = Dimensions.get('window');
+const { width } = Dimensions.get("window");
 
 const PreviouseData = () => {
-  const [activeTab, setActiveTab] = useState('Documents');
-  const [selectedValue, setSelectedValue] = useState('1');
-  const DATA = [2,34,3,43,2423,423,4,24,2,4,234,23]
-
-
-  const dropdownData = [
-    { label: 'All', value: '1' },
-    { label: 'E-Prescription', value: '2' },
-    { label: 'Manual Prescription', value: '3' },
-  ];
+  const [activeTab, setActiveTab] = useState<"Documents" | "Reports">("Documents");
 
   const translateX = useSharedValue(0);
 
-  const handleTabChange = (tab:any) => {
+  const handleTabChange = (tab: "Documents" | "Reports") => {
     setActiveTab(tab);
-    translateX.value = withTiming(tab === 'Documents' ? 0 : -width, { duration: 500 });
+    translateX.value = withTiming(tab === "Documents" ? 0 : -width, { duration: 400 });
   };
 
   const animatedStyle = useAnimatedStyle(() => ({
@@ -31,126 +22,88 @@ const PreviouseData = () => {
   }));
 
   return (
-    <SafeAreaView className="flex-1 bg-white px-4 ">
-      {/* Tab Buttons */}
-      <View className="flex-row justify-center gap-4 mt-6 mb-8">
-        <Button
-          mode={activeTab === 'Documents' ? 'contained' : 'outlined'}
-          style={{
-            flex: 1,
-            backgroundColor: activeTab === 'Documents' ? '#2895cb' : 'transparent',
-            borderRadius: 12,
-            paddingVertical: 12,
-            borderWidth: activeTab === 'Documents' ? 0 : 1.5,
-            borderColor: '#2895cb',
-          }}
-          labelStyle={{
-            fontSize: 16,
-            fontWeight: '600',
-            letterSpacing: 0.5,
-            color: activeTab === 'Documents' ? 'white' : '#0077B6',
-          }}
-          // icon={() => (
-          //   <Ionicons
-          //     name="document-text-outline"
-          //     size={20}
-          //     color={activeTab === 'Documents' ? 'white' : '#0077B6'}
-          //   />
-          // )}
-          onPress={() => handleTabChange('Documents')}
-        >
-          Documents
-        </Button>
+    <SafeAreaView className="flex-1 bg-gray-100">
+      <Header title="Patient Records" />
 
-        <Button
-          mode={activeTab === 'Reports' ? 'contained' : 'outlined'}
-          style={{
-            flex: 1,
-            backgroundColor: activeTab === 'Reports' ? '#2895cb' : 'transparent',
-            borderRadius: 12,
-            paddingVertical: 12,
-            borderWidth: activeTab === 'Reports' ? 0 : 1.5,
-            borderColor: '#2895cb',
-          }}
-          labelStyle={{
-            fontSize: 16,
-            fontWeight: '600',
-            letterSpacing: 0.5,
-            color: activeTab === 'Reports' ? 'white' : '#023E8A',
-          }}
-          // icon={() => (
-          //   <Ionicons
-          //     name="bar-chart-outline"
-          //     size={20}
-          //     color={activeTab === 'Reports' ? 'white' : '#023E8A'}
-          //   />
-          // )}
-          onPress={() => handleTabChange('Reports')}
-        >
-          Reports
-        </Button>
+      {/* Tabs */}
+      <View className="flex-row justify-between px-4 mt-4 mb-6">
+        {["Documents", "Reports"].map((tab) => (
+          <Pressable
+            key={tab}
+            className={`flex-1 py-3 rounded-xl mr-2 ${
+              activeTab === tab ? "bg-blue-500" : "border border-blue-500"
+            }`}
+            onPress={() => handleTabChange(tab as "Documents" | "Reports")}
+          >
+            <Text
+              className={`text-center font-semibold ${
+                activeTab === tab ? "text-white" : "text-blue-500"
+              }`}
+            >
+              {tab}
+            </Text>
+          </Pressable>
+        ))}
       </View>
 
-      <View style={{ width, height: 300, alignSelf: 'center', overflow: 'hidden' }}>
-        <Animated.View style={[{ width: width * 2, flexDirection: 'row' }, animatedStyle]}>
-          <View style={{ width, paddingHorizontal: 16 }}>
-            <View className="rounded-lg  h-auto p-3">
-              {/* <Text className="text-lg font-semibold text-gray-700">📂 Document Storage</Text>
-<Text className="text-gray-500 mt-2">Easily manage and access your saved documents anytime.</Text> */}
+      {/* Content */}
+      <View style={{ width, height: 400, alignSelf: "center", overflow: "hidden" }}>
+        <Animated.View style={[{ width: width * 2, flexDirection: "row" }, animatedStyle]}>
+          {/* Documents Tab */}
+          <ScrollView
+            style={{ width, paddingHorizontal: 16 }}
+            contentContainerStyle={{ paddingBottom: 20 }}
+          >
+            <View className="bg-white rounded-2xl p-4 shadow-md mb-4">
+              <Text className="text-lg font-semibold text-gray-800 mb-2">📂 Document Storage</Text>
+              <Text className="text-gray-500 mb-4">
+                Easily manage and access your saved documents anytime.
+              </Text>
+              
+              {/* Placeholder for dropdown or filter */}
+              <Pressable className="border border-blue-500 rounded-xl p-3 flex-row justify-between items-center">
+                <Text className="text-blue-500 font-medium">Filter: All</Text>
+                <Ionicons name="chevron-down" size={20} color="#2895cb" />
+              </Pressable>
 
-              {/* <Dropdown
-                data={dropdownData}
-                value={selectedValue}
-                onChange={(item) => setSelectedValue(item.value)}
-                labelField="label"
-                valueField="value"
-
-                style={{
-                  paddingVertical: 14,
-                  borderWidth: 1.5,
-                  borderColor: '#0077B6',
-                  borderRadius: 12,
-                  paddingHorizontal: 14,
-                  backgroundColor: 'white',
-                  shadowColor: '#000',
-                  shadowOffset: { width: 0, height: 2 },
-                  shadowOpacity: 0.1,
-                  shadowRadius: 4,
-                  elevation: 3,
-                }}
-                selectedTextStyle={{
-                  fontSize: 16,
-                  fontWeight: '600',
-                  color: '#0077B6',
-                }}
-                placeholderStyle={{
-                  fontSize: 16,
-                  color: '#555',
-                }}
-                containerStyle={{
-                  borderRadius: 12,
-                  backgroundColor: 'white',
-                  borderWidth: 1,
-                  borderColor: '#0077B6',
-                }}
-                itemTextStyle={{
-                  fontSize: 14,
-                  color: '#333',
-                }}
-                renderRightIcon={() => (
-                  <Ionicons name="chevron-down" size={20} color="#0077B6" />
-                )}
-              /> */}
+              {/* Example documents list */}
+              <View className="mt-4">
+                {Array.from({ length: 5 }).map((_, index) => (
+                  <View
+                    key={index}
+                    className="flex-row justify-between items-center bg-gray-50 rounded-xl p-3 mb-2"
+                  >
+                    <Text className="text-gray-800 font-medium">Document {index + 1}</Text>
+                    <Ionicons name="download-outline" size={22} color="#2895cb" />
+                  </View>
+                ))}
+              </View>
             </View>
-            
-          </View>
+          </ScrollView>
 
-          <View style={{ width, padding: 16 }}>
-            <View className="p-6 bg-blue-50 rounded-lg shadow-md">
-              <Text className="text-lg font-semibold text-[#2895cb]">📊 Your Reports</Text>
-              <Text className="text-gray-500 mt-2">View detailed reports and insights.</Text>
+          {/* Reports Tab */}
+          <ScrollView
+            style={{ width, paddingHorizontal: 16 }}
+            contentContainerStyle={{ paddingBottom: 20 }}
+          >
+            <View className="bg-white rounded-2xl p-4 shadow-md mb-4">
+              <Text className="text-lg font-semibold text-blue-500 mb-2">📊 Your Reports</Text>
+              <Text className="text-gray-500 mb-4">
+                View detailed reports and insights for the patient.
+              </Text>
+
+              {/* Example reports list */}
+              {Array.from({ length: 5 }).map((_, index) => (
+                <View
+                  key={index}
+                  className="flex-row justify-between items-center bg-blue-50 rounded-xl p-3 mb-2"
+                >
+                  <Text className="text-blue-700 font-medium">Report {index + 1}</Text>
+                  <Ionicons name="eye-outline" size={22} color="#2895cb" />
+                </View>
+              ))}
             </View>
-          </View>
+          </ScrollView>
         </Animated.View>
       </View>
     </SafeAreaView>

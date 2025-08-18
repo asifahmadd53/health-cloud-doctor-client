@@ -1,76 +1,185 @@
-import { ScrollView, Text, View, Pressable } from 'react-native';
-import React, { useState } from 'react';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { RadioButton } from 'react-native-paper';
-import FormInput from '../../components/Doctor/FormInput';
-import CustomButton from '../../components/CustomButton';
-import Header from '../../components/Header';
+"use client";
+
+import {
+  ScrollView,
+  Text,
+  View,
+  Pressable,
+  KeyboardAvoidingView,
+  TouchableOpacity,
+} from "react-native";
+import { useState } from "react";
+import { SafeAreaView } from "react-native-safe-area-context";
+import FormInput from "../../components/Doctor/FormInput";
+import CustomButton from "../../components/CustomButton";
+import Header from "../../components/Header";
 
 const NewAppointment = () => {
-  const [name, setName] = useState('');
-  const [CNIC, setCNIC] = useState('');
-  const [mobile, setMobile] = useState('');
-  const [gender, setGender] = useState<'male' | 'female' | null>(null);
-  const [paymentMethod, setPaymentMethod] = useState<'cash' | 'online' | null>(null);
-  const [age, setAge] = useState('');
+  const [name, setName] = useState("");
+  const [CNIC, setCNIC] = useState("");
+  const [mobile, setMobile] = useState("");
+  const [age, setAge] = useState("");
+  const [selectedGender, setSelectedGender] = useState<string | null>(null);
+  const [paymentMethod, setPaymentMethod] = useState<"cash" | "online" | null>(
+    null
+  );
 
   return (
-    <SafeAreaView className="flex-1 bg-white px-5 pt-5">
+    <SafeAreaView className="flex-1 bg-gray-50">
       <Header title="New Appointment" />
 
+      <KeyboardAvoidingView className="flex-1">
+        <ScrollView
+          className="px-6 pt-6"
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ paddingBottom: 40 }}
+        >
+          {/* Main Card */}
+          <View className="bg-white rounded-3xl p-4 shadow-md border border-gray-100">
+            {/* Header */}
+            <View className="mb-6">
+              <Text className="text-2xl font-bold text-gray-900">
+                Patient Information
+              </Text>
+              <Text className="text-gray-600 mt-1">
+                Please fill in the patient details below
+              </Text>
+            </View>
 
-      <ScrollView showsVerticalScrollIndicator={false}>
-        <View className="bg-white rounded-2xl p-5 shadow-sm border border-gray-200 mt-8">
-          {/* Input Fields */}
-          <FormInput value={name} onChangeText={setName} placeholder="Enter patient name" label="Patient Name" />
-          <FormInput value={CNIC} onChangeText={setCNIC} placeholder="Enter CNIC number" label="CNIC #" />
-          <FormInput value={mobile} onChangeText={setMobile} placeholder="Enter mobile number" label="Mobile #" />
-          <FormInput value={age} keyboardType="numeric" onChangeText={setAge} placeholder="Enter age" label="Age" />
+            {/* Input Fields */}
+            <View className="space-y-5">
+              <FormInput
+                value={name}
+                onChangeText={setName}
+                placeholder="Enter patient name"
+                label="Patient Name"
+              />
+              <FormInput
+                value={CNIC}
+                onChangeText={setCNIC}
+                placeholder="Enter CNIC number"
+                label="CNIC #"
+              />
+              <FormInput
+                value={mobile}
+                onChangeText={setMobile}
+                placeholder="Enter mobile number"
+                label="Mobile #"
+              />
+              <FormInput
+                value={age}
+                keyboardType="numeric"
+                onChangeText={setAge}
+                placeholder="Enter age"
+                label="Age"
+              />
+            </View>
 
-          {/* Gender Selection */}
-          <Text className="mt-6 mb-2 font-semibold text-base text-gray-700">Gender</Text>
-          <View className="flex-row space-x-6 items-center">
-            {['male', 'female'].map((g) => (
-              <Pressable
-                key={g}
-                onPress={() => setGender(g as 'male' | 'female')}
-                className="flex-row items-center space-x-1"
-              >
-                <RadioButton
-                  value={g}
-                  color="#2895cb"
-                  status={gender === g ? 'checked' : 'unchecked'}
-                />
-                <Text className="text-gray-700 capitalize">{g}</Text>
-              </Pressable>
-            ))}
-          </View>
+            {/* Gender Selection */}
+            <View className="mt-8">
+              <Text className="text-lg font-semibold text-gray-900 mb-4">
+                Gender
+              </Text>
+              <View className="flex-row gap-4">
+                {["Male", "Female"].map((g) => (
+                  <TouchableOpacity
+                    key={g}
+                    onPress={() => setSelectedGender(g)}
+                    className={`flex-1 py-4 rounded-xl items-center ${
+                      selectedGender === g
+                        ? g === "Male"
+                          ? "bg-blue-500"
+                          : "bg-pink-500"
+                        : "bg-gray-200"
+                    }`}
+                  >
+                    <Text
+                      className={`font-semibold ${
+                        selectedGender === g ? "text-white" : "text-gray-700"
+                      }`}
+                    >
+                      {g}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </View>
 
-          {/* Payment Method */}
-          <Text className="mt-6 mb-2 font-semibold text-base text-gray-700">Payment Method</Text>
-          <View className="flex-row space-x-6 items-center">
-            {['cash', 'online'].map((p) => (
-              <Pressable
-                key={p}
-                onPress={() => setPaymentMethod(p as 'cash' | 'online')}
-                className="flex-row items-center space-x-1"
-              >
-                <RadioButton
-                  value={p}
-                  color="#32c75f"
-                  status={paymentMethod === p ? 'checked' : 'unchecked'}
-                />
-                <Text className="text-gray-700 capitalize">{p}</Text>
-              </Pressable>
-            ))}
+            {/* Payment Method */}
+            <View className="mt-8">
+              <Text className="text-lg font-semibold text-gray-900 mb-4">
+                Payment Method
+              </Text>
+              <View className="gap-4">
+                {[
+                  {
+                    key: "cash",
+                    label: "Cash Payment",
+                    icon: "💵",
+                    desc: "Pay at the clinic",
+                  },
+                  {
+                    key: "online",
+                    label: "Online Payment",
+                    icon: "💳",
+                    desc: "Pay securely online",
+                  },
+                ].map((method) => (
+                  <Pressable
+                    key={method.key}
+                    onPress={() =>
+                      setPaymentMethod(method.key as "cash" | "online")
+                    }
+                    className={`p-1 px-2 rounded-2xl border-2 ${
+                      paymentMethod === method.key
+                        ? "border-green-500 bg-green-50"
+                        : "border-gray-200 bg-white"
+                    }`}
+                  >
+                    <View className="flex-row items-center">
+                      <Text className="text-2xl mr-3">{method.icon}</Text>
+                      <View className="flex-1">
+                        <Text
+                          className={`font-semibold text-lg ${
+                            paymentMethod === method.key
+                              ? "text-green-700"
+                              : "text-gray-900"
+                          }`}
+                        >
+                          {method.label}
+                        </Text>
+                        <Text className="text-gray-600 text-sm">
+                          {method.desc}
+                        </Text>
+                      </View>
+                      <View
+                        className={`w-6 h-6 rounded-full border-2 items-center justify-center ${
+                          paymentMethod === method.key
+                            ? "border-green-500 bg-green-500"
+                            : "border-gray-300"
+                        }`}
+                      >
+                        {paymentMethod === method.key && (
+                          <Text className="text-white text-xs">✓</Text>
+                        )}
+                      </View>
+                    </View>
+                  </Pressable>
+                ))}
+              </View>
+            </View>
           </View>
 
           {/* Submit Button */}
-          <View className="mt-8">
-            <CustomButton label="Proceed" link='patientDetailsLayout'/>
+          
+        </ScrollView>
+        <View className="py-3">
+            <CustomButton
+              label="Proceed to Patient Details"
+              link="patientDetailsLayout"
+            />
           </View>
-        </View>
-      </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 };

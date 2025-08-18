@@ -9,7 +9,7 @@ import Button from "../../../components/Doctor/Button"
 import Card from "../../../components/Doctor/Card"
 import Header from "../../../components/Header"
 import axios from "axios"
-import { API_URL } from "../../../api/api"
+import { BASE_URL } from "../../../api/api"
 import type { RootStackParamList } from "./StaffScreen"
 
 type StaffDetailsScreenRouteProp = RouteProp<RootStackParamList, "StaffDetails">
@@ -30,7 +30,7 @@ const StaffDetailsScreen = () => {
   const getStaffDetails = async () => {
     try {
       setLoading(true)
-      const response = await axios.get(`${API_URL}/api/staff/get-staff/${staffId}`, {
+      const response = await axios.get(`${BASE_URL}/staff/get-staff/${staffId}`, {
         withCredentials: true,
       })
 
@@ -61,7 +61,7 @@ const StaffDetailsScreen = () => {
         onPress: async () => {
           try {
             setLoading(true)
-            await axios.delete(`${API_URL}/api/staff/delete-staff/${staffId}`, {
+            await axios.delete(`${BASE_URL}/staff/delete-staff/${staffId}`, {
               withCredentials: true,
             })
             Alert.alert("Success", "Staff member deleted successfully!")

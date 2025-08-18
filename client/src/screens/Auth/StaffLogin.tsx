@@ -14,7 +14,7 @@ import CustomInput from "../../components/CustomInput";
 import CustomPasswordInput from "../../components/CustomPasswordInput";
 import Icons from "../../utils/libs/constants/Icons";
 import axios from "axios";
-import { API_URL } from "../../api/api";
+import { BASE_URL } from "../../api/api";
 import CustomButton from "../../components/CustomButton";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
@@ -116,7 +116,7 @@ const StaffLogin = () => {
       }).start();
       
       const response = await axios.post(
-        `${API_URL}/api/staff/login-staff`,
+        `${BASE_URL}/api/staff/login-staff`,
         { email, password },
         {
           headers: { "Content-Type": "application/json" },
@@ -150,6 +150,7 @@ const StaffLogin = () => {
       setLoading(false);
     }
   };
+
   return (
     <SafeAreaView className="bg-white px-4">
       <ScrollView className="flex-grow min-h-full pb-5">

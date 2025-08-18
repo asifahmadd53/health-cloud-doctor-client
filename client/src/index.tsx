@@ -3,7 +3,7 @@ import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import '../gesture-handler.native';
 import AppLayout from './navigation';
-import { Toaster } from 'burnt/web';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 const RootLayout = () => {
   return (
@@ -14,21 +14,10 @@ const RootLayout = () => {
         translucent={false}
       />
       <NavigationContainer>
-        <Toaster
-          position="top-center"
-          toastOptions={{
-            style: {
-              background: "#000",       // Black background
-              color: "#fff",            // White text
-              borderRadius: "12px",
-              fontSize: 14,
-              padding: "12px 16px",
-              boxShadow: "0 4px 8px rgba(0,0,0,0.2)",
-            },
-            
-          }}
-        />
+        
+        <GestureHandlerRootView style={{ flex: 1 }}>
         <AppLayout />
+        </GestureHandlerRootView>
       </NavigationContainer>
     </>
   );

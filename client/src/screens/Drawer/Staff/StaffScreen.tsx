@@ -8,7 +8,7 @@ import StaffCard from "../../../components/Staff/StaffCard"
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Header from "../../../components/Header"
 import { SafeAreaView } from "react-native-safe-area-context"
-import { API_URL } from "../../../api/api"
+import { BASE_URL } from "../../../api/api"
 import axios from "axios"
 
 
@@ -42,7 +42,7 @@ const StaffScreen = () => {
         text: "Delete",
         onPress: async () => {
           try {
-            const response = await axios.delete(`${API_URL}/api/staff/delete-staff/${id}`, {
+            const response = await axios.delete(`${BASE_URL}/api/staff/delete-staff/${id}`, {
               withCredentials: true,
             })
             if (response.status === 200) {
@@ -61,7 +61,7 @@ const StaffScreen = () => {
   }
   const getStaff = async () => {
     try {
-      const response = await axios.get(`${API_URL}/api/staff/get-staff`, {
+      const response = await axios.get(`${BASE_URL}/api/staff/get-staff`, {
         withCredentials: true,
       })
       if (response.data && response.data.staff) {
@@ -77,7 +77,7 @@ const StaffScreen = () => {
 
   const getStaffById = async (id: string) => {
     try {
-      const response = await axios.get(`${API_URL}/api/staff/get-staff/${id}`, {
+      const response = await axios.get(`${BASE_URL}/api/staff/get-staff/${id}`, {
         withCredentials: true,
       })
       return response.data.staff
