@@ -42,8 +42,8 @@ const toggleCheckbox = (key: SelectedKeys) => {
     className='bg-white'
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       style={{flex: 1}}>
-      <SafeAreaView className="flex-1 bg-white">
         <Header title="Prescription" />
+        <SafeAreaView className="flex-1 bg-white">
         <ScrollView
           className="px-5 pt-4"
           contentContainerStyle={{

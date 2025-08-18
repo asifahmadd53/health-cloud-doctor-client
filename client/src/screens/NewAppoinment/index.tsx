@@ -7,6 +7,7 @@ import {
   Pressable,
   KeyboardAvoidingView,
   TouchableOpacity,
+  Platform,
 } from "react-native";
 import { useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -25,10 +26,13 @@ const NewAppointment = () => {
   );
 
   return (
-    <SafeAreaView className="flex-1 bg-gray-50">
+    <SafeAreaView className="flex-1 bg-white ">
       <Header title="New Appointment" />
-
-      <KeyboardAvoidingView className="flex-1">
+      <KeyboardAvoidingView
+  className="flex-1"
+  behavior={Platform.OS === "ios" ? "padding" : "height"}
+  keyboardVerticalOffset={Platform.OS === "ios" ? 100 : 0}
+>
         <ScrollView
           className="px-6 pt-6"
           showsVerticalScrollIndicator={false}

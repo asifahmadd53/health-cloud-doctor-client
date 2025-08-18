@@ -14,13 +14,21 @@ const RootLayout = () => {
         translucent={false}
       />
       <NavigationContainer>
-        
-        <GestureHandlerRootView style={{ flex: 1 }}>
+        <GestureHandlerRootView style={styles.container}>
         <AppLayout />
         </GestureHandlerRootView>
       </NavigationContainer>
     </>
   );
 };
+
+
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: 'grey',
+  },
+});
 
 export default RootLayout;
