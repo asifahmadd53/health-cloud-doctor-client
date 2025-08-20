@@ -178,7 +178,7 @@ const SignUp = ({navigation}: SignUpProps) => {
           <ScrollView
             className="flex-1"
             showsVerticalScrollIndicator={false}
-            contentContainerStyle={{paddingBottom: 30}}>
+            >
             
             <View className="mb-8 mt-4">
              
@@ -373,6 +373,7 @@ const SignUp = ({navigation}: SignUpProps) => {
             </TouchableOpacity>
           </BottomSheetView>
         </BottomSheet>
+        
       </SafeAreaView>
     </>
   );

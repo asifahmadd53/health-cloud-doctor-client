@@ -165,7 +165,7 @@ const PatientDetails = () => {
         <BottomSheet
           ref={bottomSheetRef}
           index={-1}
-          snapPoints={['50%']}
+          snapPoints={['30%']}
           enablePanDownToClose
           keyboardBehavior="interactive"
           keyboardBlurBehavior="restore"

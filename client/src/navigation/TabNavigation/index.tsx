@@ -14,45 +14,58 @@ const TabLayout = () => {
         screenOptions={{
           headerShown: false,
           tabBarStyle: {
-            height: 70,
-            paddingBottom: 8,
-            paddingTop: 8,
-            paddingHorizontal: 20,
+            height: 80,
+            paddingBottom: 16,
+            paddingTop: 4,
+            paddingHorizontal: 14,
+            marginHorizontal: 50,
+            marginBottom: 20,
             backgroundColor: "#ffffff",
+            borderRadius: 20,
             borderTopWidth: 0,
-            shadowColor: "#000",
+            shadowColor: "#000000",
             shadowOffset: {
               width: 0,
-              height: -2,
+              height: -4,
             },
-            shadowOpacity: 0.1,
-            shadowRadius: 8,
-            elevation: 10,
+            shadowOpacity: 0.12,
+            shadowRadius: 12,
+            elevation: 15,
+            position: "absolute",
           },
           tabBarLabelStyle: {
-            fontSize: 11,
+            fontSize: 12,
             fontWeight: "600",
-            marginTop: 4,
-            letterSpacing: 0.3,
+            marginTop: 6,
+            letterSpacing: 0.2,
+            fontFamily: "System",
           },
-          tabBarIconStyle: {
-            width: 24,
-            height: 24,
-            marginBottom: 2,
-          },
-          tabBarActiveTintColor: "#2563eb",
-          tabBarInactiveTintColor: "#6b7280",
+          tabBarActiveTintColor: "#0891b2",
+          tabBarInactiveTintColor: "#64748b",
           tabBarItemStyle: {
-            paddingVertical: 4,
+            paddingVertical: 8,
+            paddingHorizontal: 4,
+            borderRadius: 12,
+            marginHorizontal: 2,
           },
+          
         }}
+        
       >
         <Tab.Screen
           name="Clinic"
           component={DashBoard}
           options={{
-            tabBarIcon: ({ focused, color }) => (
-              <Image className="w-6 h-6" source={Icons.dashboard} style={{ tintColor: color }} />
+            tabBarIcon: ({ color }) => (
+              <Image
+                source={Icons.dashboard}
+                style={{
+                  width: 26,
+                  height: 26,
+                  tintColor: color,
+                  resizeMode: "contain",
+                }}
+              />
             ),
             tabBarLabel: "Clinic",
           }}
@@ -61,8 +74,16 @@ const TabLayout = () => {
           name="Payments"
           component={PaymentsScreen}
           options={{
-            tabBarIcon: ({ focused, color }) => (
-              <Image className="w-6 h-6" source={Icons.sign} style={{ tintColor: color }} />
+            tabBarIcon: ({ color }) => (
+              <Image
+                source={Icons.sign}
+                style={{
+                  width: 26,
+                  height: 26,
+                  tintColor: color,
+                  resizeMode: "contain",
+                }}
+              />
             ),
             tabBarLabel: "Payments",
           }}
@@ -71,8 +92,16 @@ const TabLayout = () => {
           name="Profile"
           component={DrProfileLayout}
           options={{
-            tabBarIcon: ({ focused, color }) => (
-              <Image className="w-6 h-6" source={Icons.user} style={{ tintColor: color }} />
+            tabBarIcon: ({ color }) => (
+              <Image
+                source={Icons.user}
+                style={{
+                  width: 26,
+                  height: 26,
+                  tintColor: color,
+                  resizeMode: "contain",
+                }}
+              />
             ),
             tabBarLabel: "Profile",
           }}

@@ -1,22 +1,28 @@
 "use client"
 
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Keyboard, TouchableWithoutFeedback } from "react-native"
-import { useState, useRef } from "react"
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Keyboard, TouchableWithoutFeedback, Pressable } from "react-native"
+import { useState, useRef, useCallback } from "react"
 import { SafeAreaView } from "react-native-safe-area-context"
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons"
 import Modal from "react-native-modal"
-import { RadioButton, TextInput } from "react-native-paper"
+import { RadioButton } from "react-native-paper"
 import { useNavigation } from "@react-navigation/native"
 import { Dropdown } from "react-native-element-dropdown"
 import CustomSecondaryButton from "../../components/CustomSecondaryButton"
 import CustomButton from "../../components/CustomButton"
 import Header from "../../components/Header"
 import FormInput from "../../components/Doctor/FormInput"
+import BottomSheet, { BottomSheetScrollView } from "@gorhom/bottom-sheet"
+import DropDownPicker from 'react-native-dropdown-picker';
+import { FlatList } from "react-native-gesture-handler"
+import { Icon, Input } from "@rneui/themed"
+import CustomInput from "../../components/CustomInput"
 
 const DrugSheet = () => {
   const [drugsList, setDrugsList] = useState([])
   const [instruction, setInstruction] = useState("")
   const [drug, setDrug] = useState("")
+  const [selectedDrug, setSelectedDrug] = useState("");
   const [selectedType, setSelectedType] = useState("")
   const [selectedMode, setSelectedMode] = useState("")
   const [selectedStrength, setSelectedStrength] = useState("")
@@ -30,16 +36,45 @@ const DrugSheet = () => {
   const [isDropDownVisible, setDropDownVisible] = useState(false)
   const [isDropDownVisibleDosage, setDropDownVisibleDosage] = useState(false)
   const [isDropDownVisibleDuration, setDropDownVisibleDuration] = useState(false)
-  const [filteredData, setFilteredData] = useState([])
+  const [timing, setTiming] = useState(null);
+  const bottomSheetRef = useRef<BottomSheet>(null);
+  const mealOptions = ["od", "bd", "tds", "qid", "hs", "morning"]
 
-  // Create a ref for the drug input
-  const drugInputRef = useRef(null)
-  // Create a ref for the scroll view
+  // const handleSearch = (text) => {
+  //   setQuery(text);
+
+  //   if (text.trim().length > 0) {
+  //     const results = drugs.filter((item) =>
+  //       item.toLowerCase().includes(text.toLowerCase())
+  //     );
+  //     setFilteredData(results);
+  //     setShowList(true);
+  //   } else {
+  //     setFilteredData([]);
+  //     setShowList(false);
+  //   }
+  // };
+
+
+  // callbacks
+  const handleSheetChanges = useCallback((index: number) => {
+    console.log('handleSheetChanges', index);
+  }, []);
+ 
   const scrollViewRef = useRef(null)
 
   const toggleModal = () => setModalVisible(!isModalVisible)
 
-  const data = [
+  const medincineData = [
+  { label: "Paracetamol", value: "paracetamol" },
+  { label: "Ibuprofen", value: "ibuprofen" },
+  { label: "Amoxicillin", value: "amoxicillin" },
+  { label: "Ciprofloxacin", value: "ciprofloxacin" },
+  { label: "Ciprofloxacin", value: "ciprofloxacin" },
+  { label: "Ciprofloxacin", value: "ciprofloxacin" },
+  { label: "Ciprofloxacin", value: "ciprofloxacin" },
+];
+  const typeData = [
     { key: "2", value: "Tablet" },
     { key: "3", value: "Capsule" },
     { key: "5", value: "Cream/Lotion" },
@@ -74,10 +109,6 @@ const DrugSheet = () => {
     { key: "2", value: "Weeks" },
     { key: "3", value: "Months" },
   ]
-  const beforeAfterDate = [
-    { key: "1", value: "Before" },
-    { key: "2", value: "After" },
-  ]
 
   // Function to hide all dropdowns
   const hideAllDropdowns = () => {
@@ -90,7 +121,8 @@ const DrugSheet = () => {
   // Function to add drug to the list
   const handleAddDrug = () => {
     if (
-      !drug.trim() ||
+      // !drug.trim() ||
+       !selectedDrug ||
       !selectedType ||
       !selectedMode ||
       !selectedStrength ||
@@ -102,7 +134,7 @@ const DrugSheet = () => {
       return
     }
 
-    // Convert duration to a number
+    
     const parsedDuration = Number.parseInt(duration.trim(), 10)
     if (isNaN(parsedDuration) || parsedDuration <= 0) {
       alert("Please enter a valid duration.")
@@ -110,7 +142,8 @@ const DrugSheet = () => {
     }
 
     const newDrug = {
-      name: drug.trim(),
+      // name: drug.trim(),
+      name: selectedDrug,
       type: selectedType,
       mode: selectedMode,
       strength: selectedStrength,
@@ -120,7 +153,7 @@ const DrugSheet = () => {
       beforeAfter,
     }
 
-    // Check for duplicates in the drugsList
+ 
     interface Drug {
       name: string
       type: string
@@ -153,7 +186,8 @@ const DrugSheet = () => {
 
     // Close modal and reset input fields
     setModalVisible(false)
-    setDrug("")
+    // setDrug("")
+    setSelectedDrug("");
     setSelectedType("")
     setSelectedMode("")
     setSelectedStrength("")
@@ -162,77 +196,37 @@ const DrugSheet = () => {
     setBeforeAfter("")
   }
 
-  // Update the handleSearch function to hide the dropdown when there are no matches
 
-  const handleSearch = (query) => {
-    setDrug(query)
-    if (query.trim() === "") {
-      // Show all options when input is empty
-      setFilteredData(data)
-      setDropDownVisible(true)
-    } else {
-      const newData = data.filter((item) => item.value.toLowerCase().includes(query.toLowerCase()))
-      if (newData.length > 0) {
-        setFilteredData(newData)
-        setDropDownVisible(true)
-      } else {
-        // Hide dropdown when no matches are found
-        setDropDownVisible(false)
-      }
-    }
-  }
-
-  // Function to handle the drug input press
-  const handleDrugInputPress = (e) => {
-    // Prevent event from bubbling up to parent
-    e.stopPropagation()
-
-    // Hide other dropdowns first
-    setDropDownVisibleDosage(false)
-    setDropDownVisibleDuration(false)
-
-    // Show the dropdown
-    setFilteredData(data)
-    setDropDownVisible(true)
-
-    // Focus the input field
-    if (drugInputRef.current) {
-      drugInputRef.current.focus()
-    }
-  }
-
-  // Function to handle the dosage dropdown press
+  
   const handleDosagePress = (e) => {
-    // Prevent event from bubbling up to parent
+    
     e.stopPropagation()
 
-    // Hide other dropdowns first
+   
     setDropDownVisible(false)
     setDropDownVisibleDuration(false)
 
-    // Toggle dosage dropdown
     setDropDownVisibleDosage(!isDropDownVisibleDosage)
   }
 
-  // Function to handle the duration dropdown press
   const handleDurationPress = (e) => {
-    // Prevent event from bubbling up to parent
+
     e.stopPropagation()
 
-    // Hide other dropdowns first
     setDropDownVisible(false)
     setDropDownVisibleDosage(false)
 
-    // Toggle duration dropdown
+    
     setDropDownVisibleDuration(!isDropDownVisibleDuration)
   }
 
   const navigation = useNavigation()
 
   return (
-    <>
-      <SafeAreaView className="flex-1 bg-gray-50 px-5">
+    
+      <SafeAreaView className="flex-1 bg-gray-50">
         <Header title="Prescription" />
+<View className="flex-1 px-4">
 
         <View className="bg-white p-5 rounded-xl shadow-sm mx-4 border-gray-200 border mt-10">
           <Text className="text-xl font-bold text-gray-800 mb-3">Prescribed Medications</Text>
@@ -267,30 +261,41 @@ const DrugSheet = () => {
 
           <TouchableOpacity
             activeOpacity={0.8}
-            onPress={toggleModal}
+            onPress={()=> bottomSheetRef.current?.expand()}
             className="mt-4 bg-[#d3ecf8] py-3.5 rounded-lg items-center active:bg-[#d3ecf8]"
           >
             <Text className="font-semibold text-black">+ Add Medication</Text>
           </TouchableOpacity>
         </View>
+         <View className="mt-6 mx-4">
+          <FormInput
+            label="Special Instructions"
+            value={instruction}
+            onChangeText={setInstruction}
+            placeholder="E.g., Take after meals, avoid caffeine, etc."
+            multiline
+            numberOfLines={4}
+          />
+        </View>
 
-        {/* MODAL */}
-        <Modal
-          isVisible={isModalVisible}
-          onBackdropPress={toggleModal}
-          onBackButtonPress={toggleModal}
-          animationIn="slideInUp"
-          animationOut="slideOutDown"
-          animationInTiming={400}
-          animationOutTiming={400}
-          backdropTransitionInTiming={500}
-          backdropTransitionOutTiming={500}
-          style={{ margin: 0, justifyContent: "flex-end" }}
-          backdropOpacity={0.5}
-          statusBarTranslucent
-        >
-          <View className="bg-white rounded-t-3xl shadow-xl" style={{ maxHeight: "90%" }}>
-            <View className="flex-row justify-between items-center px-6 py-5 border-b border-gray-200">
+        <View className="mt-8 mx-4">
+          <CustomButton link={""} label="Generate Prescription" />
+        </View>
+
+      
+            <BottomSheet
+          ref={bottomSheetRef}
+          snapPoints={["90%"]}
+          index={-1}
+          
+          backgroundStyle={{
+    borderTopLeftRadius: 24,   
+    borderTopRightRadius: 24,
+    backgroundColor: "white",
+  }}
+          enablePanDownToClose // allow swipe down to fully close
+          onChange={handleSheetChanges}>
+             <View className="flex-row justify-between items-center px-6 py-5 border-b border-gray-200">
               <Text className="text-xl font-bold text-gray-800">Add Medication</Text>
               <TouchableOpacity
                 onPress={toggleModal}
@@ -299,102 +304,96 @@ const DrugSheet = () => {
                 <MaterialCommunityIcons name="close" size={22} color="#2895cb" />
               </TouchableOpacity>
             </View>
+          <BottomSheetScrollView style={{flex: 1, padding: 10}}>
+             <View className="bg-white rounded-t-3xl shadow-xl" >
+           
 
             {/* Wrap ScrollView with TouchableWithoutFeedback to handle background taps */}
             <TouchableWithoutFeedback onPress={hideAllDropdowns}>
-              <ScrollView
-                ref={scrollViewRef}
-                contentContainerStyle={{ paddingBottom: 30 }}
-                className="px-6 py-5"
-                showsVerticalScrollIndicator={false}
-                keyboardShouldPersistTaps="handled"
+              <View className="p-3 pb-10">
+           
+      <Text className="text-base font-semibold text-gray-700 mb-2">
+        Choose Drug Name
+      </Text>
+
+       {/* <Input
+       style={{margin:0}}
+        value={query}
+        onChangeText={handleSearch}
+        placeholder="Enter drug name"
+        onFocus={() => {
+          if (query.length > 0) setShowList(true);
+        }}
+        inputContainerStyle={{
+          borderWidth: 1,
+          borderColor: "#d1d5db", // gray-300
+          borderRadius: 8,
+          paddingHorizontal: 6,
+        }}
+        leftIcon={
+          <Icon
+            name="search"
+            type="material"
+            size={22}
+            color="gray"
+            style={{ marginRight: 6 }}
+          />
+        }
+      />
+
+      {showList && (
+        <View className="bg-white rounded-lg border border-gray-200 z-50">
+          <FlatList
+            data={filteredData}
+            keyExtractor={(item, index) => index.toString()}
+            renderItem={({ item }) => (
+              <TouchableOpacity
+                onPress={() => handleSelect(item)}
+                className="p-3 py-5 border-b border-gray-200"
               >
-                <View className="relative mb-4">
-                  <Text className="text-base font-semibold text-gray-700 mb-2">Drug Name</Text>
+                <Text>{item}</Text>
+              </TouchableOpacity>
+            )}
+            keyboardShouldPersistTaps="handled"
+            nestedScrollEnabled
+            style={{ maxHeight: 240 }} 
+          />
+        </View>
+      )} */}
 
-                  {/* Wrap TextInput in TouchableOpacity for better touch handling */}
-                  <TouchableOpacity activeOpacity={1} onPress={handleDrugInputPress} style={styles.inputWrapper}>
-                    <TextInput
-                      ref={drugInputRef}
-                      value={drug}
-                      onChangeText={handleSearch}
-                      placeholder="Enter Drug Name"
-                      mode="outlined"
-                      outlineColor="#e5e7eb"
-                      activeOutlineColor="#2895cb"
-                      onFocus={() => {
-                        setFilteredData(data)
-                        setDropDownVisible(true)
-                        // Hide other dropdowns
-                        setDropDownVisibleDosage(false)
-                        setDropDownVisibleDuration(false)
-                      }}
-                      right={
-                        <TextInput.Icon
-                          icon={"chevron-down"}
-                          color="#9ca3af"
-                          onPress={(e) => {
-                            e.stopPropagation()
-                            setFilteredData(data)
-                            setDropDownVisible(!isDropDownVisible)
-                            // Hide other dropdowns
-                            setDropDownVisibleDosage(false)
-                            setDropDownVisibleDuration(false)
-                            // Focus the input when dropdown icon is clicked
-                            if (drugInputRef.current) {
-                              drugInputRef.current.focus()
-                            }
-                          }}
-                        />
-                      }
-                      style={{ backgroundColor: "white", height: 56, fontSize: 16 }}
-                      theme={{ roundness: 12 }}
-                    />
-                  </TouchableOpacity>
+       <Dropdown
+        
+        style={styles.consistentDropdown}
+                    placeholderStyle={styles.consistentPlaceholder}
+                    selectedTextStyle={styles.consistentSelectedText}
+                    inputSearchStyle={styles.consistentInputSearch}
+                    iconStyle={styles.consistentIcon}
+                    itemTextStyle={styles.consistentItemText}
+        data={medincineData}
+        search
+        maxHeight={300}
+        labelField="label"
+        valueField="value"
+        placeholder="Enter Drug Name"
+        searchPlaceholder="Search drug..."
+        value={selectedDrug}
+        onChange={(item) => {
+          setSelectedDrug(item.value);
+        }}
+      />
 
-                  {isDropDownVisible && filteredData.length > 0 && (
-                    <ScrollView
-                      style={{
-                        maxHeight: 200,
-                        borderRadius: 12,
-                        shadowColor: "#000",
-                        shadowOffset: { width: 0, height: 4 },
-                        shadowOpacity: 0.1,
-                        shadowRadius: 8,
-                        elevation: 5,
-                      }}
-                      showsVerticalScrollIndicator={false}
-                      className="absolute top-full left-0 w-full bg-white border border-gray-200 shadow-lg rounded-lg mt-1 z-50"
-                      keyboardShouldPersistTaps="handled"
-                    >
-                      {filteredData.map((item, index) => (
-                        <TouchableOpacity
-                          key={index}
-                          activeOpacity={0.7}
-                          className={`p-4 ${index < filteredData.length - 1 ? "border-b border-gray-100" : ""}`}
-                          onPress={(e) => {
-                            e.stopPropagation()
-                            setDrug(item.value)
-                            setDropDownVisible(false)
-                            // Dismiss keyboard after selection
-                            Keyboard.dismiss()
-                          }}
-                        >
-                          <Text className="text-base text-gray-700">{item.value}</Text>
-                        </TouchableOpacity>
-                      ))}
-                    </ScrollView>
-                  )}
-                </View>
 
-                <Text className="text-base font-semibold text-gray-700 mb-2">Type</Text>
+                <Text className="text-base font-semibold text-gray-700 mb-2 mt-4">Type</Text>
                 <Dropdown
-                  style={styles.dropdown}
-                  placeholderStyle={styles.placeholderStyle}
-                  selectedTextStyle={styles.selectedTextStyle}
-                  inputSearchStyle={styles.inputSearchStyle}
-                  data={data}
-                  search
+                  containerStyle={{ borderRadius: 8 }}
+                  data={typeData}
+                  search={false}
+                   style={styles.consistentDropdown}
+                    placeholderStyle={styles.consistentPlaceholder}
+                    selectedTextStyle={styles.consistentSelectedText}
+                    inputSearchStyle={styles.consistentInputSearch}
+                    iconStyle={styles.consistentIcon}
+                    itemTextStyle={styles.consistentItemText}
                   maxHeight={300}
                   labelField="value"
                   valueField="value"
@@ -410,12 +409,14 @@ const DrugSheet = () => {
 
                 <Text className="text-base font-semibold text-gray-700 mb-2 mt-4">Mode of Drug</Text>
                 <Dropdown
-                  style={styles.dropdown}
-                  placeholderStyle={styles.placeholderStyle}
-                  selectedTextStyle={styles.selectedTextStyle}
-                  inputSearchStyle={styles.inputSearchStyle}
+                  style={styles.consistentDropdown}
+                    placeholderStyle={styles.consistentPlaceholder}
+                    selectedTextStyle={styles.consistentSelectedText}
+                    inputSearchStyle={styles.consistentInputSearch}
+                    iconStyle={styles.consistentIcon}
+                    itemTextStyle={styles.consistentItemText}
                   data={modeData}
-                  search
+                  search={false}
                   maxHeight={300}
                   labelField="value"
                   valueField="value"
@@ -436,7 +437,7 @@ const DrugSheet = () => {
                   selectedTextStyle={styles.selectedTextStyle}
                   inputSearchStyle={styles.inputSearchStyle}
                   data={strengthData}
-                  search
+                  search={false}
                   maxHeight={300}
                   labelField="value"
                   valueField="value"
@@ -450,285 +451,226 @@ const DrugSheet = () => {
                   onFocus={() => hideAllDropdowns()}
                 />
 
-                <Text className="text-base font-semibold text-gray-700 mb-2 mt-4">Dosage</Text>
-                <View className="relative">
-                  <View style={styles.splitInput}>
-                    <TextInput
-                      value={Dosage}
-                      onChangeText={setDosage}
-                      placeholder="Enter dosage"
-                      mode="flat"
-                      underlineColor="transparent"
-                      activeUnderlineColor="transparent"
-                      style={styles.splitInputLeft}
-                      theme={{ roundness: 12 }}
-                      onFocus={() => {
-                        // Hide all dropdowns when focusing on this input
-                        setDropDownVisible(false)
-                        setDropDownVisibleDosage(false)
-                        setDropDownVisibleDuration(false)
-                      }}
-                    />
+               {/* <Text className="text-base font-semibold text-gray-700 mb-2 mt-4">Dosage</Text> */}
+                <View className="flex-row items-center w-full gap-2 mt-4">
 
-                    <TouchableOpacity activeOpacity={0.8} style={styles.splitInputRight} onPress={handleDosagePress}>
-                      <Text style={styles.dropdownText}>{selectedDosage || "Select frequency"}</Text>
-                      <MaterialCommunityIcons name="chevron-down" size={20} color="#9ca3af" />
-                    </TouchableOpacity>
-                  </View>
+  <View className="flex-1 ">
+    <CustomInput
+      label="Dosage"
+      value={Dosage}
+      onChange={setDosage}
+      placeholder="Enter Dosage"
+      keyboardType="numeric"
+      onFocus={() => {
+        setDropDownVisible(false);
+        setDropDownVisibleDosage(false);
+        setDropDownVisibleDuration(false);
+      }}
+     style={{ height: 48 }} 
+    />
+  </View>
 
-                  {isDropDownVisibleDosage && dosageData.length > 0 && (
-                    <ScrollView
-                      style={styles.dropdownList}
-                      showsVerticalScrollIndicator={false}
-                      keyboardShouldPersistTaps="handled"
-                    >
-                      {dosageData.map((item, index) => (
-                        <TouchableOpacity
-                          key={index}
-                          activeOpacity={0.7}
-                          style={styles.dropdownItem}
-                          onPress={(e) => {
-                            e.stopPropagation()
-                            setSelectedDosage(item.value)
-                            setDropDownVisibleDosage(false)
-                          }}
-                        >
-                          <Text style={styles.dropdownItemText}>{item.value}</Text>
-                        </TouchableOpacity>
-                      ))}
-                    </ScrollView>
-                  )}
+  {/* Dropdown fixed width */}
+  
+   <View className="w-1/2">
+                  <Dropdown
+                    style={styles.consistentDropdown}
+                    placeholderStyle={styles.consistentPlaceholder}
+                    selectedTextStyle={styles.consistentSelectedText}
+                    inputSearchStyle={styles.consistentInputSearch}
+                    iconStyle={styles.consistentIcon}
+                    itemTextStyle={styles.consistentItemText}
+                    data={dosageData}
+                    search={false}
+                    maxHeight={300}
+                    labelField="value"
+                    valueField="value"
+                    placeholder="Select"
+                    value={selectedDosage}
+                    onChange={(item) => {
+                      setSelectedDosage(item.value)
+                      hideAllDropdowns()
+                    }}
+                    onFocus={() => hideAllDropdowns()}
+                    renderItem={(item) => (
+                      <View style={styles.dropdownItemContainer}>
+                        <Text style={styles.dropdownItemText} numberOfLines={2}>
+                          {item.value}
+                        </Text>
+                      </View>
+                    )}
+                  />
                 </View>
+</View>
+
 
                 <Text className="text-base font-semibold text-gray-700 mb-2 mt-4">Timing of Drugs</Text>
-                <View className="flex-row flex-wrap bg-gray-50 p-3 rounded-xl">
-                  <View className="flex-row items-center m-2">
-                    <RadioButton
-                      value="od"
-                      status={mealTiming === "od" ? "checked" : "unchecked"}
-                      onPress={() => {
-                        setMealTiming("od")
-                        hideAllDropdowns()
-                      }}
-                      color="#2895cb"
-                    />
-                    <Text
-                      onPress={() => {
-                        setMealTiming("od")
-                        hideAllDropdowns()
-                      }}
-                      className="font-semibold text-gray-700 ml-1"
-                    >
-                      OD
-                    </Text>
-                  </View>
-
-                  <View className="flex-row items-center m-2">
-                    <RadioButton
-                      value="bd"
-                      status={mealTiming === "bd" ? "checked" : "unchecked"}
-                      onPress={() => {
-                        setMealTiming("bd")
-                        hideAllDropdowns()
-                      }}
-                      color="#2895cb"
-                    />
-                    <Text
-                      onPress={() => {
-                        setMealTiming("bd")
-                        hideAllDropdowns()
-                      }}
-                      className="font-semibold text-gray-700 ml-1"
-                    >
-                      BD
-                    </Text>
-                  </View>
-
-                  <View className="flex-row items-center m-2">
-                    <RadioButton
-                      value="tds"
-                      status={mealTiming === "tds" ? "checked" : "unchecked"}
-                      onPress={() => {
-                        setMealTiming("tds")
-                        hideAllDropdowns()
-                      }}
-                      color="#2895cb"
-                    />
-                    <Text
-                      onPress={() => {
-                        setMealTiming("tds")
-                        hideAllDropdowns()
-                      }}
-                      className="font-semibold text-gray-700 ml-1"
-                    >
-                      TDS
-                    </Text>
-                  </View>
-
-                  <View className="flex-row items-center m-2">
-                    <RadioButton
-                      value="qid"
-                      status={mealTiming === "qid" ? "checked" : "unchecked"}
-                      onPress={() => {
-                        setMealTiming("qid")
-                        hideAllDropdowns()
-                      }}
-                      color="#2895cb"
-                    />
-                    <Text
-                      onPress={() => {
-                        setMealTiming("qid")
-                        hideAllDropdowns()
-                      }}
-                      className="font-semibold text-gray-700 ml-1"
-                    >
-                      QID
-                    </Text>
-                  </View>
-
-                  <View className="flex-row items-center m-2">
-                    <RadioButton
-                      value="hs"
-                      status={mealTiming === "hs" ? "checked" : "unchecked"}
-                      onPress={() => {
-                        setMealTiming("hs")
-                        hideAllDropdowns()
-                      }}
-                      color="#2895cb"
-                    />
-                    <Text
-                      onPress={() => {
-                        setMealTiming("hs")
-                        hideAllDropdowns()
-                      }}
-                      className="font-semibold text-gray-700 ml-1"
-                    >
-                      HS
-                    </Text>
-                  </View>
-
-                  <View className="flex-row items-center m-2">
-                    <RadioButton
-                      value="morning"
-                      status={mealTiming === "morning" ? "checked" : "unchecked"}
-                      onPress={() => {
-                        setMealTiming("morning")
-                        hideAllDropdowns()
-                      }}
-                      color="#2895cb"
-                    />
-                    <Text
-                      onPress={() => {
-                        setMealTiming("morning")
-                        hideAllDropdowns()
-                      }}
-                      className="font-semibold text-gray-700 ml-1"
-                    >
-                      Morning
-                    </Text>
-                  </View>
-                </View>
-
+                <View className="flex-row flex-wrap bg-gray-100 p-2 rounded-xl">
+      {mealOptions.map((option) => (
+        <Pressable
+          key={option}
+          onPress={() => {
+            setMealTiming(option)
+            hideAllDropdowns()
+          }}
+          className={`px-4 py-2 m-2 rounded-lg border justify-center items-center 
+            ${mealTiming === option ? "bg-secondary border-secondary" : "bg-white border-gray-300"}
+          `}
+        >
+          <Text
+            className={`font-semibold ${
+              mealTiming === option ? "text-white" : "text-gray-700"
+            }`}
+          >
+            {option.toUpperCase()}
+          </Text>
+        </Pressable>
+      ))}
+    </View>
                 <Text className="text-base font-semibold text-gray-700 mb-2 mt-4">Duration</Text>
-                <View className="relative">
-                  <View style={styles.splitInput}>
-                    <TextInput
-                      value={duration}
-                      onChangeText={setDuration}
-                      placeholder="Enter number"
-                      mode="flat"
-                      keyboardType="numeric"
-                      underlineColor="transparent"
-                      activeUnderlineColor="transparent"
-                      style={styles.splitInputLeft}
-                      theme={{ roundness: 12 }}
-                      onFocus={() => {
-                        // Hide all dropdowns when focusing on this input
-                        setDropDownVisible(false)
-                        setDropDownVisibleDosage(false)
-                        setDropDownVisibleDuration(false)
-                      }}
-                    />
+               <View className="flex-row items-center w-full gap-2 mt-4">
 
-                    <TouchableOpacity activeOpacity={0.8} style={styles.splitInputRight} onPress={handleDurationPress}>
-                      <Text style={styles.dropdownText}>{selectedDuration || "Select unit"}</Text>
-                      <MaterialCommunityIcons name="chevron-down" size={20} color="#9ca3af" />
-                    </TouchableOpacity>
-                  </View>
+  <View className="flex-1 ">
+    <CustomInput
+      label="Dosage"
+      value={Dosage}
+      onChange={setDosage}
+      placeholder="Enter Dosage"
+      keyboardType="numeric"
+      onFocus={() => {
+        setDropDownVisible(false);
+        setDropDownVisibleDosage(false);
+        setDropDownVisibleDuration(false);
+      }}
+     style={{ height: 48 }} 
+    />
+  </View>
 
-                  {isDropDownVisibleDuration && durationData.length > 0 && (
-                    <ScrollView
-                      style={styles.dropdownList}
-                      showsVerticalScrollIndicator={false}
-                      keyboardShouldPersistTaps="handled"
-                    >
-                      {durationData.map((item, index) => (
-                        <TouchableOpacity
-                          key={index}
-                          activeOpacity={0.7}
-                          style={styles.dropdownItem}
-                          onPress={(e) => {
-                            e.stopPropagation()
-                            setSelectedDuration(item.value)
-                            setDropDownVisibleDuration(false)
-                          }}
-                        >
-                          <Text style={styles.dropdownItemText}>{item.value}</Text>
-                        </TouchableOpacity>
-                      ))}
-                    </ScrollView>
-                  )}
+  {/* Dropdown fixed width */}
+  
+   <View className="w-1/2">
+                  <Dropdown
+                    style={styles.consistentDropdown}
+                    placeholderStyle={styles.consistentPlaceholder}
+                    selectedTextStyle={styles.consistentSelectedText}
+                    inputSearchStyle={styles.consistentInputSearch}
+                    iconStyle={styles.consistentIcon}
+                    itemTextStyle={styles.consistentItemText}
+                    data={durationData}
+                    search={false}
+                    maxHeight={300}
+                    labelField="value"
+                    valueField="value"
+                    placeholder="Select"
+                    value={selectedDuration}
+                    onChange={(item) => {
+                      setSelectedDuration(item.value)
+                      hideAllDropdowns()
+                    }}
+                    onFocus={() => hideAllDropdowns()}
+                    renderItem={(item) => (
+                      <View style={styles.dropdownItemContainer}>
+                        <Text style={styles.dropdownItemText} numberOfLines={2}>
+                          {item.value}
+                        </Text>
+                      </View>
+                    )}
+                  />
                 </View>
+</View>
 
                 <Text className="text-base font-semibold text-gray-700 mb-2 mt-4">Before/After</Text>
-                <Dropdown
-                  style={styles.dropdown}
-                  placeholderStyle={styles.placeholderStyle}
-                  selectedTextStyle={styles.selectedTextStyle}
-                  inputSearchStyle={styles.inputSearchStyle}
-                  data={beforeAfterDate}
-                  maxHeight={300}
-                  labelField="value"
-                  valueField="value"
-                  placeholder="Select timing"
-                  value={beforeAfter}
-                  onChange={(item) => {
-                    setBeforeAfter(item.value)
-                    hideAllDropdowns()
-                  }}
-                  onFocus={() => hideAllDropdowns()}
-                />
+               <View className="flex-row bg-gray-100 rounded-xl p-1">
+      {["Before Meal", "After Meal"].map((option) => (
+        <TouchableOpacity
+        activeOpacity={.90}
+          key={option}
+          onPress={() => setTiming(option)}
+          className={`flex-1 py-2 rounded-lg ${
+            timing === option ? "bg-secondary" : "bg-transparent"
+          }`}
+        >
+          <Text
+            className={`text-center ${
+              timing === option ? "text-white font-semibold" : "text-gray-600"
+            }`}
+          >
+            {option}
+          </Text>
+        </TouchableOpacity>
+      ))}
+    </View>
+
+
+
 
                 <View className="mt-8">
                   <CustomSecondaryButton onPress={handleAddDrug} label={"Add Drug"} />
                 </View>
-              </ScrollView>
+              </View>
             </TouchableWithoutFeedback>
           </View>
-        </Modal>
 
-        <View className="mt-6 mx-4">
-          <FormInput
-            label="Special Instructions"
-            value={instruction}
-            onChangeText={setInstruction}
-            placeholder="E.g., Take after meals, avoid caffeine, etc."
-            multiline
-            numberOfLines={4}
-          />
-        </View>
+            
+          </BottomSheetScrollView>
+        </BottomSheet>
+</View>
+        
 
-        <View className="mt-8 mx-4">
-          <CustomButton link={""} label="Generate Prescription" />
-        </View>
+       
       </SafeAreaView>
-    </>
+    
   )
 }
 
 export default DrugSheet
 
 const styles = StyleSheet.create({
+  consistentDropdown: {
+    height: 55, // Same height as CustomInput
+    backgroundColor: "#fff",
+    borderRadius: 7, // Same border radius as CustomInput
+    paddingHorizontal: 10, // Same padding as CustomInput
+    paddingVertical: 2,
+    borderWidth: 1,
+    borderColor: "#d1d5db", // Same border color as CustomInput
+  },
+  consistentPlaceholder: {
+    fontSize: 16, // Same font size as CustomInput
+    color: "#9ca3af", // Same placeholder color as CustomInput
+  },
+  consistentSelectedText: {
+    fontSize: 16, // Same font size as CustomInput
+    color: "black", // Same text color as CustomInput
+  },
+  consistentInputSearch: {
+    height: 48,
+    fontSize: 16,
+    borderRadius: 7,
+    color: "black",
+  },
+  consistentIcon: {
+    tintColor: "#9ca3af",
+  },
+  consistentItemText: {
+    fontSize: 16,
+    color: "black",
+  },
+  
+  dropdownItemContainer: {
+    padding: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: "#f3f4f6",
+    minHeight: 48,
+    justifyContent: "center",
+  },
+  dropdownItemText: {
+    fontSize: 16,
+    color: "#1f2937",
+    flexWrap: "wrap",
+    lineHeight: 20,
+  },
+  // Legacy styles (keeping for compatibility)
   dropdown: {
     height: 56,
     backgroundColor: "white",
@@ -761,13 +703,6 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     backgroundColor: "white",
     overflow: "hidden",
-  },
-  splitInputLeft: {
-    flex: 1,
-    backgroundColor: "white",
-    height: 56,
-    paddingHorizontal: 12,
-    fontSize: 16,
   },
   splitInputRight: {
     flex: 1,
@@ -805,9 +740,5 @@ const styles = StyleSheet.create({
     padding: 12,
     borderBottomWidth: 1,
     borderBottomColor: "#f3f4f6",
-  },
-  dropdownItemText: {
-    fontSize: 16,
-    color: "#1f2937",
   },
 })

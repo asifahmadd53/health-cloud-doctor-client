@@ -1,4 +1,4 @@
-import { View } from "react-native"
+import { Text, View } from "react-native"
 import { Input } from "@rneui/themed"
 import type { TextInputProps } from "react-native-paper"
 import { useState } from "react"
@@ -52,11 +52,16 @@ const CustomInput = ({
   const [isFocused, setIsFocused] = useState(false)
 
   return (
+    <>
+    {label ? (
+  <Text className="text-base font-semibold text-gray-700 mb-2">
+    {label}
+  </Text>
+) : null}
     <Input
-      label={label}
       labelStyle={{
         fontSize: 14,
-        fontWeight: "400",
+        fontWeight: "600", 
         marginBottom: 8,
         color: "black",
       }}
@@ -103,6 +108,7 @@ const CustomInput = ({
       placeholderTextColor="#9ca3af"
       {...rest}
     />
+    </>
   )
 }
 
