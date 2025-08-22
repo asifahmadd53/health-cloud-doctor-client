@@ -38,19 +38,18 @@ const toggleCheckbox = (key: SelectedKeys) => {
 
 
   return (
-    <KeyboardAvoidingView
-    className='bg-white'
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={{flex: 1}}>
-        <Header title="Prescription" />
-        <SafeAreaView className="flex-1 bg-white">
-        <ScrollView
-          className="px-5 pt-4"
-          contentContainerStyle={{
-            paddingBottom: 40,
-          }}
-          showsVerticalScrollIndicator={false}>
-          {/* Container for everything */}
+    <SafeAreaView className="flex-1 bg-white">
+      <Header title="Prescription" />
+     <KeyboardAvoidingView
+  className="flex-1"
+  behavior={Platform.OS === "ios" ? "padding" : "height"}
+  keyboardVerticalOffset={Platform.OS === "ios" ? 100 : 0}
+>
+         <ScrollView
+          className="px-6 pt-6"
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ paddingBottom: 80 }}
+        >
           <View className="bg-white rounded-lg p-4 shadow-sm">
             {/* Section: Presenting Complaints */}
             <Text className="text-xl font-semibold text-gray-800 mb-4">
@@ -134,18 +133,21 @@ const toggleCheckbox = (key: SelectedKeys) => {
               onChangeText={setRadiology}
             />
 
-            {/* Next Button */}
           </View>
         </ScrollView>
-         <View className="px-5 py-4 self-end">
-              <Pressable onPress={()=> navigation.navigate("DrugSheet")} className='bg-secondary px-10 py-2 rounded-full'>
-                <Text className='text-white text-lg font-semibold'>Next</Text>
-              </Pressable>
+      <View className="absolute bottom-0 left-0 right-0 bg-white px-5 py-2 flex-row justify-end">
+  <Pressable 
+    onPress={() => navigation.navigate("DrugSheet")} 
+    className="bg-secondary px-10 py-2 rounded-full"
+  >
+    <Text className="text-white text-lg font-semibold">Next</Text>
+  </Pressable>
 </View>
 
 
-      </SafeAreaView>
+
     </KeyboardAvoidingView>
+      </SafeAreaView>
   );
 };
 

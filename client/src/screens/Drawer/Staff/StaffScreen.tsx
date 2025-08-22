@@ -42,7 +42,7 @@ const StaffScreen = () => {
         text: "Delete",
         onPress: async () => {
           try {
-            const response = await axios.delete(`${BASE_URL}/api/staff/delete-staff/${id}`, {
+            const response = await axios.delete(`${BASE_URL}/staff/delete-staff/${id}`, {
               withCredentials: true,
             })
             if (response.status === 200) {

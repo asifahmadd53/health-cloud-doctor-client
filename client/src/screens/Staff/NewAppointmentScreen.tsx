@@ -19,7 +19,7 @@ import Header from "../../components/Header";
 import { formatDate, formatTime } from "../../utils/dateUtils";
 import RNDateTimePicker from "@react-native-community/datetimepicker";
 import axios from "axios";
-import { API_URL } from "../../api/api";
+import { BASE_URL } from "../../api/api";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const NewAppointmentScreen = () => {
@@ -108,7 +108,7 @@ const NewAppointmentScreen = () => {
       const timeString = time?.toTimeString().split(" ")[0].substring(0, 5) || "";
   
       const response = await axios.post(
-        `${API_URL}/api/appointment/create-appointment`,
+        `${BASE_URL}/api/appointment/create-appointment`,
         {
           patientName,
           patientCNIC,

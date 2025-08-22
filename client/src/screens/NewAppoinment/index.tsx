@@ -177,7 +177,7 @@ const NewAppointment = () => {
           {/* Submit Button */}
           
         </ScrollView>
-        <View className="py-3">
+        <View className="py-2">
             <CustomButton
               label="Proceed to Patient Details"
               link="patientDetailsLayout"

@@ -91,7 +91,7 @@ const CustomInput = ({
         borderWidth: 1,
         borderColor: isFocused ? "#2895cb" : "#d1d5db",
         paddingHorizontal: 10,
-        paddingVertical: 2,
+        paddingVertical:0,
       }}
       inputStyle={{
         fontSize: 16,

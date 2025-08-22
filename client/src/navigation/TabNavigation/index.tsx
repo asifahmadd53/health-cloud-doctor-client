@@ -21,7 +21,7 @@ const TabLayout = () => {
             marginHorizontal: 50,
             marginBottom: 20,
             backgroundColor: "#ffffff",
-            borderRadius: 20,
+            borderRadius: 40,
             borderTopWidth: 0,
             shadowColor: "#000000",
             shadowOffset: {
