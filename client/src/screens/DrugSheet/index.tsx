@@ -49,7 +49,7 @@ const DrugSheet = () => {
   const [timing, setTiming] = useState('Before Meal');
   const bottomSheetRef = useRef<BottomSheet>(null);
   const mealOptions = ['od', 'bd', 'tds', 'qid', 'hs', 'morning'];
-
+  const searchRef = useRef(null);
   // const handleSearch = (text) => {
   //   setQuery(text);
 
@@ -377,7 +377,7 @@ const DrugSheet = () => {
       )} */}
 
                   <Dropdown
-                    style={styles.consistentDropdown}
+                   style={styles.consistentDropdown}
                     placeholderStyle={styles.consistentPlaceholder}
                     selectedTextStyle={styles.consistentSelectedText}
                     inputSearchStyle={styles.consistentInputSearch}
@@ -385,6 +385,15 @@ const DrugSheet = () => {
                     itemTextStyle={styles.consistentItemText}
                     data={medincineData}
                     search
+                    renderInputSearch={(props)=>(
+                      <FormInput
+                      className='border-none'
+                      placeholder='Search drug...'
+                      {...props}
+                      ref={searchRef}
+                      autoFocus={true}
+                      />
+                    )}
                     maxHeight={300}
                     labelField="label"
                     valueField="value"
@@ -571,7 +580,7 @@ const DrugSheet = () => {
                         style={{height: 48,backgroundColor:"white"}}
                       />
                     </View>
-
+                    
                     {/* Dropdown fixed width */}
 
                     <View className="w-1/2">
@@ -651,21 +660,21 @@ export default DrugSheet;
 
 const styles = StyleSheet.create({
   consistentDropdown: {
-    height: 50, // Same height as CustomInput
+    height: 50, 
     backgroundColor: '#fff',
-    borderRadius: 7, // Same border radius as CustomInput
-    paddingHorizontal: 10, // Same padding as CustomInput
+    borderRadius: 7, 
+    paddingHorizontal: 10, 
     paddingVertical: 2,
     borderWidth: 1,
-    borderColor: '#d1d5db', // Same border color as CustomInput
+    borderColor: '#d1d5db',
   },
   consistentPlaceholder: {
-    fontSize: 16, // Same font size as CustomInput
-    color: '#9ca3af', // Same placeholder color as CustomInput
+    fontSize: 16, 
+    color: '#9ca3af',
   },
   consistentSelectedText: {
-    fontSize: 16, // Same font size as CustomInput
-    color: 'black', // Same text color as CustomInput
+    fontSize: 16, 
+    color: 'black', 
   },
   consistentInputSearch: {
     height: 48,

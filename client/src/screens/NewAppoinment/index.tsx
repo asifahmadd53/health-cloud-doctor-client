@@ -26,7 +26,7 @@ const NewAppointment = () => {
   );
 
   return (
-    <SafeAreaView className="flex-1 bg-white ">
+    <SafeAreaView className="flex-1 bg-white">
       <Header title="New Appointment" />
       <KeyboardAvoidingView
   className="flex-1"

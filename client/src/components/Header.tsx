@@ -12,16 +12,16 @@ const Header = ({ title }: HeaderProps) => {
 
   return (
     <View
-      style={{
-        backgroundColor: "white",
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.8,
-        shadowRadius: 10,
-        elevation: 12, 
-      }}
-      className="flex-row items-center justify-between py-4 px-5"
-    >
+  style={{
+    backgroundColor: 'white',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3, // Android
+  }}
+  className="flex-row items-center justify-between py-4 px-5"
+>
       <TouchableOpacity
         activeOpacity={0.9}
         onPress={() => navigation.goBack()}

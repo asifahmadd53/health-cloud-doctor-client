@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react"
-import { View, Text, ScrollView, Alert } from "react-native"
+import { View, Text, ScrollView, Alert, KeyboardAvoidingView, Platform } from "react-native"
 
 import { useFocusEffect, useNavigation } from "@react-navigation/native"
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack"
@@ -61,7 +61,7 @@ const StaffScreen = () => {
   }
   const getStaff = async () => {
     try {
-      const response = await axios.get(`${BASE_URL}/api/staff/get-staff`, {
+      const response = await axios.get(`${BASE_URL}/staff/get-staff`, {
         withCredentials: true,
       })
       if (response.data && response.data.staff) {
@@ -77,7 +77,7 @@ const StaffScreen = () => {
 
   const getStaffById = async (id: string) => {
     try {
-      const response = await axios.get(`${BASE_URL}/api/staff/get-staff/${id}`, {
+      const response = await axios.get(`${BASE_URL}/staff/get-staff/${id}`, {
         withCredentials: true,
       })
       return response.data.staff
@@ -95,15 +95,15 @@ const StaffScreen = () => {
 
   return (
     <SafeAreaView className="flex-1 bg-gray-100">
-
-    <View className="px-4">
+      <KeyboardAvoidingView 
+      behavior={Platform.OS === 'ios' ? "padding" :"height"}
+      style={{flex:1}}
+      >
     <Header title="Staff Management" />
 
-    </View>
+    <ScrollView className="px-5">
 
-    <ScrollView >
-
-      <View className="p-4">
+      <View className="pt-5">
         <View className="flex-row justify-between items-center mb-2">
           <Text className="text-xl font-bold text-gray-800">Staff Management</Text>
           <Button
@@ -129,6 +129,7 @@ const StaffScreen = () => {
         )}
       </View>
     </ScrollView>
+    </KeyboardAvoidingView>
     </SafeAreaView>
   )
 }
