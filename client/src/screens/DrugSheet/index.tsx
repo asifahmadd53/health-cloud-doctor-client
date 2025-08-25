@@ -26,6 +26,7 @@ import DropDownPicker from 'react-native-dropdown-picker';
 import {FlatList} from 'react-native-gesture-handler';
 import {Icon, Input} from '@rneui/themed';
 import CustomInput from '../../components/CustomInput';
+import { TextInput } from 'react-native';
 
 const DrugSheet = () => {
   const [drugsList, setDrugsList] = useState([]);
@@ -49,7 +50,7 @@ const DrugSheet = () => {
   const [timing, setTiming] = useState('Before Meal');
   const bottomSheetRef = useRef<BottomSheet>(null);
   const mealOptions = ['od', 'bd', 'tds', 'qid', 'hs', 'morning'];
-  const searchRef = useRef(null);
+  
   // const handleSearch = (text) => {
   //   setQuery(text);
 
@@ -70,7 +71,6 @@ const DrugSheet = () => {
     console.log('handleSheetChanges', index);
   }, []);
 
-  const scrollViewRef = useRef(null);
 
   const toggleModal = () => setModalVisible(!isModalVisible);
 
@@ -221,7 +221,14 @@ const DrugSheet = () => {
     setDropDownVisibleDuration(!isDropDownVisibleDuration);
   };
 
-  const navigation = useNavigation();
+  const inputRef = useRef<TextInput>(null);
+
+  const focusSearch = () => {
+    setTimeout(() => inputRef.current?.focus(), 250);
+  };
+
+  
+
 
   return (
     <SafeAreaView className="flex-1 bg-gray-50">
@@ -376,8 +383,9 @@ const DrugSheet = () => {
         </View>
       )} */}
 
-                  <Dropdown
-                   style={styles.consistentDropdown}
+                 <Dropdown
+                  containerStyle={{borderRadius: 8}}
+                    style={styles.consistentDropdown}
                     placeholderStyle={styles.consistentPlaceholder}
                     selectedTextStyle={styles.consistentSelectedText}
                     inputSearchStyle={styles.consistentInputSearch}
@@ -385,14 +393,13 @@ const DrugSheet = () => {
                     itemTextStyle={styles.consistentItemText}
                     data={medincineData}
                     search
-                    renderInputSearch={(props)=>(
-                      <FormInput
-                      className='border-none'
-                      placeholder='Search drug...'
-                      {...props}
-                      ref={searchRef}
-                      autoFocus={true}
-                      />
+                    renderInputSearch={onSearch => (
+                     <FormInput
+          ref={inputRef}
+          style={styles.consistentInputSearch}
+          placeholder="Search drug..."
+          onChangeText={onSearch}
+        />
                     )}
                     maxHeight={300}
                     labelField="label"
@@ -400,9 +407,9 @@ const DrugSheet = () => {
                     placeholder="Enter Drug Name"
                     searchPlaceholder="Search drug..."
                     value={selectedDrug}
-                    onChange={item => {
-                      setSelectedDrug(item.value);
-                    }}
+                    onChange={item => setSelectedDrug(item.value)}
+                    onFocus={focusSearch}
+                    
                   />
 
                   <Text className="text-base font-semibold text-gray-700 mb-2 mt-4">
@@ -435,6 +442,7 @@ const DrugSheet = () => {
                     Mode of Drug
                   </Text>
                   <Dropdown
+                  containerStyle={{borderRadius: 8}}
                     style={styles.consistentDropdown}
                     placeholderStyle={styles.consistentPlaceholder}
                     selectedTextStyle={styles.consistentSelectedText}
@@ -460,6 +468,7 @@ const DrugSheet = () => {
                     Strength
                   </Text>
                   <Dropdown
+                   containerStyle={{borderRadius: 8}}
                     style={styles.consistentDropdown}
                         placeholderStyle={styles.consistentPlaceholder}
                         selectedTextStyle={styles.consistentSelectedText}
@@ -503,6 +512,7 @@ const DrugSheet = () => {
 
                     <View className="w-1/2">
                       <Dropdown
+                       containerStyle={{borderRadius: 8}}
                         style={styles.consistentDropdown}
                         placeholderStyle={styles.consistentPlaceholder}
                         selectedTextStyle={styles.consistentSelectedText}
@@ -585,6 +595,7 @@ const DrugSheet = () => {
 
                     <View className="w-1/2">
                       <Dropdown
+                       containerStyle={{borderRadius: 8}}
                         style={styles.consistentDropdown}
                         placeholderStyle={styles.consistentPlaceholder}
                         selectedTextStyle={styles.consistentSelectedText}
