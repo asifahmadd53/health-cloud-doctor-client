@@ -10,28 +10,23 @@ import {
   TouchableWithoutFeedback,
   Pressable,
 } from 'react-native';
-import {useState, useRef, useCallback} from 'react';
+import {useState, useRef, useCallback, useEffect} from 'react';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import Modal from 'react-native-modal';
-import {RadioButton} from 'react-native-paper';
-import {useNavigation} from '@react-navigation/native';
 import {Dropdown} from 'react-native-element-dropdown';
 import CustomSecondaryButton from '../../components/CustomSecondaryButton';
 import CustomButton from '../../components/CustomButton';
 import Header from '../../components/Header';
 import FormInput from '../../components/Doctor/FormInput';
 import BottomSheet, {BottomSheetScrollView} from '@gorhom/bottom-sheet';
-import DropDownPicker from 'react-native-dropdown-picker';
-import {FlatList} from 'react-native-gesture-handler';
-import {Icon, Input} from '@rneui/themed';
 import CustomInput from '../../components/CustomInput';
 import { TextInput } from 'react-native';
+import axios from 'axios';
+import { BASE_URL } from '../../api/api';
 
 const DrugSheet = () => {
   const [drugsList, setDrugsList] = useState([]);
   const [instruction, setInstruction] = useState('');
-  const [drug, setDrug] = useState('');
   const [selectedDrug, setSelectedDrug] = useState('');
   const [selectedType, setSelectedType] = useState('');
   const [selectedMode, setSelectedMode] = useState('');
@@ -45,28 +40,16 @@ const DrugSheet = () => {
   const [isModalVisible, setModalVisible] = useState(false);
   const [isDropDownVisible, setDropDownVisible] = useState(false);
   const [isDropDownVisibleDosage, setDropDownVisibleDosage] = useState(false);
-  const [isDropDownVisibleDuration, setDropDownVisibleDuration] =
-    useState(false);
+  const [isDropDownVisibleDuration, setDropDownVisibleDuration] = useState(false);
   const [timing, setTiming] = useState('Before Meal');
   const bottomSheetRef = useRef<BottomSheet>(null);
+   const [allDrugs, setAllDrugs] = useState<any[]>([]);
+  const [pickedDrug,   setPickedDrug]   = useState('');
+  const [pickedType,   setPickedType]   = useState('');
+  const [pickedMode,   setPickedMode]   = useState('');
   const mealOptions = ['od', 'bd', 'tds', 'qid', 'hs', 'morning'];
   
-  // const handleSearch = (text) => {
-  //   setQuery(text);
 
-  //   if (text.trim().length > 0) {
-  //     const results = drugs.filter((item) =>
-  //       item.toLowerCase().includes(text.toLowerCase())
-  //     );
-  //     setFilteredData(results);
-  //     setShowList(true);
-  //   } else {
-  //     setFilteredData([]);
-  //     setShowList(false);
-  //   }
-  // };
-
-  // callbacks
   const handleSheetChanges = useCallback((index: number) => {
     console.log('handleSheetChanges', index);
   }, []);
@@ -74,38 +57,7 @@ const DrugSheet = () => {
 
   const toggleModal = () => setModalVisible(!isModalVisible);
 
-  const medincineData = [
-    {label: 'Paracetamol', value: 'paracetamol'},
-    {label: 'Ibuprofen', value: 'ibuprofen'},
-    {label: 'Amoxicillin', value: 'amoxicillin'},
-    {label: 'Ciprofloxacin', value: 'ciprofloxacin'},
-    {label: 'Ciprofloxacin', value: 'ciprofloxacin'},
-    {label: 'Ciprofloxacin', value: 'ciprofloxacin'},
-    {label: 'Ciprofloxacin', value: 'ciprofloxacin'},
-  ];
-  const typeData = [
-    {key: '2', value: 'Tablet'},
-    {key: '3', value: 'Capsule'},
-    {key: '5', value: 'Cream/Lotion'},
-    {key: '6', value: 'Syrup'},
-    {key: '7', value: 'Nebulizer'},
-    {key: '8', value: 'Injection'},
-  ];
 
-  const modeData = [
-    {key: '2', value: 'Oral'},
-    {key: '3', value: 'IV'},
-    {key: '5', value: 'IM'},
-    {key: '6', value: 'Eye Drop'},
-    {key: '7', value: 'Nasal Spray'},
-    {key: '8', value: 'Ear Drop'},
-  ];
-  const strengthData = [
-    {key: '1', value: '50mg'},
-    {key: '2', value: '100mg'},
-    {key: '3', value: '250mg'},
-    {key: '4', value: '500mg'},
-  ];
 
   const dosageData = [
     {key: '1', value: 'Once a day'},
@@ -127,7 +79,6 @@ const DrugSheet = () => {
     Keyboard.dismiss();
   };
 
-  // Function to add drug to the list
   const handleAddDrug = () => {
     if (
       // !drug.trim() ||
@@ -227,7 +178,60 @@ const DrugSheet = () => {
     setTimeout(() => inputRef.current?.focus(), 250);
   };
 
-  
+useEffect(() => {
+  const fetchDrugs = async () => {
+    try {
+      const { data } = await axios.get(`${BASE_URL}/drugs/get-all-drugs`);
+      if (data?.drugsList) {
+        setAllDrugs(data.drugsList);
+      } else {
+        console.warn("No drugs list found in response:", data);
+      }
+    } catch (error) {
+      console.error("Failed to fetch drugs:", error);
+    }
+  };
+
+  fetchDrugs();
+}, []);
+
+
+const medicineData = allDrugs.map(item => ({
+  label: item.name,
+  value: item._id, // keep id for reference
+}));
+
+  const selectedDrugObj = allDrugs.find(d => d._id === selectedDrug);
+
+
+const typeOptions = selectedDrugObj
+  ? selectedDrugObj.type.map(type => ({ label: type.name, value: type.name }))
+  : [];
+
+const selectedTypeObj = selectedDrugObj?.type.find(type => type.name === selectedType);
+
+
+const modeOptions = selectedTypeObj
+  ? selectedTypeObj.dosageMode.map(mode => ({ label: mode, value: mode }))
+  : [];
+
+
+const strengthOptions = selectedTypeObj
+  ? selectedTypeObj.dosageStrength.map(strength=> ({ label: strength, value: strength }))
+  : [];
+
+useEffect(() => {
+  if (modeOptions.length === 1) {
+    setSelectedMode(modeOptions[0].value);
+  }
+}, [modeOptions]);
+
+useEffect(() => {
+  if (strengthOptions.length === 1) {
+    setSelectedStrength(strengthOptions[0].value);
+  }
+}, [strengthOptions]);
+
 
 
   return (
@@ -338,51 +342,6 @@ const DrugSheet = () => {
                     Choose Drug Name
                   </Text>
 
-                  {/* <Input
-       style={{margin:0}}
-        value={query}
-        onChangeText={handleSearch}
-        placeholder="Enter drug name"
-        onFocus={() => {
-          if (query.length > 0) setShowList(true);
-        }}
-        inputContainerStyle={{
-          borderWidth: 1,
-          borderColor: "#d1d5db", // gray-300
-          borderRadius: 8,
-          paddingHorizontal: 6,
-        }}
-        leftIcon={
-          <Icon
-            name="search"
-            type="material"
-            size={22}
-            color="gray"
-            style={{ marginRight: 6 }}
-          />
-        }
-      />
-
-      {showList && (
-        <View className="bg-white rounded-lg border border-gray-200 z-50">
-          <FlatList
-            data={filteredData}
-            keyExtractor={(item, index) => index.toString()}
-            renderItem={({ item }) => (
-              <TouchableOpacity
-                onPress={() => handleSelect(item)}
-                className="p-3 py-5 border-b border-gray-200"
-              >
-                <Text>{item}</Text>
-              </TouchableOpacity>
-            )}
-            keyboardShouldPersistTaps="handled"
-            nestedScrollEnabled
-            style={{ maxHeight: 240 }} 
-          />
-        </View>
-      )} */}
-
                  <Dropdown
                   containerStyle={{borderRadius: 8}}
                     style={styles.consistentDropdown}
@@ -391,7 +350,7 @@ const DrugSheet = () => {
                     inputSearchStyle={styles.consistentInputSearch}
                     iconStyle={styles.consistentIcon}
                     itemTextStyle={styles.consistentItemText}
-                    data={medincineData}
+                    data={medicineData}
                     search
                     renderInputSearch={onSearch => (
                      <FormInput
@@ -407,7 +366,12 @@ const DrugSheet = () => {
                     placeholder="Enter Drug Name"
                     searchPlaceholder="Search drug..."
                     value={selectedDrug}
-                    onChange={item => setSelectedDrug(item.value)}
+                    onChange={item => {
+    setSelectedDrug(item.value);
+    setSelectedType('');
+    setSelectedMode('');
+    setSelectedStrength('');
+  }}
                     onFocus={focusSearch}
                     
                   />
@@ -417,7 +381,7 @@ const DrugSheet = () => {
                   </Text>
                   <Dropdown
                     containerStyle={{borderRadius: 8}}
-                    data={typeData}
+                    data={typeOptions}
                     search={false}
                     style={styles.consistentDropdown}
                     placeholderStyle={styles.consistentPlaceholder}
@@ -432,9 +396,10 @@ const DrugSheet = () => {
                     searchPlaceholder="Search..."
                     value={selectedType}
                     onChange={item => {
-                      setSelectedType(item.value);
-                      hideAllDropdowns();
-                    }}
+    setSelectedType(item.value);
+    setSelectedMode('');
+    setSelectedStrength('');
+  }}
                     onFocus={() => hideAllDropdowns()}
                   />
 
@@ -449,7 +414,7 @@ const DrugSheet = () => {
                     inputSearchStyle={styles.consistentInputSearch}
                     iconStyle={styles.consistentIcon}
                     itemTextStyle={styles.consistentItemText}
-                    data={modeData}
+                    data={modeOptions}
                     search={false}
                     maxHeight={300}
                     labelField="value"
@@ -457,10 +422,7 @@ const DrugSheet = () => {
                     placeholder="Select mode"
                     searchPlaceholder="Search..."
                     value={selectedMode}
-                    onChange={item => {
-                      setSelectedMode(item.value);
-                      hideAllDropdowns();
-                    }}
+                    onChange={item => setSelectedMode(item.value)}
                     onFocus={() => hideAllDropdowns()}
                   />
 
@@ -475,7 +437,7 @@ const DrugSheet = () => {
                         inputSearchStyle={styles.consistentInputSearch}
                         iconStyle={styles.consistentIcon}
                         itemTextStyle={styles.consistentItemText}
-                    data={strengthData}
+                    data={strengthOptions}
                     search={false}
                     maxHeight={300}
                     labelField="value"
@@ -483,10 +445,7 @@ const DrugSheet = () => {
                     placeholder="Select strength"
                     searchPlaceholder="Search..."
                     value={selectedStrength}
-                    onChange={item => {
-                      setSelectedStrength(item.value);
-                      hideAllDropdowns();
-                    }}
+                    onChange={item => setSelectedStrength(item.value)}
                     onFocus={() => hideAllDropdowns()}
                   />
 
