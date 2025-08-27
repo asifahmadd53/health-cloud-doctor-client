@@ -11,6 +11,7 @@ import CustomSecondaryButton from "../../components/CustomSecondaryButton"
 import MaterialIcons from "react-native-vector-icons/MaterialIcons"
 import axios from "axios"
 import { BASE_URL } from "../../api/api"
+import Header from "../../components/Header"
 
 
 const NewPassword = () => {
@@ -25,7 +26,7 @@ const NewPassword = () => {
   const route = useRoute<any>()
   const resetToken = route.params?.resetToken
 
-  // Calculate password strength
+  
   useEffect(() => {
     if (!password) {
       setPasswordStrength(0)
@@ -33,13 +34,12 @@ const NewPassword = () => {
     }
 
     let strength = 0
-    // Length check
     if (password.length >= 8) strength += 0.25
-    // Contains uppercase
+    
     if (/[A-Z]/.test(password)) strength += 0.25
-    // Contains lowercase
+    
     if (/[a-z]/.test(password)) strength += 0.25
-    // Contains number or special char
+    
     if (/[0-9!@#$%^&*(),.?":{}|<>]/.test(password)) strength += 0.25
 
     setPasswordStrength(strength)
@@ -137,19 +137,11 @@ const NewPassword = () => {
   }
 
   return (
-    <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} className="flex-1">
-      <SafeAreaView className="px-5 bg-white flex-1">
-        {/* Header */}
-        <TouchableOpacity
-          activeOpacity={0.8}
-          onPress={() => navigation.goBack()}
-          className="my-6 w-12 h-12 items-center justify-center bg-[#F5F5F5] rounded-full"
-        >
-          <MaterialIcons name="arrow-back" size={24} color="#333" />
-        </TouchableOpacity>
-
+    <SafeAreaView className=" bg-white flex-1">
+        <Header title=""/>
+    <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} className="flex-1 px-5">
         {/* Title and description */}
-        <View className="mb-6">
+        <View className="mb-6 mt-6">
           <Text className="text-2xl font-bold text-gray-800">Set New Password</Text>
           <Text className="text-base mt-2 text-gray-600">Create a strong password that you haven't used before</Text>
         </View>
@@ -285,8 +277,8 @@ const NewPassword = () => {
             </View>
           </View>
         </ReactNativeModal>
-      </SafeAreaView>
     </KeyboardAvoidingView>
+      </SafeAreaView>
   )
 }
 

@@ -1,114 +1,129 @@
-import { Image, SafeAreaView } from "react-native"
-import { createBottomTabNavigator } from "@react-navigation/bottom-tabs"
-import DashBoard from "../../screens/Tabs/Dashboard"
-import Icons from "../../utils/libs/constants/Icons"
-import DrProfileLayout from "../DrProfileNavigation"
-import PaymentsScreen from "../../screens/Tabs/PaymentsScreen"
+import React, { useEffect } from 'react'
+import { Image, Pressable } from 'react-native'
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
+import DashBoard from '../../screens/Tabs/Dashboard'
+import PaymentsScreen from '../../screens/Tabs/PaymentsScreen'
+import DrProfileLayout from '../DrProfileNavigation'
+import Icons from '../../utils/libs/constants/Icons'
+
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withSequence,
+  withTiming,
+  withSpring,
+  Easing,
+} from 'react-native-reanimated'
 
 const Tab = createBottomTabNavigator()
 
-const TabLayout = () => {
+// Pop-up animation
+const AnimatedTabIcon = ({ source, focused, color }: any) => {
+  const scale = useSharedValue(1)
+
+  useEffect(() => {
+    if (focused) {
+      // Smooth pop-up effect
+      scale.value = withSequence(
+        withTiming(1.2, { duration: 180, easing: Easing.out(Easing.ease) }), // grow smoothly
+        withSpring(1.1, { damping: 6, stiffness: 120 }) // settle with spring
+      )
+    } else {
+      // Go back to normal smoothly
+      scale.value = withTiming(1, { duration: 200, easing: Easing.inOut(Easing.ease) })
+    }
+  }, [focused])
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+  }))
+
   return (
-    <SafeAreaView className="flex-1 bg-white">
-      <Tab.Navigator
-        screenOptions={{
-          headerShown: false,
-          tabBarStyle: {
-            height: 80,
-            paddingBottom: 16,
-            paddingTop: 4,
-            paddingHorizontal: 14,
-            marginHorizontal: 50,
-            marginBottom: 20,
-            backgroundColor: "#ffffff",
-            borderRadius: 40,
-            borderTopWidth: 0,
-            shadowColor: "#000000",
-            shadowOffset: {
-              width: 0,
-              height: -4,
-            },
-            shadowOpacity: 0.12,
-            shadowRadius: 12,
-            elevation: 15,
-            position: "absolute",
-          },
-          tabBarLabelStyle: {
-            fontSize: 12,
-            fontWeight: "600",
-            marginTop: 6,
-            letterSpacing: 0.2,
-            fontFamily: "System",
-          },
-          tabBarActiveTintColor: "#0891b2",
-          tabBarInactiveTintColor: "#64748b",
-          tabBarItemStyle: {
-            paddingVertical: 8,
-            paddingHorizontal: 4,
-            borderRadius: 12,
-            marginHorizontal: 2,
-          },
-          
+    <Animated.View style={animatedStyle}>
+      <Image
+        source={source}
+        style={{
+          width: 28,
+          height: 28,
+          tintColor: color,
+          resizeMode: 'contain',
         }}
-        
-      >
-        <Tab.Screen
-          name="Clinic"
-          component={DashBoard}
-          options={{
-            tabBarIcon: ({ color }) => (
-              <Image
-                source={Icons.dashboard}
-                style={{
-                  width: 26,
-                  height: 26,
-                  tintColor: color,
-                  resizeMode: "contain",
-                }}
-              />
-            ),
-            tabBarLabel: "Clinic",
-          }}
-        />
-        <Tab.Screen
-          name="Payments"
-          component={PaymentsScreen}
-          options={{
-            tabBarIcon: ({ color }) => (
-              <Image
-                source={Icons.sign}
-                style={{
-                  width: 26,
-                  height: 26,
-                  tintColor: color,
-                  resizeMode: "contain",
-                }}
-              />
-            ),
-            tabBarLabel: "Payments",
-          }}
-        />
-        <Tab.Screen
-          name="Profile"
-          component={DrProfileLayout}
-          options={{
-            tabBarIcon: ({ color }) => (
-              <Image
-                source={Icons.user}
-                style={{
-                  width: 26,
-                  height: 26,
-                  tintColor: color,
-                  resizeMode: "contain",
-                }}
-              />
-            ),
-            tabBarLabel: "Profile",
-          }}
-        />
-      </Tab.Navigator>
-    </SafeAreaView>
+      />
+    </Animated.View>
   )
 }
 
-export default TabLayout
+export default function TabLayout() {
+  return (
+    <Tab.Navigator
+      screenOptions={{
+        headerShown: false,
+        tabBarShowLabel: true,
+        tabBarStyle: {
+          height: 70,
+          paddingTop:6,
+          backgroundColor: '#ffffff',
+          borderTopWidth: 0.5,
+          borderTopColor: '#e2e8f0',
+          elevation: 0,
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: -2 },
+          shadowOpacity: 0.04,
+          shadowRadius: 8,
+        },
+        tabBarActiveTintColor: '#0891b2',
+        tabBarInactiveTintColor: '#64748b',
+        tabBarButton: (props) => (
+          <Pressable
+            {...props}
+            android_ripple={null}
+            onPress={(e) => {
+              e?.preventDefault?.()
+              props.onPress?.()
+            }}
+          />
+        ),
+      }}
+    >
+      <Tab.Screen
+        name="Clinic"
+        component={DashBoard}
+        options={{
+          tabBarIcon: ({ color, focused }) => (
+            <AnimatedTabIcon
+              source={focused ? Icons.homeFilled : Icons.homeOutline}
+              color={color}
+              focused={focused}
+            />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Payments"
+        component={PaymentsScreen}
+        options={{
+          tabBarIcon: ({ color, focused }) => (
+            <AnimatedTabIcon
+              source={focused ? Icons.paymentFilled : Icons.paymentOutline}
+              color={color}
+              focused={focused}
+            />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Profile"
+        component={DrProfileLayout}
+        options={{
+          tabBarIcon: ({ color, focused }) => (
+            <AnimatedTabIcon
+              source={focused ? Icons.profileFilled : Icons.profileOutline}
+              color={color}
+              focused={focused}
+            />
+          ),
+        }}
+      />
+    </Tab.Navigator>
+  )
+}

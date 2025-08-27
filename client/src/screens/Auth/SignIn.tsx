@@ -21,33 +21,36 @@ import axios from 'axios';
 import {BASE_URL} from '../../api/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Images from '../../utils/libs/constants/Images';
+import { useForm, Controller } from "react-hook-form"
 
 const SignIn = () => {
-  const [pmdcNumber, setPmdc] = useState('');
-  const [password, setPassword] = useState('');
-  const [errors, setErrors] = useState({pmdcNumber: '', password: ''});
+
   const navigation = useNavigation<any>();
   const [isLoading, setLoading] = useState(false);
 
-  const handleLogin = async () => {
+ const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    defaultValues: {
+      pmdcNumber: "",
+      password: "",
+    },
+  })
+
+
+
+
+  const handleLogin = async (values:{pmdcNumber:string; password:string}) => {
     if (isLoading) {
       return;
     }
     setLoading(true);
-    if (!pmdcNumber) {
-      setLoading(false);
-      setErrors({...errors, pmdcNumber: 'Please enter your PMDC number'});
-      return;
-    }
-    if (!password) {
-      setLoading(false);
-      setErrors({...errors, password: 'Please Enter your password'});
-      return;
-    }
     try {
       const response = await axios.post(
         `${BASE_URL}/auth/login`,
-        {pmdcNumber, password},
+        values,
         {
           headers: {
             'Content-Type': 'application/json',
@@ -57,12 +60,11 @@ const SignIn = () => {
       );
       const data = response.data;
       if (!data.user.isApproved) {
-        setLoading(false);
-        // Burnt.toast({
-        //   title: "Your account is not approved",
-        //   preset: "error",
-        // })
-      }
+      setLoading(false);
+     
+      return;
+    }
+    
       if (data.user.isApproved) {
         setLoading(true);
         setTimeout(() => {}, 3000);
@@ -77,7 +79,7 @@ const SignIn = () => {
     } catch (error) {
       console.log(error);
       setLoading(true);
-      setErrors({...errors, password: 'Invalid PMDC number or password'});
+    
     } finally {
       setLoading(false);
     }
@@ -103,19 +105,37 @@ const SignIn = () => {
             </Text>
           </View>
           <View className="mt-16 w-[99%] flex flex-col mx-auto">
-            <CustomInput
+            {/* <CustomInput
               label={'Enter your PMDC #'}
               keyboardType="numeric"
               placeholder={'PMDC #'}
               icon="checkmark-outline"
-              value={pmdcNumber}
+              value={}
               onChange={text => {
                 setPmdc(text);
                 if (errors.pmdcNumber) setErrors({...errors, pmdcNumber: ''});
               }}
               error={errors.pmdcNumber}
+            /> */}
+            <Controller
+            control={control}
+            name='pmdcNumber'
+            rules={{
+              required:"PMDC number is required"
+            }}
+            render={({field:{onChange, value}})=>(
+               <CustomInput
+              label={'Enter your PMDC #'}
+              keyboardType="numeric"
+              placeholder={'PMDC #'}
+              icon="checkmark-outline"
+              value={value}
+              onChangeText={onChange}
+              error={errors.pmdcNumber?.message}
             />
-            <View className="">
+            )}
+            />
+{/*             
               <CustomPasswordInput
                 label={'Enter your Password'}
                 placeholder={'Password'}
@@ -125,8 +145,25 @@ const SignIn = () => {
                   if (errors.password) setErrors({...errors, password: ''});
                 }}
                 error={errors.password}
+              /> */}
+
+              <Controller
+              control={control}
+              name='password'
+              rules={{
+                required:"Password is required"
+              }}
+              render={({field:{onChange,value}})=>(
+                 <CustomPasswordInput
+                label={'Enter your Password'}
+                placeholder={'Password'}
+                value={value}
+                onChangeText={onChange}
+                error={errors.password?.message}
               />
-            </View>
+              )}
+              />
+            
             <View className="items-end -mt-1">
               <Text
                 onPress={() => navigation.navigate('forget-password')}
@@ -139,8 +176,8 @@ const SignIn = () => {
             <CustomButton
               loading={isLoading}
               label="Login"
-              // onPress={handleLogin}
-              onPress={() => navigation.navigate("drawer")}
+              onPress={handleSubmit(handleLogin)}
+              // onPress={() => navigation.navigate("drawer")}
             />
           </View>
           <View className="mx-auto mt-8 items-center gap-5">

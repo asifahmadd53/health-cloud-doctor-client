@@ -9,6 +9,7 @@ import MaterialIcons from "react-native-vector-icons/MaterialIcons"
 import CustomButton from "../../components/CustomButton"
 import axios from "axios"
 import { BASE_URL } from "../../api/api"
+import Header from "../../components/Header"
 
 const OTP = () => {
   const navigation = useNavigation<any>()
@@ -145,19 +146,13 @@ const OTP = () => {
   }
 
   return (
-    <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} className="flex-1">
-      <SafeAreaView className="px-5 bg-white flex-1">
-        {/* Header */}
-        <TouchableOpacity
-          activeOpacity={0.8}
-          onPress={() => navigation.goBack()}
-          className="my-6 w-12 h-12 items-center justify-center bg-[#F5F5F5] rounded-full"
-        >
-          <MaterialIcons name="arrow-back" size={24} color="#333" />
-        </TouchableOpacity>
+      <SafeAreaView className=" bg-white flex-1">
+        <Header title=""/>
+    <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} className="flex-1 px-5">
+        
 
         {/* Title and description */}
-        <View className="mb-8">
+        <View className="mb-8 mt-6">
           <Text className="text-2xl font-bold text-gray-800">Verification Code</Text>
           <Text className="text-base pt-2 text-gray-600">
             We've sent a 4-digit code to {email}. Enter the code below to verify.
@@ -176,6 +171,7 @@ const OTP = () => {
               style={styles.otpInput}
               keyboardType="numeric"
               maxLength={1}
+              autoComplete="one-time-code"
               selectionColor="#0891b2"
               textAlign="center"
               textContentType="oneTimeCode" // For iOS autofill
@@ -205,8 +201,8 @@ const OTP = () => {
           loading={isLoading}
           disabled={isLoading || otp.join("").length !== 4}
         />
-      </SafeAreaView>
     </KeyboardAvoidingView>
+      </SafeAreaView>
   )
 }
 

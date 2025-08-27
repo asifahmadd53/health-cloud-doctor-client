@@ -28,6 +28,13 @@ import camera from '../../../assets/icons/camera.png'
 import gallery from '../../../assets/icons/gallery.png'
 import profileIcon from '../../../assets/icons/profileIcon.png'
 import saveIcon from '../../../assets/icons/saveIcon.png'
+import paymentOutline from  '../../../assets/icons/paymeny-outline.png'
+import paymentFilled from '../../../assets/icons/payment-filled.png'
+import profileOutline from '../../../assets/icons/profile-outline.png'
+import profileFilled from '../../../assets/icons/profile-filled.png'
+import homeOutline from '../../../assets/icons/home-outline.png'
+import homeFilled from '../../../assets/icons/home-filled.png'
+
 export default {
     rightIcon,
     credit,
@@ -58,5 +65,12 @@ export default {
     camera,
     gallery,
     profileIcon,
-    saveIcon
+    saveIcon,
+    paymentOutline,
+    paymentFilled,
+    profileOutline,
+    profileFilled,
+    homeOutline,
+    homeFilled,
+
 }

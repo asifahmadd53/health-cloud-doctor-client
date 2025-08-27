@@ -6,7 +6,7 @@ import Icon from "react-native-vector-icons/Ionicons"
 interface CustomPasswordInputProps {
   placeholder: string
   value: string
-  onChange: (text: string) => void
+  onChangeText: (text: string) => void
   error?: string
   label?: string
 }
@@ -15,7 +15,7 @@ const CustomPasswordInput = ({
   label,
   placeholder,
   value,
-  onChange,
+  onChangeText,
   error,
   ...rest
 }: CustomPasswordInputProps) => {
@@ -26,16 +26,15 @@ const CustomPasswordInput = ({
     <View style={{ width: "100%" }}>
      
        {label ? (
-  <Text className="text-base font-semibold text-gray-700 mb-2">
+  <Text className="text-base font-semibold text-gray-700 mb-1">
     {label}
   </Text>
 ) : null}
-
       <Input
         secureTextEntry={!showPassword}
         placeholder={placeholder}
         value={value}
-        onChangeText={onChange}
+        onChangeText={onChangeText}
         onFocus={() => setIsFocused(true)}
         onBlur={() => setIsFocused(false)}
         cursorColor="#2895cb"
@@ -64,7 +63,7 @@ const CustomPasswordInput = ({
           borderWidth: 1,
           borderColor: isFocused ? "#2895cb" : "#d1d5db",
           paddingHorizontal: 10,
-          paddingVertical: 2,
+          paddingVertical: 0,
         }}
         inputStyle={{
           fontSize: 16,
@@ -74,6 +73,13 @@ const CustomPasswordInput = ({
           paddingHorizontal: 0,
         }}
         errorMessage={error}
+errorStyle={{
+  margin: 0,
+  paddingVertical: 2,
+  fontSize: 12,
+  color: '#ef4444',
+  height: 20,
+}}
         placeholderTextColor="#9ca3af"
         {...rest}
       />

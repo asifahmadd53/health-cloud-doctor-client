@@ -127,9 +127,8 @@ const PaymentsScreen = () => {
 
   return (
     <>
-        <Header title="Payment Dashboard" />
     <SafeAreaView className="flex-1 bg-slate-50">
-
+        <Header title="Payment Dashboard" />
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
         <View className="px-6 py-4">
           <View className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 mb-6">

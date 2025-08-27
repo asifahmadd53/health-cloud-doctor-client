@@ -7,7 +7,6 @@ import AppLayout from './navigation';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import {AutocompleteDropdownContextProvider} from 'react-native-autocomplete-dropdown'
 
-
 const RootLayout = () => {
   return (
     <>
@@ -20,7 +19,7 @@ const RootLayout = () => {
       <NavigationContainer>
         <GestureHandlerRootView style={{ flex: 1 }}>
           <AutocompleteDropdownContextProvider>
-        <AppLayout />
+              <AppLayout />
        </AutocompleteDropdownContextProvider>
         </GestureHandlerRootView>
       </NavigationContainer>
