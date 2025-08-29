@@ -22,6 +22,8 @@ import {BASE_URL} from '../../api/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Images from '../../utils/libs/constants/Images';
 import { useForm, Controller } from "react-hook-form"
+import { toast } from 'sonner-native';
+import { showToast } from '../../utils/toastUtils';
 
 const SignIn = () => {
 
@@ -32,15 +34,13 @@ const SignIn = () => {
     control,
     handleSubmit,
     formState: { errors },
+    setError,
   } = useForm({
     defaultValues: {
       pmdcNumber: "",
       password: "",
     },
   })
-
-
-
 
   const handleLogin = async (values:{pmdcNumber:string; password:string}) => {
     if (isLoading) {
@@ -61,7 +61,7 @@ const SignIn = () => {
       const data = response.data;
       if (!data.user.isApproved) {
       setLoading(false);
-     
+      toast.error("Your account has not been approved yet. Please wait for admin approval.");
       return;
     }
     
@@ -72,18 +72,31 @@ const SignIn = () => {
           ['user', JSON.stringify(data.user)],
           ['token', data.token],
         ]);
-        // const storedUser = await AsyncStorage.getItem('user')
-        // const storedToken = await AsyncStorage.getItem('token')
         navigation.navigate('drawer');
       }
-    } catch (error) {
-      console.log(error);
-      setLoading(true);
-    
-    } finally {
-      setLoading(false);
+    }  catch (error: any) {
+    console.log(error);
+
+    if (error.response) {
+      const { status, data } = error.response;
+      if (status === 400) {
+        setError("password",{
+          type: "manual",
+          message: data.message || "Invalid PMDC number or password",
+        })
+      } else if (status === 403) {
+      // toast.error("Access pending approval.")
+      showToast("error","Access pending approval.")
+      } else {
+        toast.warning("Something went wrong. Please try again.");
+      }
+    } else {
+      toast.warning("Network error. Please check your connection.");
     }
-  };
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <SafeAreaView className="bg-white px-6">
@@ -105,18 +118,6 @@ const SignIn = () => {
             </Text>
           </View>
           <View className="mt-16 w-[99%] flex flex-col mx-auto">
-            {/* <CustomInput
-              label={'Enter your PMDC #'}
-              keyboardType="numeric"
-              placeholder={'PMDC #'}
-              icon="checkmark-outline"
-              value={}
-              onChange={text => {
-                setPmdc(text);
-                if (errors.pmdcNumber) setErrors({...errors, pmdcNumber: ''});
-              }}
-              error={errors.pmdcNumber}
-            /> */}
             <Controller
             control={control}
             name='pmdcNumber'
@@ -126,7 +127,6 @@ const SignIn = () => {
             render={({field:{onChange, value}})=>(
                <CustomInput
               label={'Enter your PMDC #'}
-              keyboardType="numeric"
               placeholder={'PMDC #'}
               icon="checkmark-outline"
               value={value}
@@ -135,17 +135,6 @@ const SignIn = () => {
             />
             )}
             />
-{/*             
-              <CustomPasswordInput
-                label={'Enter your Password'}
-                placeholder={'Password'}
-                value={password}
-                onChange={text => {
-                  setPassword(text);
-                  if (errors.password) setErrors({...errors, password: ''});
-                }}
-                error={errors.password}
-              /> */}
 
               <Controller
               control={control}

@@ -8,9 +8,9 @@ const AuthLayout = () => {
     const Stack = createNativeStackNavigator();
     
     return (
-        <Stack.Navigator initialRouteName="sign-in">
-            <Stack.Screen name="sign-in" options={{ headerShown: false }} component={SignIn} />
-            <Stack.Screen name="sign-up" options={{ headerShown: false }} component={SignUp} />
+        <Stack.Navigator screenOptions={{headerShown:false}} initialRouteName="sign-in">
+            <Stack.Screen name="sign-in" component={SignIn} />
+            <Stack.Screen name="sign-up"  component={SignUp} />
             <Stack.Screen name="forget-password" options={{
                 headerShown: false,
             }} component={ForgetPassword} />

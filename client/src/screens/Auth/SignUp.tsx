@@ -23,122 +23,116 @@ import BottomSheet, {BottomSheetView} from '@gorhom/bottom-sheet';
 import Icons from '../../utils/libs/constants/Icons';
 import {CheckBox} from '@rneui/themed';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import { Controller, useForm } from 'react-hook-form';
+import { toast } from 'sonner-native';
 interface SignUpProps {
   navigation: any;
 }
 
 const SignUp = ({navigation}: SignUpProps) => {
-  const [name, setName] = useState('');
-  const [pmdcNumber, setPmdc] = useState('');
-  const [email, setEmail] = useState('');
-  const [phoneNumber, setPhoneNumber] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [checked, setChecked] = useState(false);
-  const [pmdcCopy, setPmdcCopy] = useState<any>(null);
+
   const [isLoading, setIsLoading] = useState(false);
   const bottomSheetRef = useRef<BottomSheet>(null);
-  const [errors, setErrors] = useState({
+  const [passwordStrength, setPasswordStrength] = useState(0);
+  const handleSheetChanges = useCallback((index: number) => {
+    console.log('handleSheetChanges', index);
+  }, []);
+
+  type FormValues = {
+  name: string;
+  pmdcNumber: string;
+  email: string;
+  phoneNumber: string;
+  password: string;
+  confirmPassword: string;
+ pmdcCopy: {
+    uri: string;
+    type?: string;
+    fileName?: string;
+  } | null;
+  checked: boolean;
+};
+
+
+  const {control,handleSubmit,setError,clearErrors, watch,setValue,reset,formState:{errors}} =  useForm<FormValues>({defaultValues:
+    {
     name: '',
     pmdcNumber: '',
     email: '',
     phoneNumber: '',
     password: '',
     confirmPassword: '',
-    pmdcCopy: '',
-    checked: '',
-  });
+    pmdcCopy: null,
+    checked: false,
+    }
+  })
 
-  const [passwordStrength, setPasswordStrength] = useState(0);
-
-  const handleSheetChanges = useCallback((index: number) => {
-    console.log('handleSheetChanges', index);
-  }, []);
-
-  const handleSignUp = async () => {
-    if (isLoading) {
+  const password = watch('password')
+  const confirmPassword = watch("confirmPassword")
+  const pmdcCopy = watch("pmdcCopy");
+  const checked = watch("checked");
+  useEffect(()=>{
+    if(!password){
+      setPasswordStrength(0)
       return;
     }
+     let strength = 0
+  if(password.length >= 8 ) strength += 0.25
+  if(/[A-Z]/.test(password)) strength += 0.25
+  if (/[a-z]/.test(password)) strength += 0.25;
+  if (/[0-9!@#$%^&*(),.?":{}|<>]/.test(password)) strength += 0.25; 
 
-    const newErrors = {
-      name: '',
-      pmdcNumber: '',
-      email: '',
-      phoneNumber: '',
-      password: '',
-      confirmPassword: '',
-      pmdcCopy: '',
-      checked: '',
-    };
+  setPasswordStrength(strength)
 
-    let isValid = true;
+  },[password])
 
-    if (!name.trim()) {
-    newErrors.name = 'Full name is required';
-    isValid = false;
-  }
+ 
 
-  if (!pmdcNumber.trim()) {
-    newErrors.pmdcNumber = 'PMDC number is required';
-    isValid = false;
-  }
 
-  if (!email.trim()) {
-    newErrors.email = 'Email is required';
-    isValid = false;
-  } else {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      newErrors.email = 'Invalid email format';
-      isValid = false;
-    }
-  }
+const validatePasswords = () => {
+  let isValid = true;
 
-  if (!phoneNumber.trim()) {
-    newErrors.phoneNumber = 'Phone number is required';
-    isValid = false;
-  }
+  clearErrors(["password", "confirmPassword"]);
 
   if (!password) {
-    newErrors.password = 'Password is required';
+    setError("password", { type: "manual", message: "Password is required" });
+    isValid = false;
+  } else if (password.length < 8) {
+    setError("password", { type: "manual", message: "Password must be at least 8 characters" });
+    isValid = false;
+  } else if (passwordStrength < 0.5) {
+    setError("password", { type: "manual", message: "Password is too weak" });
     isValid = false;
   }
 
   if (!confirmPassword) {
-    newErrors.confirmPassword = 'Confirm password is required';
+    setError("confirmPassword", { type: "manual", message: "Please confirm your password" });
     isValid = false;
   } else if (password !== confirmPassword) {
-    newErrors.confirmPassword = 'Passwords do not match';
+    setError("confirmPassword", { type: "manual", message: "Passwords do not match" });
     isValid = false;
   }
 
-  if (!pmdcCopy) {
-    newErrors.pmdcCopy = 'Please upload your PMDC certificate';
-    isValid = false;
-  }
-
-  if (!checked) {
-    newErrors.checked = 'You must agree to the terms and conditions';
-    isValid = false;
-  }
-
-  setErrors(newErrors);
-
-  if (!isValid) return;
-
+  return isValid;
+};
+  const handleSignUp = async (values:any) => {
+    if(isLoading) return;
+    if(!validatePasswords()) return
 
     const formData = new FormData();
-    formData.append('name', name);
-    formData.append('pmdcNumber', pmdcNumber);
-    formData.append('email', email);
-    formData.append('phoneNumber', phoneNumber);
-    formData.append('password', password);
+    formData.append('name', values.name);
+    formData.append('pmdcNumber', values.pmdcNumber);
+    formData.append('email', values.email);
+    formData.append('phoneNumber', values.phoneNumber);
+    formData.append('password', values.password);
 
-    formData.append('pmdcCopy', {
-      uri: pmdcCopy.uri,
-      name: pmdcCopy.fileName || 'pmdc.jpg',
-      type: pmdcCopy.type || 'image/jpeg',
+     if (values.pmdcCopy) {
+    formData.append("pmdcCopy", {
+      uri: values.pmdcCopy.uri,
+      name: values.pmdcCopy.fileName || "pmdc.jpg",
+      type: values.pmdcCopy.type || "image/jpeg",
     } as any);
+  }
 
     try {
       setIsLoading(true);
@@ -152,47 +146,29 @@ const SignUp = ({navigation}: SignUpProps) => {
       const data = response.data;
 
       if (data.success) {
-        setTimeout(() => {}, 1000);
+        reset()
         navigation.navigate('sign-up-completed');
-        setName('');
-        setPmdc('');
-        setEmail('');
-        setPhoneNumber('');
-        setPassword('');
-        setConfirmPassword('');
-        setPmdcCopy(null);
-        setChecked(false);
-      } else {
       }
+      
     } catch (error: any) {
-      Alert.alert(
-        'Error',
-        error.response?.data?.message || 'Somethidng went wrong',
-      );
-    } finally {
+  if (error.response) {
+    const { status, data } = error.response;
+
+    if (status === 409) {
+      setError("email", {
+        type: "manual",
+        message: data.message || "User already exists.",
+      });
+    } else {
+      toast.error("Something went wrong. Please try again.");
+    }
+  }
+} finally {
       setIsLoading(false);
     }
   };
 
-  useEffect(() => {
-    if (!password) {
-      setPasswordStrength(0);
-      return;
-    }
-
-    let strength = 0;
-    if (password.length >= 8) strength += 0.25;
-
-    if (/[A-Z]/.test(password)) strength += 0.25;
-
-    if (/[a-z]/.test(password)) strength += 0.25;
-
-    if (/[0-9!@#$%^&*(),.?":{}|<>]/.test(password)) strength += 0.25;
-
-    setPasswordStrength(strength);
-  }, [password]);
-
-  // Get password strength label
+  
   const getPasswordStrengthLabel = () => {
     if (passwordStrength === 0) return 'No password';
     if (passwordStrength <= 0.25) return 'Weak';
@@ -201,7 +177,7 @@ const SignUp = ({navigation}: SignUpProps) => {
     return 'Strong';
   };
 
-  // Get password strength color
+  
   const getPasswordStrengthColor = () => {
     if (passwordStrength === 0) return '#e5e7eb';
     if (passwordStrength <= 0.25) return '#ef4444';
@@ -210,92 +186,42 @@ const SignUp = ({navigation}: SignUpProps) => {
     return '#10b981';
   };
 
-  // Validate passwords
-  const validatePasswords = () => {
-    const newErrors = {password: '', confirmPassword: ''};
-    let isValid = true;
+ 
 
-    if (!password) {
-      newErrors.password = 'Password is required';
-      isValid = false;
-    } else if (password.length < 8) {
-      newErrors.password = 'Password must be at least 8 characters';
-      isValid = false;
-    } else if (passwordStrength < 0.5) {
-      newErrors.password = 'Password is too weak';
-      isValid = false;
-    }
+const openCamera = () => {
+  launchCamera(
+    { mediaType: 'photo', quality: 0.8, maxHeight: 2000, maxWidth: 2000 },
+    response => {
+      if (response.assets?.[0]) {
+        const asset = response.assets[0];
+        setValue("pmdcCopy", {
+          uri: asset.uri!,
+          type: asset.type,
+          fileName: asset.fileName,
+        });
+        bottomSheetRef.current?.close();
+      }
+    },
+  );
+};
 
-    if (!confirmPassword) {
-      newErrors.confirmPassword = 'Please confirm your password';
-      isValid = false;
-    } else if (password !== confirmPassword) {
-      newErrors.confirmPassword = 'Passwords do not match';
-      isValid = false;
-    }
+const openGallery = () => {
+  launchImageLibrary(
+    { mediaType: 'photo', quality: 0.8, maxHeight: 2000, maxWidth: 2000 },
+    response => {
+      if (response.assets?.[0]) {
+        const asset = response.assets[0];
+        setValue("pmdcCopy", {
+          uri: asset.uri!,
+          type: asset.type,
+          fileName: asset.fileName,
+        });
+        bottomSheetRef.current?.close();
+      }
+    },
+  );
+};
 
-    setErrors(newErrors);
-    return isValid;
-  };
-
-  const isFormValid =
-  name.trim() &&
-  pmdcNumber.trim() &&
-  email.trim() &&
-  phoneNumber.trim() &&
-  password &&
-  confirmPassword &&
-  password === confirmPassword &&
-  pmdcCopy &&
-  checked;
-
-  const openCamera = () => {
-    launchCamera(
-      {
-        mediaType: 'photo',
-        quality: 0.8,
-        includeBase64: false,
-        maxHeight: 2000,
-        maxWidth: 2000,
-      },
-      response => {
-        if (
-          !response.didCancel &&
-          !response.errorCode &&
-          response.assets?.[0]
-        ) {
-          setPmdcCopy(response.assets[0]); // keep full object
-          bottomSheetRef.current?.close();
-        } else if (response.errorCode) {
-          console.log('Camera Error: ', response.errorMessage);
-        }
-      },
-    );
-  };
-
-  const openGallery = () => {
-    launchImageLibrary(
-      {
-        mediaType: 'photo',
-        quality: 0.8,
-        includeBase64: false,
-        maxHeight: 2000,
-        maxWidth: 2000,
-      },
-      response => {
-        if (
-          !response.didCancel &&
-          !response.errorCode &&
-          response.assets?.[0]
-        ) {
-          setPmdcCopy(response.assets[0]);
-          bottomSheetRef.current?.close();
-        } else if (response.errorCode) {
-          console.log('Gallery Error: ', response.errorMessage);
-        }
-      },
-    );
-  };
 
   return (
     <>
@@ -325,59 +251,109 @@ const SignUp = ({navigation}: SignUpProps) => {
               </Text>
             </View>
 
-            {/* Form Section */}
+         
             <View className="">
-              <CustomInput
+            
+
+              <Controller
+              control={control}
+              name="name"
+              rules={{
+                required:"Name is required"
+              }}
+              render={({field:{onChange,value}})=>(
+                 <CustomInput
                 label="Full Name"
                 keyboardType="default"
                 placeholder="Enter your full name"
-                value={name}
-                error={errors.name}
+                value={value}
+                error={errors.name?.message}
                 icon="person-outline"
-                onChange={setName}
-                
+                onChangeText={onChange}
+              /> 
+              )}
               />
-
-              <CustomInput
+              
+              <Controller
+              control={control}
+              name="pmdcNumber"
+              rules={{
+                required:"PMDC number is required"
+              }}
+              render={({field:{onChange,value}})=>(
+               <CustomInput
                 label="PMDC Number"
-                keyboardType="numeric"
                 placeholder="Enter your PMDC number"
-                value={pmdcNumber}
+                value={value}
                 icon="checkmark-outline"
-                onChange={setPmdc}
-                error={errors.pmdcNumber}
+                onChangeText={onChange}
+                error={errors.pmdcNumber?.message}
+              />
+              )}
               />
 
-              <CustomInput
+             
+
+              <Controller
+              control={control}
+              name="email"
+              rules={{
+                required:"Email is required"
+              }}
+              render={({field:{onChange,value}})=>(
+                <CustomInput
                 label="Email Address"
                 keyboardType="email-address"
                 placeholder="Enter your email address"
-                value={email}
+                value={value}
                 icon={'mail-outline'}
-                onChange={setEmail}
+                onChangeText={onChange}
                 autoCapitalize="none"
-                error={errors.email}
+                error={errors.email?.message}
+              />
+              )}
               />
 
-              <CustomInput
+             
+              <Controller
+              control={control}
+              name="phoneNumber"
+              rules={{
+                required:"Phone Number is required"
+              }}
+              render={({field:{onChange,value}})=>(
+                 <CustomInput
                 label="Phone Number"
                 keyboardType="phone-pad"
                 placeholder="Enter your phone number"
-                value={phoneNumber}
+                value={value}
                 icon={'call-outline'}
-                onChange={setPhoneNumber}
-                error={errors.phoneNumber}
+                onChangeText={onChange}
+                error={errors.phoneNumber?.message}
+              />
+              )}
               />
               <View className="mb-4">
-                <CustomPasswordInput
+                {/**/}
+
+                <Controller
+              control={control}
+              name="password"
+              rules={{
+                required:"Password is required"
+              }}
+              render={({field:{onChange,value}})=>(
+                 <CustomPasswordInput
                   label="Password"
                   placeholder="Create a strong password"
                   value={password}
-                  onChange={setPassword}
-                  error={errors.password}
-                />
+                  onChangeText={onChange}
+                  error={errors.password?.message}
+                /> 
+              )}
+              />
                 {password ? (
-                  <View className="-mt-4">
+                  <View className="">
                     <View className="flex-row justify-between mb-1">
                       <Text className="text-xs text-gray-500">
                         Password Strength
@@ -435,12 +411,22 @@ const SignUp = ({navigation}: SignUpProps) => {
                 </View>
               </View>
 
-              <CustomPasswordInput
+             
+               <Controller
+              control={control}
+              name="confirmPassword"
+              rules={{
+                required:"Confirm Password is required"
+              }}
+              render={({field:{onChange,value}})=>(
+                  <CustomPasswordInput
                 label="Confirm Password"
                 placeholder="Confirm your password"
                 value={confirmPassword}
-                onChange={setConfirmPassword}
-                error={errors.confirmPassword}
+                onChangeText={onChange}
+                error={errors.confirmPassword?.message}
+              />
+              )}
               />
             </View>
             {/* PMDC Upload Section */}
@@ -452,67 +438,52 @@ const SignUp = ({navigation}: SignUpProps) => {
                 Please upload a clear photo of your PMDC certificate
               </Text>
                 
-              <View className="items-center my-8">
+              <View className="items-center my-6">
                 <Pressable
                   onPress={() => bottomSheetRef.current?.expand()}
                   className="w-40 h-40 border-2 border-dashed border-gray-300 rounded-xl items-center justify-center bg-gray-50">
-                  {pmdcCopy ? (
-                    <Image
-                      className="w-full h-full rounded-xl"
-                      source={{uri: pmdcCopy.uri}}
-                      resizeMode="cover"
-                    />
-                  ) : (
-                    <View className="items-center">
-                      <Image
-                        className="w-12 h-12 mb-2 opacity-60"
-                        source={Images.addImage}
-                      />
-                      <Text className="text-gray-500 text-sm font-medium">
-                        Tap to upload
-                      </Text>
-                    </View>
-                  )}
+                {pmdcCopy ? (
+  <Image
+    className="w-full h-full rounded-xl"
+    source={{ uri: pmdcCopy.uri }}
+    resizeMode="cover"
+  />
+) : (
+  <View className="items-center">
+    <Image className="w-12 h-12 mb-2 opacity-60" source={Images.addImage} />
+    <Text className="text-gray-500 text-sm font-medium">Tap to upload</Text>
+  </View>
+)}
                 </Pressable>
-              <Text className='text-xs text-[#ef4444] pt-2'>{errors.pmdcCopy}</Text>
+                 <Text className='text-sm text-[#ef4444] '>{errors.pmdcCopy?.message}</Text>
               </View>
             </View>
 
-            {/* Terms and Conditions */}
-            <Pressable
-              onPress={() => setChecked(!checked)}
-              className="flex-row items-center px-2">
-              <CheckBox
-              
-                checked={checked}
-                onPress={() => setChecked(!checked)} // toggle function
-                checkedColor="#2895cb"
-                uncheckedColor="#9CA3AF"
-                size={20}
-                containerStyle={{
-                  padding: 0,
-                  margin: 0,
-                  backgroundColor: 'transparent',
-                }}
-              />
-              <Text className="flex-1 text-gray-700 text-sm leading-5 ">
-                I agree to the{' '}
-                <Text className="text-[#2895cb] font-medium">
-                  Terms of Service
-                </Text>{' '}
-                and{' '}
-                <Text className="text-[#2895cb] font-medium">
-                  Privacy Policy
-                </Text>
-              </Text>
-            </Pressable>
+            
+            <Pressable onPress={() => setValue("checked", !checked)} className="flex-row items-center ">
+            <CheckBox
+              checked={checked}
+              onPress={() => setValue("checked", !checked)}
+              checkedColor="#2895cb"
+              uncheckedColor="#9CA3AF"
+              size={20}
+              containerStyle={{
+                padding: 0,
+                margin: 0,
+                backgroundColor: 'transparent',
+              }}
+            />
+            <Text className="ml-2 text-gray-700 text-sm leading-5">
+              I agree to the <Text className="text-[#2895cb] font-medium">Terms of Service</Text> and{' '}
+              <Text className="text-[#2895cb] font-medium">Privacy Policy</Text>
+            </Text>
+          </Pressable>
 
             <View className="mt-8">
               <CustomButton
-                disabled={isLoading || !isFormValid}
                 loading={isLoading}
                 label="Create Account"
-                onPress={handleSignUp}
+                onPress={handleSubmit(handleSignUp)}
               />
             </View>
 
@@ -538,9 +509,13 @@ const SignUp = ({navigation}: SignUpProps) => {
           onChange={handleSheetChanges}>
           <BottomSheetView style={{flex: 1, padding: 10}}>
             <TouchableOpacity
+            
               activeOpacity={0.7}
               className="flex-row items-center py-4 px-4 rounded-xl"
-              onPress={openCamera}>
+              onPress={()=>{
+                openCamera()
+                bottomSheetRef.current?.close()
+              }}>
               <View className="w-10 h-10 bg-blue-100 rounded-full items-center justify-center mr-4">
                 <Image className="w-6 h-6" source={Icons.camera} />
               </View>
@@ -552,7 +527,10 @@ const SignUp = ({navigation}: SignUpProps) => {
             <TouchableOpacity
               activeOpacity={0.7}
               className="flex-row items-center py-4 px-4 rounded-xl "
-              onPress={openGallery}>
+              onPress={()=>{
+                openGallery()
+                bottomSheetRef.current?.close()
+              }}>
               <View className="w-10 h-10 bg-green-100 rounded-full items-center justify-center mr-4">
                 <Image className="w-6 h-6" source={Icons.gallery} />
               </View>

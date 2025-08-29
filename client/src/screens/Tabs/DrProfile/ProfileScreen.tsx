@@ -10,6 +10,7 @@ import {
   TextInput as RNTextInput,
   Pressable,
   Image,
+  ActivityIndicator,
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
@@ -20,23 +21,30 @@ import {BASE_URL} from '../../../api/api';
 import axios from 'axios';
 import {launchImageLibrary} from 'react-native-image-picker';
 import Icons from '../../../utils/libs/constants/Icons';
-import CustomButton from '../../../components/CustomButton';
 import Header from '../../../components/Header';
+import { Controller, useForm } from 'react-hook-form';
+import { showToast } from '../../../utils/toastUtils';
 
 const ProfileScreen = () => {
-  type Profile = {
-    name: string;
-    specialty: string;
-    years: string;
-    certifications: string;
-    professionalBio: string;
-    email: string;
-    phoneNumber: string;
-    clinicAddress: string;
-    profileImage?: string;
-  };
+
+  const [loading, setLoading] = useState(false);
+
+ type ProfileFormValues = {
+  name: string;
+  specialty: string;
+  years: string;
+  certifications: string;
+  professionalBio: string;
+  email: string;
+  phoneNumber: string;
+  clinicAddress: string;
+  profileImage?: string;
+};
+
   const navigation = useNavigation();
-  const [profile, setProfile] = useState<Profile>({
+
+const { control, handleSubmit, setValue, reset,watch, formState: { errors } } = useForm<ProfileFormValues>({
+  defaultValues: {
     name: '',
     specialty: '',
     years: '',
@@ -46,72 +54,78 @@ const ProfileScreen = () => {
     phoneNumber: '',
     clinicAddress: '',
     profileImage: '',
-  });
+  }
+});
 
-  // State for password management
-  const [passwordData, setPasswordData] = useState({
-    currentPassword: '',
-    newPassword: '',
-    confirmPassword: '',
-  });
-
-  // Password strength calculation
-  const calculatePasswordStrength = (password: string) => {
-    if (!password) return 0;
-    let strength = 0;
-    // Length check
-    if (password.length >= 8) strength += 0.25;
-    // Contains uppercase
-    if (/[A-Z]/.test(password)) strength += 0.25;
-    // Contains lowercase
-    if (/[a-z]/.test(password)) strength += 0.25;
-    // Contains number or special char
-    if (/[0-9!@#$%^&*(),.?":{}|<>]/.test(password)) strength += 0.25;
-    return strength;
-  };
-
-  const passwordStrength = calculatePasswordStrength(passwordData.newPassword);
-
-  // Handle profile field changes
-  const handleChange = (field: string, value: string) => {
-    setProfile(prev => ({...prev, [field]: value}));
-  };
-
-  // Handle image selection
-  // const handleImageSelected = (uri: string) => {
-  //   setProfile((prev) => ({ ...prev, profileImage: uri }))
-  // }
+const nameValue = watch("name");
+const specialtyValue = watch("specialty");
 
   const handleImageSelected = () => {
-    launchImageLibrary(
-      {
-        mediaType: 'photo',
-        quality: 0.8,
-        includeBase64: false,
-        maxHeight: 2000,
-        maxWidth: 2000,
-      },
-      response => {
-        if (
-          !response.didCancel &&
-          !response.errorCode &&
-          response.assets?.[0]
-        ) {
-          const selectedImage = response.assets[0];
-          setProfile(prev => ({
-            ...prev,
-            profileImage: selectedImage.uri, // save the URI for display
-            fullObject: selectedImage, // optional, keep full object if needed
-          }));
-        } else if (response.errorCode) {
-          console.log('Gallery Error: ', response.errorMessage);
-        }
-      },
-    );
+  launchImageLibrary(
+    { mediaType: 'photo', quality: 0.8, maxHeight: 2000, maxWidth: 2000 },
+    response => {
+      if (!response.didCancel && !response.errorCode && response.assets?.[0]) {
+        const selectedImage = response.assets[0];
+        setValue('profileImage', selectedImage.uri); // react-hook-form
+      } else if (response.errorCode) {
+        console.log('Gallery Error: ', response.errorMessage);
+      }
+    }
+  );
+};
+
+
+  
+
+
+const onSubmit = async (values: ProfileFormValues) => {
+  try {
+    setLoading(true);
+    const storedUser = await AsyncStorage.getItem('user');
+    if (!storedUser) return;
+
+    const parsedUser = JSON.parse(storedUser);
+    const doctorId = parsedUser._id;
+
+    const formData = new FormData();
+    Object.entries(values).forEach(([key, value]) => {
+      if (key === 'profileImage' && value?.startsWith('file://')) {
+        formData.append(key, { uri: value, type: 'image/jpeg', name: 'profile.jpg' } as any);
+      } else {
+        formData.append(key, value as string);
+      }
+    });
+
+  
+    const response = await axios.patch(`${BASE_URL}/doctors/update-doctor/${doctorId}`, formData, {
+  headers: { 'Content-Type': 'multipart/form-data' }
+});
+
+
+    if (response.data.success) {
+      showToast('success', 'Profile updated successfully!');
+    } else {
+      showToast('error', 'Failed to update profile');
+    }
+
+  } catch (error: any) {
+    console.log(error.response?.data || error.message);
+    showToast('error', 'Something went wrong while updating profile');
+  }finally{
+    setLoading(false);
+  }
+};
+
+
+ 
+
+ 
+  const navigateToSchedule = () => {
+    navigation.navigate('ScheduleScreen' as never);
   };
 
-  // Handle save profile
-  const handleSave = async () => {
+useEffect(() => {
+  const getDoctor = async () => {
     try {
       const storedUser = await AsyncStorage.getItem('user');
       if (!storedUser) return;
@@ -119,106 +133,33 @@ const ProfileScreen = () => {
       const parsedUser = JSON.parse(storedUser);
       const doctorId = parsedUser._id;
 
-      const formData = new FormData();
+      const response = await axios.get(`${BASE_URL}/doctors/get-doctor/${doctorId}`);
+      if (!response.data.success) return;
 
-      formData.append('name', profile.name);
-      formData.append('specialty', profile.specialty);
-      formData.append('years', profile.years);
-      formData.append('certifications', profile.certifications);
-      formData.append('professionalBio', profile.professionalBio);
-      formData.append('email', profile.email);
-      formData.append('phoneNumber', profile.phoneNumber);
-      formData.append('clinicAddress', profile.clinicAddress);
+      const { doctor, profile } = response.data;
 
-      if (profile.profileImage && profile.profileImage.startsWith('file://')) {
-        const image = {
-          uri: profile.profileImage,
-          type: 'image/jpeg', // or "image/png"
-          name: 'profile.jpg',
-        };
-        formData.append('profileImage', image as any);
-      }
+      const formValues = {
+        name: doctor.name,
+        email: doctor.email,
+        phoneNumber: doctor.phoneNumber,
+        profileImage: profile?.profileImage || '',
+        specialty: profile?.specialty || '',
+        years: profile?.years || '',
+        certifications: profile?.certifications || '',
+        professionalBio: profile?.professionalBio || '',
+        clinicAddress: profile?.clinicAddress || '',
+      };
 
-      const response = await axios.patch(
-        `${BASE_URL}/doctors/update-doctor/${doctorId}`,
-        formData,
-        {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        },
-      );
-
-      if (response.data.success) {
-        Alert.alert('Success', 'Profile updated successfully!');
-      } else {
-        Alert.alert('Error', 'Failed to update profile');
-      }
-    } catch (error: any) {
-      console.log(error.response?.data || error.message);
-      Alert.alert('Error', 'Something went wrong while updating profile');
+      reset(formValues);
+    } catch (err) {
+      console.log('Error fetching doctor', err);
     }
   };
 
-  // Handle password update
-  const handleUpdatePassword = () => {
-    // Validate passwords
-    if (!passwordData.currentPassword) {
-      Alert.alert('Error', 'Please enter your current password');
-      return;
-    }
-    if (!passwordData.newPassword) {
-      Alert.alert('Error', 'Please enter a new password');
-      return;
-    }
-    if (passwordData.newPassword !== passwordData.confirmPassword) {
-      Alert.alert('Error', "New passwords don't match");
-      return;
-    }
-    if (passwordStrength < 0.5) {
-      Alert.alert(
-        'Weak Password',
-        'Your password is not strong enough. Please include uppercase, lowercase, numbers, and special characters.',
-      );
-      return;
-    }
+  getDoctor();
+}, [reset]);
 
-    // Success case
-    Alert.alert('Success', 'Password updated successfully!');
-    setPasswordData({
-      currentPassword: '',
-      newPassword: '',
-      confirmPassword: '',
-    });
-  };
 
-  // Navigate to schedule screen
-  const navigateToSchedule = () => {
-    navigation.navigate('ScheduleScreen' as never);
-  };
-
-  useEffect(() => {
-    const getDoctor = async () => {
-      try {
-        const storedUser = await AsyncStorage.getItem('user');
-        if (storedUser) {
-          const parsedUser = JSON.parse(storedUser);
-          const doctorId = parsedUser._id;
-          const response = await axios.get(
-            `${BASE_URL}/doctors/get-doctor/${doctorId}`,
-          );
-          const data = response.data;
-          setProfile(prev => ({
-            ...prev,
-            ...data.doctor, // assuming backend returns { doctor: {...} }
-          }));
-        }
-      } catch (err) {
-        console.log('Error fetching doctor');
-      }
-    };
-    getDoctor();
-  }, []);
 
   return (
     <KeyboardAvoidingView
@@ -228,44 +169,45 @@ const ProfileScreen = () => {
       <ScrollView
         className="flex-1 px-5 bg-slate-50"
         showsVerticalScrollIndicator={false}>
-        {/* Premium Header */}
+       
         <View className="bg-white pt-6 pb-10">
           <View className="px-8">
             <View className="items-center">
              <View className="mb-3">
   <Pressable
-                  onPress={handleImageSelected}
-                  className="w-24 h-24 rounded-full items-center justify-center bg-slate-100 border border-slate-200 shadow-lg overflow-hidden"
-                >
-                  {profile.profileImage ? (
-                    <Image
-                      source={{ uri: profile.profileImage }}
-                      className="w-full h-full rounded-full"
-                      resizeMode="cover"
-                    />
-                  ) : (
-                    <View className="items-center justify-center w-full h-full">
-                      <Image source={Icons.profileIcon} className="w-[6.5rem] h-[6.5rem]" resizeMode="contain" />
-                    </View>
-                  )}
-                </Pressable>
+            onPress={handleImageSelected}
+            className="w-24 h-24 rounded-full items-center justify-center bg-slate-100 border border-slate-200 shadow-lg overflow-hidden"
+          >
+            <Controller
+              control={control}
+              name="profileImage"
+              render={({ field: { value } }) => (
+                value ? <Image source={{ uri: value }} className="w-full h-full rounded-full" /> :
+                  <Image source={Icons.profileIcon} className="w-24 h-24" resizeMode="contain" />
+              )}
+            />
+          </Pressable>
                 <Pressable onPress={handleImageSelected} className="absolute -bottom-1 -right-1 w-8 h-8 bg-primary rounded-full items-center justify-center shadow-lg">
                   <Image  source={Icons.camera} className='w-4 h-4' tintColor={"white"}/>
                   
                 </Pressable>
 </View>
 
-              <Text
-                ellipsizeMode="tail"
-                numberOfLines={1}
-                className="text-2xl font-bold text-slate-900 mb-2 tracking-normal">
-                {profile.name}
-              </Text>
-              <View className="bg-slate-100 px-4 py-2 rounded-full mb-8">
-                <Text ellipsizeMode="tail" numberOfLines={1} className="text-base font-semibold text-slate-600">
-                  {profile.specialty || "Medical Specialist"}
-                </Text>
-              </View>
+             <Text
+  ellipsizeMode="tail"
+  numberOfLines={1}
+  className="text-2xl font-bold text-slate-900 mb-2 tracking-normal">
+  {nameValue || "Your Name"}
+</Text>
+
+<View className="bg-slate-100 px-4 py-2 rounded-full mb-8">
+  <Text
+    ellipsizeMode="tail"
+    numberOfLines={1}
+    className="text-base font-semibold text-slate-600">
+    {specialtyValue || "Medical Specialist"}
+  </Text>
+</View>
               <View className="w-full max-w-sm">
                 <TouchableOpacity
                 activeOpacity={.90}
@@ -276,7 +218,6 @@ const ProfileScreen = () => {
                     Manage Schedule
                   </Text>
                 </TouchableOpacity>
-                {/* <CustomButton /> */}
               </View>
             </View>
           </View>
@@ -297,61 +238,91 @@ const ProfileScreen = () => {
             <View className="bg-white rounded-3xl p-2 shadow-sm border border-slate-100">
               <View className="space-y-6 p-1">
                 <View>
-                  <FormInput
-                    label="Full Name"
-                    value={profile.name}
-                    onChangeText={value => handleChange('name', value)}
-                  />
+                  <Controller
+            control={control}
+            name="name"
+            rules={{ required: "Name is required" }}
+            render={({ field: { value, onChange } }) => (
+              <FormInput
+                label="Full Name"
+                value={value}
+                onChangeText={onChange}
+                error={errors.name?.message}
+              />
+            )}
+          />
                 </View>
 
                 <View className="flex-row space-x-4">
                   <View className="flex-1 mr-2">
-                    <FormInput
-                      label="Specialty"
-                      placeholder="No specialty provided"
-                      value={profile.specialty}
-                      onChangeText={value => handleChange('specialty', value)}
-                    />
+                       <Controller
+            control={control}
+            name="specialty"
+            render={({ field: { value, onChange } }) => (
+              <FormInput label="Specialty" value={value} onChangeText={onChange} />
+            )}
+          />
+
                   </View>
                   <View className="w-32">
-                    <FormInput
+                   
+                     <Controller
+            control={control}
+            name="years"
+            render={({ field: { value, onChange } }) => (
+              <FormInput
                       label="Years"
-                      value={profile.years}
-                      onChangeText={value => handleChange('experience', value)}
+                      value={value}
+                      onChangeText={onChange}
                       placeholder="Unknown"
                       keyboardType="numeric"
                       className="text-base text-slate-900 font-medium"
                       placeholderTextColor="#94a3b8"
                     />
+            )}
+          />
                   </View>
                 </View>
 
                 <View>
-                  <FormInput
+                
+                   <Controller
+            control={control}
+            name="certifications"
+            render={({ field: { value, onChange } }) => (
+               <FormInput
                     label="Certifications"
                     placeholder="No Certifications"
-                    value={profile.certifications}
-                    onChangeText={value =>
-                      handleChange('certifications', value)
-                    }
+                    value={value}
+                    onChangeText={onChange}
                     multiline
                     numberOfLines={4}
                     className="text-base text-slate-900 font-medium min-h-20 "
                     placeholderTextColor="#94a3b8"
                   />
+            )}
+          />
+                      
                 </View>
 
                 <View>
-                  <FormInput
+                 
+                  <Controller
+            control={control}
+            name="professionalBio"
+            render={({ field: { value, onChange } }) => (
+               <FormInput
                     label="Professional Bio"
-                    value={profile.professionalBio}
+                    value={value}
                     placeholder="No Professional Bio"
-                    onChangeText={value => handleChange('bio', value)}
+                    onChangeText={onChange}
                     multiline
                     numberOfLines={4}
                     className="text-base text-slate-900 font-medium"
                     placeholderTextColor="#94a3b8"
                   />
+            )}
+          />
                 </View>
               </View>
             </View>
@@ -374,41 +345,62 @@ const ProfileScreen = () => {
                 <View>
                   <View className="flex-row items-center mb-3"></View>
 
-                  <FormInput
-                    value={profile.email}
-                    onChangeText={value => handleChange('email', value)}
+                  
+                    <Controller
+            control={control}
+            name="email"
+            render={({ field: { value, onChange } }) => (
+             <FormInput
+                    value={value}
+                    onChangeText={onChange}
                     label="Email"
                     keyboardType="email-address"
                     autoCapitalize="none"
                     className="text-base text-slate-900 font-medium"
                     placeholderTextColor="#94a3b8"
                   />
+            )}
+          />
                 </View>
 
                 {/* Phone */}
                 <View>
-                  <FormInput
+                 
+                  <Controller
+            control={control}
+            name="phoneNumber"
+            render={({ field: { value, onChange } }) => (
+              <FormInput
                     label="Phone Number"
-                    onChangeText={value => handleChange('phoneNumber', value)}
-                    value={profile.phoneNumber}
+                    onChangeText={onChange}
+                    value={value}
                     keyboardType="phone-pad"
                     className="text-base text-slate-900 font-medium"
                     placeholderTextColor="#94a3b8"
                   />
+            )}
+          />
                 </View>
 
                 {/* Address */}
                 <View>
-                  <FormInput
+                 
+                   <Controller
+            control={control}
+            name="clinicAddress"
+            render={({ field: { value, onChange } }) => (
+              <FormInput
                     label="Clinic Address"
-                    value={profile.clinicAddress}
+                    value={value}
                     placeholder="No Clinic Address"
-                    onChangeText={value => handleChange('clinicAddress', value)}
+                    onChangeText={onChange}
                     multiline
                     numberOfLines={4}
                     className="text-base text-slate-900 font-medium"
                     placeholderTextColor="#94a3b8"
                   />
+            )}
+          />
                 </View>
               </View>
             </View>
@@ -419,15 +411,21 @@ const ProfileScreen = () => {
           {/* Save Changes */}
           <View className="mb-5">
             <TouchableOpacity
-            activeOpacity={.90}
-              onPress={handleSave}
-              className="bg-primary py-3 px-6 rounded-2xl flex-row items-center justify-center shadow-xl">
-              {/* <MaterialIcons name="save" size={24} color="white" /> */}
-              <Image className='w-8 h-8' source={Icons.saveIcon} tintColor={"white"}/>
-              <Text className="text-white text-base font-bold ml-2">
-                Save All Changes
-              </Text>
-            </TouchableOpacity>
+  activeOpacity={0.9}
+  onPress={handleSubmit(onSubmit)}
+  className="bg-primary py-3 px-6 rounded-2xl flex-row items-center justify-center shadow-xl"
+  disabled={loading} // disable button while loading
+>
+  {loading ? (
+    <ActivityIndicator  color="white" className="mr-2 w-8 h-8" />
+  ) : (
+    <Image className='w-8 h-8 mr-2' source={Icons.saveIcon} tintColor={"white"}/>
+  )}
+  <Text className="text-white text-base font-bold">
+    Save All Changes
+  </Text>
+</TouchableOpacity>
+
           </View>
         </View>
       </ScrollView>

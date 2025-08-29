@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react'
-import { Image, Pressable } from 'react-native'
+import React, { useEffect, useState } from 'react'
+import { Image, Keyboard, Pressable } from 'react-native'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import DashBoard from '../../screens/Tabs/Dashboard'
 import PaymentsScreen from '../../screens/Tabs/PaymentsScreen'
@@ -53,15 +53,31 @@ const AnimatedTabIcon = ({ source, focused, color }: any) => {
   )
 }
 
+
+
 export default function TabLayout() {
+  const [isKeyboardVisible, setKeyboardVisible] = useState(false)
+
+useEffect(() => {
+  const showSub = Keyboard.addListener('keyboardDidShow', () => setKeyboardVisible(true))
+  const hideSub = Keyboard.addListener('keyboardDidHide', () => setKeyboardVisible(false))
+  return () => {
+    showSub.remove()
+    hideSub.remove()
+  }
+}, [])
   return (
     <Tab.Navigator
       screenOptions={{
         headerShown: false,
         tabBarShowLabel: true,
+        tabBarLabelStyle:{
+          paddingTop:2,
+        },
         tabBarStyle: {
           height: 70,
           paddingTop:6,
+          paddingBottom: 6,
           backgroundColor: '#ffffff',
           borderTopWidth: 0.5,
           borderTopColor: '#e2e8f0',
@@ -70,7 +86,12 @@ export default function TabLayout() {
           shadowOffset: { width: 0, height: -2 },
           shadowOpacity: 0.04,
           shadowRadius: 8,
+          paddingHorizontal: 0,
+          // display: isKeyboardVisible ? 'none' : 'flex'
+          position: isKeyboardVisible ? 'absolute' : 'relative',
+          bottom: isKeyboardVisible ? -100 : 0,
         },
+        
         tabBarActiveTintColor: '#0891b2',
         tabBarInactiveTintColor: '#64748b',
         tabBarButton: (props) => (

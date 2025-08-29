@@ -1,11 +1,17 @@
-"use client"
-
-import { useState } from "react"
-import { View, Text, ScrollView, Switch, Alert, TouchableOpacity, Platform } from "react-native"
-import { useNavigation } from "@react-navigation/native"
+import { useEffect, useState } from "react"
+import { View, Text, ScrollView, Alert, TouchableOpacity, Platform } from "react-native"
 import MaterialIcons from "react-native-vector-icons/MaterialIcons"
 import DateTimePicker from "@react-native-community/datetimepicker"
 import Header from "../../../components/Header"
+import { SafeAreaView } from "react-native-safe-area-context"
+import { Switch } from '@rneui/themed';
+import AsyncStorage from "@react-native-async-storage/async-storage"
+import axios from "axios"
+import { BASE_URL } from "../../../api/api"
+import { ActivityIndicator } from "react-native"
+import Icons from "../../../utils/libs/constants/Icons"
+import { ImageStore } from "react-native"
+import { Image } from "react-native"
 
 type DaySchedule = {
   day: string
@@ -18,94 +24,28 @@ type DaySchedule = {
   patientsPerHour: string
 }
 
-const formatTimeToAMPM = (time24: string) => {
-  const [hours, minutes] = time24.split(":").map(Number)
-  const period = hours >= 12 ? "PM" : "AM"
-  const hours12 = hours % 12 || 12
-  return `${hours12}:${minutes.toString().padStart(2, "0")} ${period}`
-}
+const formatTimeToAMPM = (time24?: string) => {
+  if (!time24) return "12:00 AM";
+  const [hoursStr, minutesStr] = time24.split(":");
+  const hours = Number(hoursStr) || 0;
+  const minutes = Number(minutesStr) || 0;
+  const period = hours >= 12 ? "PM" : "AM";
+  const hours12 = hours % 12 || 12;
+  return `${hours12}:${minutes.toString().padStart(2, "0")} ${period}`;
+};
+
 
 const ScheduleScreen = () => {
-  const navigation = useNavigation()
-  const [schedule, setSchedule] = useState<DaySchedule[]>([
-    {
-      day: "Monday",
-      isWorking: true,
-      startTime: "08:00",
-      endTime: "17:00",
-      hasBreak: false,
-      breakStart: null,
-      breakEnd: null,
-      patientsPerHour: "4",
-    },
-    {
-      day: "Tuesday",
-      isWorking: true,
-      startTime: "08:30",
-      endTime: "16:30",
-      hasBreak: false,
-      breakStart: null,
-      breakEnd: null,
-      patientsPerHour: "4",
-    },
-    {
-      day: "Wednesday",
-      isWorking: true,
-      startTime: "09:00",
-      endTime: "18:00",
-      hasBreak: false,
-      breakStart: null,
-      breakEnd: null,
-      patientsPerHour: "6",
-    },
-    {
-      day: "Thursday",
-      isWorking: true,
-      startTime: "08:00",
-      endTime: "17:00",
-      hasBreak: false,
-      breakStart: null,
-      breakEnd: null,
-      patientsPerHour: "4",
-    },
-    {
-      day: "Friday",
-      isWorking: true,
-      startTime: "08:00",
-      endTime: "16:00",
-      hasBreak: false,
-      breakStart: null,
-      breakEnd: null,
-      patientsPerHour: "6",
-    },
-    {
-      day: "Saturday",
-      isWorking: false,
-      startTime: "09:00",
-      endTime: "15:00",
-      hasBreak: false,
-      breakStart: null,
-      breakEnd: null,
-      patientsPerHour: "4",
-    },
-    {
-      day: "Sunday",
-      isWorking: false,
-      startTime: "10:00",
-      endTime: "16:00",
-      hasBreak: false,
-      breakStart: null,
-      breakEnd: null,
-      patientsPerHour: "4",
-    },
-  ])
-
+  const [schedule, setSchedule] = useState<DaySchedule[]>([])
   const [showTimePicker, setShowTimePicker] = useState(false)
   const [selectedDay, setSelectedDay] = useState("")
   const [selectedField, setSelectedField] = useState("")
   const [pickerDate, setPickerDate] = useState(new Date())
   const [showPatientsDropdown, setShowPatientsDropdown] = useState<string | null>(null)
   const [visibleSlots, setVisibleSlots] = useState<{ [key: string]: number }>({})
+  const [loading, setLoading] = useState(false)
+
+  
 
   const patientsPerHourOptions = [
     { value: "1", label: "1 Patient per Hour" },
@@ -115,7 +55,18 @@ const ScheduleScreen = () => {
     { value: "5", label: "5 Patients per Hour" },
     { value: "6", label: "6 Patients per Hour" },
     { value: "8", label: "8 Patients per Hour" },
+    { value: "9", label: "9 Patients per Hour" },
+    { value: "10", label: "10 Patients per Hour" },
+    { value: "11", label: "11 Patients per Hour" },
     { value: "12", label: "12 Patients per Hour" },
+    { value: "13", label: "13 Patients per Hour" },
+    { value: "14", label: "14 Patients per Hour" },
+    { value: "15", label: "15 Patients per Hour" },
+    { value: "16", label: "16 Patients per Hour" },
+    { value: "17", label: "17 Patients per Hour" },
+    { value: "18", label: "18 Patients per Hour" },
+    { value: "19", label: "19 Patients per Hour" },
+    { value: "20", label: "20 Patients per Hour" },
   ]
 
   const toggleWorkingDay = (day: string) => {
@@ -123,47 +74,69 @@ const ScheduleScreen = () => {
   }
 
   const toggleBreakTime = (day: string) => {
+  setSchedule((prev) =>
+    prev.map((item) =>
+      item.day === day
+        ? {
+            ...item,
+            hasBreak: !item.hasBreak,
+            breakStart: !item.hasBreak ? item.breakStart || "12:00" : null,
+            breakEnd: !item.hasBreak ? item.breakEnd || "13:00" : null,
+          }
+        : item,
+    ),
+  )
+}
+
+
+  // Open the time picker safely
+const openTimePicker = (day: string, field: string, currentValue?: string) => {
+  setSelectedDay(day)
+  setSelectedField(field)
+
+  // Use a default time if currentValue is undefined or null
+  let time = currentValue
+  if (!time) {
+    // For break fields, default to 12:00 - 13:00
+    if (field === "breakStart") time = "12:00"
+    else if (field === "breakEnd") time = "13:00"
+    else time = "09:00" // default for working hours
+  }
+
+  const [hoursStr, minutesStr] = time.split(":")
+  const hours = Number(hoursStr) || 0
+  const minutes = Number(minutesStr) || 0
+
+  const date = new Date()
+  date.setHours(hours, minutes, 0, 0)
+  setPickerDate(date)
+  setShowTimePicker(true)
+}
+
+// Handle time selection safely
+const onTimeChange = (event: any, selectedDate?: Date) => {
+  if (Platform.OS === "android") setShowTimePicker(false)
+
+  if (selectedDate && event.type !== "dismissed") {
+    const hours = selectedDate.getHours().toString().padStart(2, "0")
+    const minutes = selectedDate.getMinutes().toString().padStart(2, "0")
+    const timeString = `${hours}:${minutes}`
+
+    // Update the schedule safely
     setSchedule((prev) =>
-      prev.map((item) =>
-        item.day === day
-          ? {
-              ...item,
-              hasBreak: !item.hasBreak,
-              breakStart: !item.hasBreak ? "12:00" : null,
-              breakEnd: !item.hasBreak ? "13:00" : null,
-            }
-          : item,
-      ),
+      prev.map((item) => {
+        if (item.day === selectedDay) {
+          return { ...item, [selectedField]: timeString }
+        }
+        return item
+      })
     )
+
+    if (Platform.OS === "ios") setShowTimePicker(false)
   }
+}
 
-  const openTimePicker = (day: string, field: string, currentValue: string) => {
-    setSelectedDay(day)
-    setSelectedField(field)
-    const [hours, minutes] = currentValue.split(":").map(Number)
-    const date = new Date()
-    date.setHours(hours, minutes, 0, 0)
-    setPickerDate(date)
-    setShowTimePicker(true)
-  }
 
-  const onTimeChange = (event: any, selectedDate?: Date) => {
-    if (Platform.OS === "android") setShowTimePicker(false)
-
-    if (selectedDate && event.type !== "dismissed") {
-      const hours = selectedDate.getHours().toString().padStart(2, "0")
-      const minutes = selectedDate.getMinutes().toString().padStart(2, "0")
-      const timeString = `${hours}:${minutes}`
-
-      setSchedule((prev) =>
-        prev.map((item) => (item.day === selectedDay ? { ...item, [selectedField]: timeString } : item)),
-      )
-
-      if (Platform.OS === "ios") setShowTimePicker(false)
-    } else if (Platform.OS === "android") {
-      setShowTimePicker(false)
-    }
-  }
 
   const updatePatientsPerHour = (day: string, value: string) => {
     setSchedule((prev) => prev.map((item) => (item.day === day ? { ...item, patientsPerHour: value } : item)))
@@ -177,73 +150,160 @@ const ScheduleScreen = () => {
     }))
   }
 
-  const generateTimeSlots = (daySchedule: DaySchedule) => {
-    if (!daySchedule.isWorking) return []
+const generateTimeSlots = (daySchedule: DaySchedule) => {
+  if (!daySchedule.isWorking) return [];
 
-    const slots = []
-    const startHour = Number.parseInt(daySchedule.startTime.split(":")[0])
-    const startMinute = Number.parseInt(daySchedule.startTime.split(":")[1])
-    const endHour = Number.parseInt(daySchedule.endTime.split(":")[0])
-    const endMinute = Number.parseInt(daySchedule.endTime.split(":")[1])
-    const patientsPerHour = Number.parseInt(daySchedule.patientsPerHour)
-    const slotDurationMinutes = 60 / patientsPerHour
+  const slots: string[] = [];
 
-    let breakStartHour = 0,
+  const startTime = daySchedule.startTime || "09:00";
+  const endTime = daySchedule.endTime || "17:00";
+
+  const [startHour, startMinute] = startTime.split(":").map(Number);
+  const [endHour, endMinute] = endTime.split(":").map(Number);
+
+  const patientsPerHour = Number(daySchedule.patientsPerHour) || 1;
+  const slotDurationMinutes = 60 / patientsPerHour;
+
+  let breakStartHour = 0,
       breakStartMinute = 0,
       breakEndHour = 0,
-      breakEndMinute = 0
+      breakEndMinute = 0;
 
-    if (daySchedule.hasBreak && daySchedule.breakStart && daySchedule.breakEnd) {
-      breakStartHour = Number.parseInt(daySchedule.breakStart.split(":")[0])
-      breakStartMinute = Number.parseInt(daySchedule.breakStart.split(":")[1])
-      breakEndHour = Number.parseInt(daySchedule.breakEnd.split(":")[0])
-      breakEndMinute = Number.parseInt(daySchedule.breakEnd.split(":")[1])
-    }
-
-    let currentHour = startHour
-    let currentMinute = startMinute
-
-    while (currentHour < endHour || (currentHour === endHour && currentMinute < endMinute)) {
-      const slotStart = `${currentHour.toString().padStart(2, "0")}:${currentMinute.toString().padStart(2, "0")}`
-
-      let slotEndMinute = currentMinute + slotDurationMinutes
-      let slotEndHour = currentHour
-
-      if (slotEndMinute >= 60) {
-        slotEndHour += Math.floor(slotEndMinute / 60)
-        slotEndMinute = slotEndMinute % 60
-      }
-
-      const slotEnd = `${slotEndHour.toString().padStart(2, "0")}:${slotEndMinute.toString().padStart(2, "0")}`
-
-      const isBreakTime =
-        daySchedule.hasBreak &&
-        (currentHour > breakStartHour || (currentHour === breakStartHour && currentMinute >= breakStartMinute)) &&
-        (currentHour < breakEndHour || (currentHour === breakEndHour && currentMinute < breakEndMinute))
-
-      if (!isBreakTime) {
-        slots.push(`${formatTimeToAMPM(slotStart)} - ${formatTimeToAMPM(slotEnd)}`)
-      }
-
-      currentMinute += slotDurationMinutes
-      if (currentMinute >= 60) {
-        currentHour += Math.floor(currentMinute / 60)
-        currentMinute = currentMinute % 60
-      }
-    }
-
-    return slots
+  if (daySchedule.hasBreak && daySchedule.breakStart && daySchedule.breakEnd) {
+    [breakStartHour, breakStartMinute] = daySchedule.breakStart.split(":").map(Number);
+    [breakEndHour, breakEndMinute] = daySchedule.breakEnd.split(":").map(Number);
   }
 
-  const handleSaveSchedule = () => {
-    Alert.alert("Success", "Professional schedule saved successfully!")
+  let currentHour = startHour;
+  let currentMinute = startMinute;
+
+  while (currentHour < endHour || (currentHour === endHour && currentMinute < endMinute)) {
+    const slotStart = `${currentHour.toString().padStart(2, "0")}:${Math.round(currentMinute).toString().padStart(2, "0")}`;
+
+    let slotEndMinute = Math.round(currentMinute + slotDurationMinutes);
+    let slotEndHour = currentHour;
+
+    if (slotEndMinute >= 60) {
+      slotEndHour += Math.floor(slotEndMinute / 60);
+      slotEndMinute = slotEndMinute % 60;
+    }
+
+    const slotEnd = `${slotEndHour.toString().padStart(2, "0")}:${slotEndMinute.toString().padStart(2, "0")}`;
+
+    const isBreakTime =
+      daySchedule.hasBreak &&
+      (currentHour > breakStartHour || (currentHour === breakStartHour && currentMinute >= breakStartMinute)) &&
+      (currentHour < breakEndHour || (currentHour === breakEndHour && currentMinute < breakEndMinute));
+
+    if (!isBreakTime) {
+      slots.push(`${formatTimeToAMPM(slotStart)} - ${formatTimeToAMPM(slotEnd)}`);
+    }
+
+    currentMinute += slotDurationMinutes;
+    if (currentMinute >= 60) {
+      currentHour += Math.floor(currentMinute / 60);
+      currentMinute = currentMinute % 60;
+    }
   }
+
+  return slots;
+};
+
+
+  const allDaySlots = schedule.reduce((acc, day) => {
+  acc[day.day] = generateTimeSlots(day)
+  return acc
+}, {} as Record<string, string[]>)
+
+
+ const addSchedule = async () => {
+  try {
+    const storedUser = await AsyncStorage.getItem("user");
+    if (!storedUser) return;
+
+    const parsedUser = JSON.parse(storedUser);
+    const doctorId = parsedUser._id;
+
+    const payload = {
+      doctor: doctorId,
+      schedules: schedule.map((day) => ({
+        day: day.day,
+        isWorking: day.isWorking,
+        startTime: day.startTime,
+        endTime: day.endTime,
+        hasBreak: day.hasBreak,
+        breakStart: day.breakStart,
+        breakEnd: day.breakEnd,
+        patientPerHour: Number(day.patientsPerHour),
+      })),
+    };
+
+    const response = await axios.post(
+      `${BASE_URL}/doctors/create-schedule`,
+      payload,
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    console.log("Schedule created:", response.data);
+    Alert.alert("Success", "Weekly schedule saved successfully!");
+  } catch (error: any) {
+    console.error("Error creating schedule:", error.response?.data || error.message);
+    Alert.alert("Error", "Failed to save schedule.");
+  }
+};
+
+
+  const handleSaveSchedule = async () => {
+    await addSchedule()
+  }
+
+ 
+      
+useEffect(() => {
+  const fetchSchedule = async () => {
+    try {
+      const storedUser = await AsyncStorage.getItem("user");
+      if (!storedUser) return;
+
+      const parsedUser = JSON.parse(storedUser);
+      const doctorId = parsedUser._id;
+
+      const response = await axios.get(`${BASE_URL}/doctors/get-schedule/${doctorId}`);
+      if (response.data.success) {
+        const weekly = response.data.schedule.weeklySchedule.map((day: any) => ({
+          day: day.day,
+          isWorking: day.isWorking,
+          startTime:  day.startTime,
+          endTime: day.endTime,
+          hasBreak: day.hasBreak,
+          breakStart: day.breakStart,
+          breakEnd: day.breakEnd,
+          patientsPerHour: day.patientPerHour.toString(),
+        }));
+        setSchedule(weekly);
+      }
+    } catch (error: any) {
+      console.error("Error fetching schedule:", error.response?.data || error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchSchedule();
+}, []);
+
+
 
   return (
-    <View className="flex-1 bg-gray-50 px-5">
-      <Header title="Schedule Management"/>
+    <SafeAreaView className="flex-1 bg-slate-50">
+        <Header title="Payment Dashboard" />
+    
 
-      <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
+      <ScrollView className="flex-1 px-5" showsVerticalScrollIndicator={false}>
         <View className="py-6">
           <View className="bg-white rounded-2xl border border-gray-200 p-6 mb-6 shadow-sm">
             <View className="flex-row items-center mb-6">
@@ -284,7 +344,8 @@ const ScheduleScreen = () => {
 
             <View className="divide-y divide-gray-100">
               {schedule.map((daySchedule) => {
-                const allSlots = generateTimeSlots(daySchedule)
+                const allSlots = allDaySlots[daySchedule.day] || []
+
                 const currentVisibleCount = visibleSlots[daySchedule.day] || 4
                 const slotsToShow = allSlots.slice(0, currentVisibleCount)
                 const hasMoreSlots = allSlots.length > currentVisibleCount
@@ -305,12 +366,16 @@ const ScheduleScreen = () => {
                           </Text>
                         </View>
                       </View>
-                      <Switch
-                        value={daySchedule.isWorking}
-                        onValueChange={() => toggleWorkingDay(daySchedule.day)}
-                        trackColor={{ false: "#e5e7eb", true: "#3b82f6" }}
-                        thumbColor={daySchedule.isWorking ? "#ffffff" : "#f9fafb"}
-                      />
+                    
+                    
+                       <Switch
+                      trackColor={{ false: "#e5e7eb", true: "#2895cb" }}
+      value={daySchedule.isWorking}
+      thumbColor={daySchedule.isWorking ? "#ffffff" : "#f9fafb"}
+      onValueChange={() => toggleWorkingDay(daySchedule.day)}
+
+    />
+                     
                     </View>
 
                     {daySchedule.isWorking && (
@@ -481,18 +546,30 @@ const ScheduleScreen = () => {
           </View>
 
           <View className="mt-8 space-y-4">
-            <TouchableOpacity
+            {/* <TouchableOpacity
               onPress={handleSaveSchedule}
               className="bg-blue-600 rounded-2xl py-5 px-8 flex-row items-center justify-center shadow-lg"
             >
               <MaterialIcons name="save" size={24} color="white" />
               <Text className="text-white text-lg font-bold ml-3">Save Professional Schedule</Text>
+            </TouchableOpacity> */}
+            <TouchableOpacity
+              activeOpacity={0.9}
+              onPress={handleSaveSchedule}
+              className="bg-primary py-3 px-6 rounded-2xl flex-row items-center justify-center shadow-xl"
+              disabled={loading} // disable button while loading
+            >
+              {loading ? (
+                <ActivityIndicator  color="white" className="mr-2 w-8 h-8" />
+              ) : (
+                <Image className='w-8 h-8 mr-2' source={Icons.saveIcon} tintColor={"white"}/>
+              )}
+              <Text className="text-white text-base font-bold">
+                Save All Changes
+              </Text>
             </TouchableOpacity>
 
-            <TouchableOpacity className="bg-white border-2 border-gray-300 rounded-2xl py-5 px-8 flex-row items-center justify-center shadow-sm">
-              <MaterialIcons name="refresh" size={24} color="#374151" />
-              <Text className="text-gray-700 text-lg font-bold ml-3">Reset to Default</Text>
-            </TouchableOpacity>
+            
           </View>
         </View>
       </ScrollView>
@@ -506,7 +583,7 @@ const ScheduleScreen = () => {
           onChange={onTimeChange}
         />
       )}
-    </View>
+    </SafeAreaView>
   )
 }
 
