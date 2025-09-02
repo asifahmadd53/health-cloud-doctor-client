@@ -24,6 +24,7 @@ import Icons from '../../../utils/libs/constants/Icons';
 import Header from '../../../components/Header';
 import { Controller, useForm } from 'react-hook-form';
 import { showToast } from '../../../utils/toastUtils';
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 
 const ProfileScreen = () => {
 
@@ -81,11 +82,12 @@ const specialtyValue = watch("specialty");
 const onSubmit = async (values: ProfileFormValues) => {
   try {
     setLoading(true);
-    const storedUser = await AsyncStorage.getItem('user');
-    if (!storedUser) return;
-
-    const parsedUser = JSON.parse(storedUser);
-    const doctorId = parsedUser._id;
+    
+    const storedToken = await AsyncStorage.getItem('token')
+    if (!storedToken) {
+      showToast('error', 'User not found. Please login again.');
+      return;
+    }
 
     const formData = new FormData();
     Object.entries(values).forEach(([key, value]) => {
@@ -95,31 +97,28 @@ const onSubmit = async (values: ProfileFormValues) => {
         formData.append(key, value as string);
       }
     });
-
   
-    const response = await axios.patch(`${BASE_URL}/doctors/update-doctor/${doctorId}`, formData, {
-  headers: { 'Content-Type': 'multipart/form-data' }
-});
+    const response = await axios.patch(`${BASE_URL}/doctors/update-doctor`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+        Authorization: `Bearer ${storedToken}`,
+      },
+    });
 
 
-    if (response.data.success) {
+  if (response?.data?.success) {
       showToast('success', 'Profile updated successfully!');
     } else {
-      showToast('error', 'Failed to update profile');
+      showToast('error', response?.data?.message || 'Failed to update profile');
     }
 
   } catch (error: any) {
-    console.log(error.response?.data || error.message);
     showToast('error', 'Something went wrong while updating profile');
   }finally{
     setLoading(false);
   }
 };
 
-
- 
-
- 
   const navigateToSchedule = () => {
     navigation.navigate('ScheduleScreen' as never);
   };
@@ -162,14 +161,18 @@ useEffect(() => {
 
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      className="flex-1">
-        <Header title='Profile'/>
-      <ScrollView
-        className="flex-1 px-5 bg-slate-50"
-        showsVerticalScrollIndicator={false}>
-       
+     <SafeAreaView className="flex-1 bg-white">
+      <Header title="Doctor Profile" />
+      <KeyboardAvoidingView
+  className="flex-1"
+  behavior={Platform.OS === "ios" ? "padding" : "height"}
+  keyboardVerticalOffset={Platform.OS === "ios" ? 100 : 0}
+>
+        <ScrollView
+          className="px-6 pt-6"
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ paddingBottom: 40 }}
+        >
         <View className="bg-white pt-6 pb-10">
           <View className="px-8">
             <View className="items-center">
@@ -430,6 +433,7 @@ useEffect(() => {
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 };
 

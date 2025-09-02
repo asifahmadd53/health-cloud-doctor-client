@@ -24,7 +24,7 @@ const RootLayout = () => {
             <AppLayout />
           </AutocompleteDropdownContextProvider>
         <Toaster
-  position="bottom-center"
+  position="top-center"
   offset={20}
   richColors
   // closeButton

@@ -41,15 +41,11 @@ const DrawerLayout = () => {
     <Drawer.Navigator
       screenOptions={{
         headerShown: false,
-        drawerType: "front",
-        overlayColor: "rgba(0,0,0,0.3)", 
-        swipeEnabled: true, 
         drawerLabelStyle: {
           marginLeft: -20, // Remove default left margin
           fontSize: 16,
           fontWeight: "500",
         },
-       
         drawerStyle: {
           width: 300,
         },

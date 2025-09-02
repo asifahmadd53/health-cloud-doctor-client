@@ -1,28 +1,41 @@
 // toastUtils.tsx
-import React from "react"; // must be imported for JSX
+import React from "react"; // required for JSX
 import { toast } from "sonner-native";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 
-type ToastType = "success" | "error" | "warning" | "info";
+type ToastType = "success" | "error" | "warning" | "info" | "loading";
 
 export const showToast = (type: ToastType, message: string) => {
-  let icon: JSX.Element;
-
   switch (type) {
     case "success":
-      icon = <MaterialCommunityIcons name="check-circle" size={22} color="#22c55e" />;
+      toast.success(message, {
+        icon: <MaterialCommunityIcons name="check-circle" size={22} color="#22c55e" />,
+      });
       break;
+
     case "error":
-      icon = <MaterialCommunityIcons name="close-circle" size={22} color="#ef4444" />;
+      toast.error(message, {
+        icon: <MaterialCommunityIcons name="close-circle" size={22} color="#ef4444" />,
+      });
       break;
+
     case "warning":
-      icon = <MaterialCommunityIcons name="alert-circle" size={22} color="#f59e0b" />;
+      toast.warning(message, {
+        icon: <MaterialCommunityIcons name="alert-circle" size={22} color="#f59e0b" />,
+      });
       break;
+
+    case "loading":
+      toast.loading(message, {
+        icon: <MaterialCommunityIcons name="loading" size={22} color="#3b82f6" />,
+      });
+      break;
+
     case "info":
     default:
-      icon = <MaterialCommunityIcons name="information" size={22} color="#3b82f6" />;
+      toast(message, {
+        icon: <MaterialCommunityIcons name="information" size={22} color="#3b82f6" />,
+      });
       break;
   }
-
-  toast(message, { icon });
 };
