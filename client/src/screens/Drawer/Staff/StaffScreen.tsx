@@ -10,6 +10,8 @@ import Header from "../../../components/Header"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { BASE_URL } from "../../../api/api"
 import axios from "axios"
+import AsyncStorage from "@react-native-async-storage/async-storage"
+import { showToast } from "../../../utils/toastUtils"
 
 
 
@@ -59,21 +61,31 @@ const StaffScreen = () => {
       },
     ])
   }
-  const getStaff = async () => {
-    try {
-      const response = await axios.get(`${BASE_URL}/staff/get-staff`, {
-        withCredentials: true,
-      })
-      if (response.data && response.data.staff) {
-        setStaff(response.data.staff)
-      } else {
-        console.error("Unexpected API response format:", response.data)
-        Alert.alert("Error", "Received unexpected data format from server.")
-      }
-    } catch (error) {
-      console.error("Failed to get staff:", error)
+const getStaff = async () => {
+  try {
+    const storedToken = await AsyncStorage.getItem("token");
+    if (!storedToken) {
+      showToast("error", "Unauthorized");
+      return;
     }
+
+    const response = await axios.get(`${BASE_URL}/staff/get-staff`, {
+      headers: {
+        Authorization: `Bearer ${storedToken}`,
+      },
+    });
+
+    if (response.data && response.data.staff) {
+      setStaff(response.data.staff);
+    } else {
+      Alert.alert("Error", response.data.message || "Unexpected server response");
+    }
+  } catch (error: any) {
+    console.error("Failed to get staff:", error.response?.data || error.message);
+    Alert.alert("Error", error.response?.data?.message || "Failed to fetch staff");
   }
+};
+
 
   const getStaffById = async (id: string) => {
     try {

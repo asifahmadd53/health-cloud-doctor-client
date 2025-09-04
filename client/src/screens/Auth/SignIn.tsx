@@ -1,11 +1,9 @@
-'use client';
-
 import {
   ScrollView,
   Text,
   View,
   KeyboardAvoidingView,
-  TouchableOpacity,
+
   Platform,
   Alert,
   Image,
@@ -24,7 +22,7 @@ import Images from '../../utils/libs/constants/Images';
 import { useForm, Controller } from "react-hook-form"
 import { toast } from 'sonner-native';
 import { showToast } from '../../utils/toastUtils';
-
+import LottieView from 'lottie-react-native';
 const SignIn = () => {
 
   const navigation = useNavigation<any>();
@@ -180,12 +178,15 @@ const SignIn = () => {
               </Text>
             </Text>
           </View>
+          {/* <View className='w-10 h-10'>
+            <LottieView style={{width:120, height:120}} source={require('../../Animation/Stress Management.json')} autoPlay loop />
+          </View> */}
           <View className="flex-row items-center mt-16 mb-6 w-[90%] mx-auto">
   <View className="flex-1 h-[1px] bg-gray-300" />
   <Text className="mx-3 text-gray-500">or</Text>
   <View className="flex-1 h-[1px] bg-gray-300" />
 </View>
-          {/* Staff Login Button */}
+          
          <Pressable
   onPress={() => navigation.navigate('staffLogin')}
   className="px-2 py-1 self-center">

@@ -16,7 +16,6 @@ const Dashboard = () => {
   const [selectedDate, setSelectedDate] = useState(new Date())
   const [showCalendar, setShowCalendar] = useState(false)
   const [totalAppointments, setTotalAppointments] = useState(4)
-  const [selectedTimeSlot, setSelectedTimeSlot] = useState(null)
   const scaleAnim = useRef(new Animated.Value(1)).current
   const modalScale = useRef(new Animated.Value(0)).current
   const modalOpacity = useRef(new Animated.Value(0)).current

@@ -1,212 +1,329 @@
-import { useState } from "react"
-import { View, ScrollView, KeyboardAvoidingView, Platform, Alert } from "react-native"
-
-import { useNavigation } from "@react-navigation/native"
-import type { NativeStackNavigationProp } from "@react-navigation/native-stack"
-import Card from "../../../components/Doctor/Card"
-import PhotoUpload from "../../../components/Doctor/PhotoUpload"
-import FormInput from "../../../components/Doctor/FormInput"
-import Button from "../../../components/Doctor/Button"
-import axios from "axios"
-import { BASE_URL } from "../../../api/api"
+import {useState} from 'react';
+import {
+  View,
+  ScrollView,
+  KeyboardAvoidingView,
+  Platform,
+  Alert,
+  Pressable,
+  Image,
+  TouchableOpacity,
+  ActivityIndicator,
+  Text,
+} from 'react-native';
+import {useNavigation} from '@react-navigation/native';
+import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import Card from '../../../components/Doctor/Card';
+import FormInput from '../../../components/Doctor/FormInput';
+import axios from 'axios';
+import {BASE_URL} from '../../../api/api';
+import Icons from '../../../utils/libs/constants/Icons';
+import {launchImageLibrary} from 'react-native-image-picker';
+import {Controller, useForm} from 'react-hook-form';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {showToast} from '../../../utils/toastUtils';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import Header from '../../../components/Header';
 
 export type RootStackParamList = {
-  MainTabs: undefined
-  Schedule: undefined
-  AddStaff: undefined
-  EditStaff: { staffId: string }
-  StaffDetails: { staffId: string }
-}
-type AddStaffScreenNavigationProp = NativeStackNavigationProp<RootStackParamList>
+  MainTabs: undefined;
+  Schedule: undefined;
+  AddStaff: undefined;
+  EditStaff: {staffId: string};
+  StaffDetails: {staffId: string};
+};
+type AddStaffScreenNavigationProp =
+  NativeStackNavigationProp<RootStackParamList>;
 
 interface StaffForm {
-  name: string
-  role: string
-  email: string
-  password: string
-  phone: string
-  address: string
-  bio: string
-  profileImage: string | null
+  name: string;
+  role: string;
+  email: string;
+  password: string;
+  phone: string;
+  address: string;
+  bio: string;
+  profileImage: string | null;
 }
-
-
 
 const AddStaffScreen = () => {
-  const navigation = useNavigation<AddStaffScreenNavigationProp>()
+  const navigation = useNavigation<AddStaffScreenNavigationProp>();
+  const [loading, setLoading] = useState(false);
 
-  const [form, setForm] = useState<StaffForm>({
-    name: "",
-    role: "",
-    email: "",
-    password: "",
-    phone: "",
-    address: "",
-    bio: "",
-    profileImage: null,
-  })
+  const {
+    control,
+    handleSubmit,
+    setValue,
+    reset,
+    watch,
+    formState: {errors},
+  } = useForm<StaffForm>({
+    defaultValues: {
+      name: '',
+      role: '',
+      email: '',
+      password: '',
+      phone: '',
+      address: '',
+      bio: '',
+      profileImage: '',
+    },
+  });
 
-  const [errors, setErrors] = useState<Partial<Record<keyof StaffForm, string>>>({})
-
-  const handleChange = (field: keyof StaffForm, value: string) => {
-    setForm((prev) => ({ ...prev, [field]: value }))
-    // Clear error when user types
-    if (errors[field]) {
-      setErrors((prev) => ({ ...prev, [field]: undefined }))
-    }
-  }
-
-  const handleImageSelected = (uri: string) => {
-    setForm((prev) => ({ ...prev, profileImage: uri }))
-  }
-
-  const validateForm = () => {
-    const newErrors: Partial<Record<keyof StaffForm, string>> = {}
-
-    if (!form.name.trim()) {
-      newErrors.name = "Name is required"
-    }
-
-    if (!form.role.trim()) {
-      newErrors.role = "Role is required"
-    }
-
-    if (!form.email.trim()) {
-      newErrors.email = "Email is required"
-    } else if (!/\S+@\S+\.\S+/.test(form.email)) {
-      newErrors.email = "Email is invalid"
-    }
-
-    if (!form.phone.trim()) {
-      newErrors.phone = "Phone number is required"
-    }
-
-    setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
-  }
-
-  const handleSubmit = async () => {
-    if (validateForm()) {
-      try {
-        const formData = new FormData();
-  
-        formData.append("name", form.name);
-        formData.append("role", form.role);
-        formData.append("email", form.email);
-        formData.append("password", form.password);
-        formData.append("phone", form.phone);
-        formData.append("address", form.address);
-        formData.append("bio", form.bio);
-        
-        // Assuming form.profileImage is an image object from an image picker
-        if (form.profileImage) {
-          formData.append("profileImage", {
-            uri: form.profileImage,
-            name: "profile.jpg",
-            type: "image/jpeg",
-          });
+  const handleImageSelected = () => {
+    launchImageLibrary(
+      {mediaType: 'photo', quality: 0.8, maxHeight: 2000, maxWidth: 2000},
+      response => {
+        if (
+          !response.didCancel &&
+          !response.errorCode &&
+          response.assets?.[0]
+        ) {
+          const selectedImage = response.assets[0];
+          if (selectedImage.uri) {
+            setValue('profileImage', selectedImage.uri);
+          }
+        } else if (response.errorCode) {
+          console.log('Gallery Error: ', response.errorMessage);
         }
-  
-        const response = await axios.post(`${BASE_URL}/staff/add-staff`, formData, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-          withCredentials: true,
-        });
-  
-        if (response.status === 201) {
-          Alert.alert("Success", "Staff member added successfully!");
-          navigation.goBack();
-        }
-      } catch (error) {
-        console.error(error);
-        Alert.alert("Error", "Failed to add staff member");
+      },
+    );
+  };
+
+  const onSubmit = async (values: StaffForm) => {
+    try {
+      setLoading(true);
+
+      const storedToken = await AsyncStorage.getItem('token');
+      if (!storedToken) {
+        showToast('error', 'User not found. Please login again.');
+        return;
       }
+
+      const formData = new FormData();
+      Object.entries(values).forEach(([key, value]) => {
+        if (key === 'profileImage' && value?.startsWith('file://')) {
+          formData.append(key, {
+            uri: value,
+            type: 'image/jpeg',
+            name: 'profile.jpg',
+          } as any);
+        } else {
+          formData.append(key, value as string);
+        }
+      });
+
+      const response = await axios.post(
+        `${BASE_URL}/staff/add-staff`,
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+            Authorization: `Bearer ${storedToken}`,
+          },
+        },
+      );
+
+      if (response?.data?.success) {
+        showToast('success', 'Profile updated successfully!');
+      } else {
+        showToast(
+          'error',
+          response?.data?.message || 'Failed to update profile',
+        );
+      }
+    } catch (error: any) {
+      showToast('error', 'Something went wrong while updating profile');
+    } finally {
+      setLoading(false);
     }
   };
-  
 
   return (
-    <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} className="flex-1">
-      <ScrollView className="flex-1 bg-gray-100">
-        <View className="p-4">
-          <Card>
-            <View className="items-center mb-4">
-              <PhotoUpload initialImage={form.profileImage} onImageSelected={handleImageSelected} />
+    <SafeAreaView className="flex-1 bg-white">
+      <KeyboardAvoidingView 
+      behavior={Platform.OS === 'ios' ? "padding" :"height"}
+      style={{flex:1}}
+      >
+        <Header title='Add Staff'/>
+    <ScrollView
+          className="px-6 pt-6"
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ paddingBottom: 40 }}
+        >
+            <View className="items-center">
+              <View className="mb-3">
+                <Pressable
+                  onPress={handleImageSelected}
+                  className="w-24 h-24 rounded-full items-center justify-center bg-slate-100 border border-slate-200 shadow-lg overflow-hidden">
+                  <Controller
+                    control={control}
+                    name="profileImage"
+                    render={({field: {value}}) =>
+                      value ? (
+                        <Image
+                          source={{uri: value}}
+                          className="w-full h-full rounded-full"
+                        />
+                      ) : (
+                        <Image
+                          source={Icons.profileIcon}
+                          className="w-24 h-24"
+                          resizeMode="contain"
+                        />
+                      )
+                    }
+                  />
+                </Pressable>
+                <Pressable
+                  onPress={handleImageSelected}
+                  className="absolute -bottom-1 -right-1 w-8 h-8 bg-primary rounded-full items-center justify-center shadow-lg">
+                  <Image
+                    source={Icons.camera}
+                    className="w-4 h-4"
+                    tintColor={'white'}
+                  />
+                </Pressable>
+              </View>
             </View>
 
-            <FormInput
-              label="Full Name"
-              value={form.name}
-              onChangeText={(value) => handleChange("name", value)}
-              placeholder="Enter full name"
-              error={errors.name}
+            <Controller
+              control={control}
+              name="name"
+              rules={{required: 'Name is required'}}
+              render={({field: {value, onChange}}) => (
+                <FormInput
+                  label="Full Name"
+                  placeholder="Enter full name"
+                  value={value}
+                  onChangeText={onChange}
+                  error={errors.name?.message}
+                />
+              )}
             />
 
-            <FormInput
-              label="Role"
-              value={form.role}
-              onChangeText={(value) => handleChange("role", value)}
-              placeholder="e.g. Nurse, Medical Assistant"
-              error={errors.role}
+            <Controller
+              control={control}
+              name="role"
+              rules={{required: 'Role is required'}}
+              render={({field: {value, onChange}}) => (
+                <FormInput
+                  label="Role"
+                  placeholder="e.g. Nurse, Medical Assistant"
+                  value={value}
+                  onChangeText={onChange}
+                  error={errors.role?.message}
+                />
+              )}
             />
 
-            <FormInput
-              label="Email"
-              value={form.email}
-              onChangeText={(value) => handleChange("email", value)}
-              placeholder="email@example.com"
-              keyboardType="email-address"
-              autoCapitalize="none"
-              error={errors.email}
-            />
-            <FormInput
-              label="Password"
-              value={form.password}
-              onChangeText={(value) => handleChange("password", value)}
-              placeholder="Enter password"
-              keyboardType="default"
-              autoCapitalize="none"
-              error={errors.password}
-              secureTextEntry={true}
+            <Controller
+              control={control}
+              name="email"
+              rules={{required: 'Email is required'}}
+              render={({field: {value, onChange}}) => (
+                <FormInput
+                  label="Email"
+                  placeholder="example@email.com"
+                  value={value}
+                  autoCapitalize="none"
+                  keyboardType="email-address"
+                  onChangeText={onChange}
+                  error={errors.email?.message}
+                />
+              )}
             />
 
-            <FormInput
-              label="Phone Number"
-              value={form.phone}
-              onChangeText={(value) => handleChange("phone", value)}
-              placeholder="(555) 123-4567"
-              keyboardType="phone-pad"
-              error={errors.phone}
+            <Controller
+              control={control}
+              name="password"
+              rules={{required: 'Password is required'}}
+              render={({field: {value, onChange}}) => (
+                <FormInput
+                  label="Password"
+                  placeholder="Enter password"
+                  value={value}
+                  autoCapitalize="none"
+                  secureTextEntry
+                  onChangeText={onChange}
+                  error={errors.password?.message}
+                />
+              )}
             />
 
-            <FormInput
-              label="Address"
-              value={form.address}
-              onChangeText={(value) => handleChange("address", value)}
-              placeholder="Enter address"
-              multiline
-              numberOfLines={2}
+            <Controller
+              control={control}
+              name="phone"
+              rules={{required: 'Phone is required'}}
+              render={({field: {value, onChange}}) => (
+                <FormInput
+                  label="Phone Number"
+                  value={value}
+                  placeholder="(555) 123-4567"
+                  keyboardType="phone-pad"
+                  onChangeText={onChange}
+                  error={errors.phone?.message}
+                />
+              )}
             />
 
-            <FormInput
-              label="Bio"
-              value={form.bio}
-              onChangeText={(value) => handleChange("bio", value)}
-              placeholder="Brief description or notes"
-              multiline
-              numberOfLines={4}
+            <Controller
+              control={control}
+              name="address"
+              render={({field: {value, onChange}}) => (
+                <FormInput
+                  label="Address"
+                  value={value}
+                  placeholder="Enter address"
+                  onChangeText={onChange}
+                  multiline
+                  numberOfLines={2}
+                  error={errors.address?.message}
+                />
+              )}
+            />
+            <Controller
+              control={control}
+              name="bio"
+              render={({field: {value, onChange}}) => (
+                <FormInput
+                  label="Bio"
+                  value={value}
+                  placeholder="Brief description or notes"
+                  onChangeText={onChange}
+                  multiline
+                  numberOfLines={4}
+                  error={errors.bio?.message}
+                />
+              )}
             />
 
-            <View className="flex-row justify-between mt-4">
-              <Button title="Cancel" onPress={() => navigation.goBack()} variant="outline" className="flex-1 mr-2" />
-              <Button title="Add Staff Member" onPress={handleSubmit} variant="primary" className="flex-2 ml-2" />
+            <View className="mb-5">
+              <TouchableOpacity
+                activeOpacity={0.9}
+                onPress={handleSubmit(onSubmit)}
+                className="bg-primary py-3 px-6 rounded-2xl flex-row items-center justify-center shadow-xl"
+                disabled={loading}>
+                {loading ? (
+                  <ActivityIndicator className="w-8 h-8 mr-2" color="white" style={{marginRight: 8}} />
+                ) : (
+                  <Image
+                    className="w-8 h-8 mr-2"
+                    source={Icons.saveIcon}
+                    tintColor="white"
+                  />
+                )}
+                <Text className="text-white text-base font-bold">
+                  Save All Changes
+                </Text>
+              </TouchableOpacity>
             </View>
-          </Card>
-        </View>
+          
+        
       </ScrollView>
     </KeyboardAvoidingView>
-  )
-}
+    </SafeAreaView>
+  );
+};
 
-export default AddStaffScreen
+export default AddStaffScreen;

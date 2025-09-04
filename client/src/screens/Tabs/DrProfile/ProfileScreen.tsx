@@ -409,8 +409,7 @@ useEffect(() => {
             </View>
           </View>
 
-          {/* Security & Privacy */}
-
+      
           {/* Save Changes */}
           <View className="mb-5">
             <TouchableOpacity
