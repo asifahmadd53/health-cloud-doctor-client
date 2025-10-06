@@ -1,10 +1,11 @@
 "use client"
 
 import { useState, useRef } from "react"
-import { View, Text, TouchableOpacity, Image, Animated, StatusBar } from "react-native"
+import { View, Text, TouchableOpacity, Image, Animated, StatusBar, Platform, KeyboardAvoidingView, ScrollView } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { useNavigation } from "@react-navigation/native"
 import Icons from "../../utils/libs/constants/Icons"
+import Header from "../../components/Header"
 
 const Privacy = () => {
   const navigation = useNavigation()
@@ -62,52 +63,22 @@ const Privacy = () => {
   }
 
   return (
-    <View className="flex-1 bg-gray-50">
-      <StatusBar barStyle="dark-content" backgroundColor="#f9fafb" />
-
-      {/* Animated Header */}
-      <Animated.View className="absolute top-0 left-0 right-0 z-50" style={{ opacity: headerOpacity }}>
-        <View className="bg-white/95 backdrop-blur-sm border-b border-gray-200">
+  <SafeAreaView className="flex-1 bg-white">
+      <Header title="Privacy & Compliance" />
+      <KeyboardAvoidingView
+  className="flex-1"
+  behavior={Platform.OS === "ios" ? "padding" : "height"}
+  keyboardVerticalOffset={Platform.OS === "ios" ? 100 : 0}
+>
+        <ScrollView
+          className="px-6 pt-6"
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ paddingBottom: 40 }}
+        >
+        <View className="bg-white pb-8">
           <SafeAreaView>
-            <View className="flex-row items-center px-6 py-4">
-              <TouchableOpacity
-                activeOpacity={0.7}
-                onPress={() => navigation.goBack()}
-                className="w-10 h-10 items-center justify-center bg-gray-100 rounded-lg mr-4"
-              >
-                <Image className="w-5 h-5" source={Icons.leftIcon} />
-              </TouchableOpacity>
-              <Text className="text-lg font-semibold text-gray-900">Privacy & Compliance</Text>
-            </View>
-          </SafeAreaView>
-        </View>
-      </Animated.View>
-
-      <Animated.ScrollView
-        showsVerticalScrollIndicator={false}
-        onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], { useNativeDriver: false })}
-        scrollEventThrottle={16}
-        contentContainerStyle={{ paddingBottom: 30 }}
-      >
-        {/* Header Section */}
-        <View className="bg-white px-6 pt-20 pb-8">
-          <SafeAreaView>
-            <View className="flex-row items-center mb-8">
-              <TouchableOpacity
-                activeOpacity={0.7}
-                onPress={() => navigation.goBack()}
-                className="w-11 h-11 items-center justify-center bg-gray-100 rounded-xl mr-4"
-              >
-                <Image className="w-6 h-6" source={Icons.leftIcon} />
-              </TouchableOpacity>
-              <View className="flex-1">
-                <Text className="text-2xl font-bold text-gray-900 mb-1">Privacy & Compliance</Text>
-                <Text className="text-gray-600">Healthcare data protection standards</Text>
-              </View>
-            </View>
-
-            {/* Compliance Banner */}
-            <View className="bg-blue-50 border border-blue-200 rounded-xl p-6 mb-8">
+           
+            <View className="bg-secondary/10 border border-blue-200 rounded-xl p-6 mb-8">
               <View className="flex-row items-center mb-4">
                 <View className="w-12 h-12 bg-blue-100 rounded-xl items-center justify-center mr-4">
                   <Text className="text-2xl">🏥</Text>
@@ -117,10 +88,13 @@ const Privacy = () => {
                   <Text className="text-blue-700">HIPAA & SOC 2 Certified Platform</Text>
                 </View>
               </View>
-              <Text className="text-blue-800 leading-6">
-                Our platform meets the highest standards for healthcare data protection, ensuring patient privacy and
-                regulatory compliance for medical professionals.
-              </Text>
+              <Text 
+  className="text-blue-800 leading-6 text-base" 
+  style={{ textAlign: "justify" }}
+>
+  Our platform provides doctors with a secure, compliant environment that upholds the highest standards of healthcare data protection and patient confidentiality.
+</Text>
+
               <View className="flex-row items-center mt-4">
                 <Text className="text-blue-700 text-sm">Last updated: </Text>
                 <Text className="text-blue-900 font-medium text-sm">January 15, 2024</Text>
@@ -129,29 +103,60 @@ const Privacy = () => {
           </SafeAreaView>
         </View>
 
-        {/* Compliance Features */}
-        <View className="px-6 mb-8">
-          <Text className="text-lg font-semibold text-gray-900 mb-4">Security & Compliance</Text>
-          <View className="flex-row flex-wrap justify-between">
-            {complianceFeatures.map((feature, index) => (
-              <View key={index} className="w-[48%] mb-4">
-                <View className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
-                  <View className="w-10 h-10 bg-gray-50 rounded-lg items-center justify-center mb-3">
-                    <Text className="text-xl">{feature.icon}</Text>
-                  </View>
-                  <Text className="text-gray-900 font-medium text-base mb-1">{feature.title}</Text>
-                  <Text className="text-gray-600 text-sm">{feature.desc}</Text>
-                </View>
-              </View>
-            ))}
+
+
+ <View className="mb-8">
+  <Text className="text-lg font-semibold text-gray-900 mb-4">
+    Security & Compliance
+  </Text>
+
+  <View className="flex-row flex-wrap justify-between">
+    {complianceFeatures.map((feature, index) => {
+      // professional light color palette
+  const colors = [
+  "bg-rose-50",   
+  "bg-sky-50",     
+  "bg-emerald-50",
+  "bg-amber-50",   
+];
+
+      const cardColor = colors[index % colors.length];
+
+      return (
+        <View key={index} className="w-[48%] mb-4">
+          <View
+            className={`${cardColor} rounded-xl p-4 shadow-sm border border-gray-100 h-44 justify-between`}
+          >
+          
+            <View className="w-12 h-12 bg-white rounded-lg items-center justify-center shadow-sm mb-3">
+              <Text className="text-xl">{feature.icon}</Text>
+            </View>
+
+            
+            <Text className="text-gray-900 font-medium text-base mb-1">
+              {feature.title}
+            </Text>
+
+            
+            <Text
+              className="text-gray-600 text-sm flex-1 w-full "
+            >
+              {feature.desc}
+            </Text>
           </View>
         </View>
+      );
+    })}
+  </View>
+</View>
+
+
 
         {/* FAQ Section */}
-        <View className="px-6 mb-8">
+        <View className="mb-8">
           <Text className="text-lg font-semibold text-gray-900 mb-6">Frequently Asked Questions</Text>
           {privacyFAQ.map((faq, index) => (
-            <TouchableOpacity key={index} activeOpacity={0.7} onPress={() => toggleSection(index)} className="mb-4">
+            <TouchableOpacity key={index} activeOpacity={0.9} onPress={() => toggleSection(index)} className="mb-4">
               <View className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
                 <View className="p-6">
                   <View className="flex-row items-center justify-between">
@@ -188,7 +193,7 @@ const Privacy = () => {
         </View>
 
         {/* Healthcare Provider Responsibilities */}
-        <View className="px-6 mb-8">
+        <View className="mb-8">
           <View className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
             <View className="flex-row items-center mb-6">
               <View className="w-12 h-12 bg-green-50 rounded-xl items-center justify-center mr-4">
@@ -221,8 +226,8 @@ const Privacy = () => {
           </View>
         </View>
 
-        {/* Data Protection Details */}
-        <View className="px-6 mb-8">
+        
+        <View className="mb-8">
           <View className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
             <View className="flex-row items-center mb-6">
               <View className="w-12 h-12 bg-blue-50 rounded-xl items-center justify-center mr-4">
@@ -236,7 +241,7 @@ const Privacy = () => {
 
             <View className="space-y-6">
               <View>
-                <Text className="text-gray-900 font-medium mb-3">Encryption & Storage</Text>
+                <Text className="text-gray-900 font-medium mt-3 mb-2">Encryption & Storage</Text>
                 <View className="space-y-2">
                   <View className="flex-row items-center">
                     <View className="w-2 h-2 bg-blue-500 rounded-full mr-3" />
@@ -254,7 +259,7 @@ const Privacy = () => {
               </View>
 
               <View>
-                <Text className="text-gray-900 font-medium mb-3">Access Controls</Text>
+                <Text className="text-gray-900 font-medium mt-3 mb-2">Access Controls</Text>
                 <View className="space-y-2">
                   <View className="flex-row items-center">
                     <View className="w-2 h-2 bg-blue-500 rounded-full mr-3" />
@@ -275,20 +280,26 @@ const Privacy = () => {
         </View>
 
         {/* Contact Section */}
-        <View className="px-6 mb-8">
-          <View className="bg-gray-900 rounded-xl p-6">
-            <View className="flex-row items-center mb-4">
-              <View className="w-12 h-12 bg-white/10 rounded-xl items-center justify-center mr-4">
-                <Text className="text-2xl">📞</Text>
-              </View>
-              <View>
-                <Text className="text-lg font-semibold text-white">Privacy & Compliance Team</Text>
-                <Text className="text-gray-300">Available 24/7 for healthcare professionals</Text>
-              </View>
-            </View>
+        <View className="mb-8">
+          <View className="bg-primary rounded-2xl p-6">
+  <View className="flex-row items-center mb-4 flex-wrap">
+    <View className="w-12 h-12 bg-white/10 rounded-xl items-center justify-center mr-4">
+      <Text className="text-2xl">📞</Text>
+    </View>
+    <View className="flex-1">
+      <Text className="text-lg font-semibold text-white flex-shrink">
+        Privacy & Compliance Team
+      </Text>
+      <Text className="text-gray-300 flex-shrink">
+        Available 24/7 for healthcare professionals
+      </Text>
+    </View>
+  </View>
+
+
 
             <View className="space-y-3">
-              <TouchableOpacity className="flex-row items-center p-4 bg-white/5 rounded-lg">
+              <TouchableOpacity activeOpacity={.90} className="flex-row items-center p-4 bg-white/5 rounded-lg mb-4">
                 <View className="w-10 h-10 bg-white/10 rounded-lg items-center justify-center mr-3">
                   <Text className="text-lg">📧</Text>
                 </View>
@@ -298,7 +309,7 @@ const Privacy = () => {
                 </View>
               </TouchableOpacity>
 
-              <TouchableOpacity className="flex-row items-center p-4 bg-white/5 rounded-lg">
+              <TouchableOpacity activeOpacity={.90} className="flex-row items-center p-4 bg-white/5 rounded-lg">
                 <View className="w-10 h-10 bg-white/10 rounded-lg items-center justify-center mr-3">
                   <Text className="text-lg">📱</Text>
                 </View>
@@ -310,8 +321,10 @@ const Privacy = () => {
             </View>
           </View>
         </View>
-      </Animated.ScrollView>
-    </View>
+    
+    </ScrollView>
+    </KeyboardAvoidingView>
+    </SafeAreaView>
   )
 }
 

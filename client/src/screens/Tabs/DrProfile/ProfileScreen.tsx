@@ -148,7 +148,6 @@ useEffect(() => {
         professionalBio: profile?.professionalBio || '',
         clinicAddress: profile?.clinicAddress || '',
       };
-
       reset(formValues);
     } catch (err) {
       console.log('Error fetching doctor', err);

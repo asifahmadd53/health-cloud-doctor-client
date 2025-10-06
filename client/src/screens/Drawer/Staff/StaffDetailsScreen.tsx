@@ -1,6 +1,6 @@
 'use client';
 
-import {useState, useEffect} from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -9,21 +9,25 @@ import {
   Alert,
   KeyboardAvoidingView,
   Platform,
+  TouchableOpacity,
 } from 'react-native';
 import {
+  useFocusEffect,
   useNavigation,
   useRoute,
   type RouteProp,
 } from '@react-navigation/native';
-import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Button from '../../../components/Doctor/Button';
 import Card from '../../../components/Doctor/Card';
 import Header from '../../../components/Header';
 import axios from 'axios';
-import {BASE_URL} from '../../../api/api';
-import type {RootStackParamList} from './StaffScreen';
-import {SafeAreaView} from 'react-native-safe-area-context';
+import { BASE_URL } from '../../../api/api';
+import type { RootStackParamList } from './StaffScreen';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import Icons from '../../../utils/libs/constants/Icons';
+import CustomSecondaryButton from '../../../components/CustomSecondaryButton';
 
 type StaffDetailsScreenRouteProp = RouteProp<
   RootStackParamList,
@@ -35,14 +39,11 @@ type StaffDetailsScreenNavigationProp =
 const StaffDetailsScreen = () => {
   const navigation = useNavigation<StaffDetailsScreenNavigationProp>();
   const route = useRoute<StaffDetailsScreenRouteProp>();
-  const {staffId} = route.params;
+  const { staffId } = route.params;
 
   const [staffDetails, setStaffDetails] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    getStaffDetails();
-  }, [staffId]);
 
   const getStaffDetails = async () => {
     try {
@@ -73,45 +74,35 @@ const StaffDetailsScreen = () => {
       setLoading(false);
     }
   };
+  useFocusEffect(
+  useCallback(() => {
+    getStaffDetails(); 
+  }, [staffId])
+);
 
   const handleEdit = () => {
-    navigation.navigate('EditStaff', {staffId});
+    navigation.navigate('EditStaff', { staffId });
   };
 
-  const handleDelete = () => {
-    Alert.alert(
-      'Delete Staff Member',
-      'Are you sure you want to delete this staff member?',
-      [
-        {text: 'Cancel', style: 'cancel'},
-        {
-          text: 'Delete',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              setLoading(true);
-              await axios.delete(`${BASE_URL}/staff/delete-staff/${staffId}`, {
-                withCredentials: true,
-              });
-              Alert.alert('Success', 'Staff member deleted successfully!');
-              navigation.goBack();
-            } catch (error: any) {
-              console.error(
-                'Failed to delete staff:',
-                error?.response?.data?.message || error.message,
-              );
-              Alert.alert(
-                'Error',
-                'Could not delete staff member. Please try again later.',
-              );
-            } finally {
-              setLoading(false);
-            }
-          },
-        },
-      ],
+const handleDelete = async () => {
+  try {
+    setLoading(true);
+    await axios.delete(`${BASE_URL}/staff/delete-staff/${staffId}`, {
+      withCredentials: true,
+    });
+
+    navigation.goBack();
+  } catch (error: any) {
+    console.error(
+      "Failed to delete staff:",
+      error?.response?.data?.message || error.message
     );
-  };
+  } finally {
+    setLoading(false);
+  }
+};
+
+
 
   if (loading) {
     return (
@@ -145,26 +136,17 @@ const StaffDetailsScreen = () => {
         className="flex-1"
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 0}>
-
-        {/* <ScrollView className="flex-1 px-5" showsVerticalScrollIndicator={false}>
-    <SafeAreaView className="flex-1 bg-white">
-      <Header title="New Appointment" />
-      <KeyboardAvoidingView
-  className="flex-1"
-  behavior={Platform.OS === "ios" ? "padding" : "height"}
-  keyboardVerticalOffset={Platform.OS === "ios" ? 100 : 0}
-> */}
         <ScrollView
           className="px-6 pt-6"
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{ paddingBottom: 40 }}
         >
-          <View className="">
+       
             <Card>
               <View className="items-center p-4">
                 {staffDetails.profileImage ? (
                   <Image
-                    source={{uri: staffDetails.profileImage}}
+                    source={{ uri: staffDetails.profileImage }}
                     className="w-24 h-24 rounded-full mb-4"
                   />
                 ) : (
@@ -174,96 +156,98 @@ const StaffDetailsScreen = () => {
                     </Text>
                   </View>
                 )}
-                <Text className="text-2xl font-bold text-gray-800 mb-1">
+                <Text className="text-2xl font-bold text-gray-800 mb-2">
                   {staffDetails.name}
                 </Text>
-                <Text className="text-base text-cyan-600 font-medium mb-1">
+                <Text className="text-base text-cyan-600 font-medium mb-2">
                   {staffDetails.role}
                 </Text>
-                
-                  <View className="w-full mt-2">
-                    <Button
-                      className="bg-gray-500"
-                      onPress={handleEdit}
-                      title="Edit Profile"
-                      icon={
-                        <Ionicons
-                          className="mr-3"
-                          name="create-outline"
-                          size={16}
-                          color="white"
-                        />
-                      }
-                    />
-                  </View>
-                
-              </View>
-            </Card>
 
-            <Card>
-              <Text className="text-lg font-bold text-gray-800 mb-4">
-                Contact Information
-              </Text>
-              <View className="flex-row items-center mb-3">
-                <Ionicons name="mail-outline" size={20} color="#0891b2" />
-                <Text className="ml-3 text-base text-gray-600">
-                  {staffDetails.email}
-                </Text>
-              </View>
-              <View className="flex-row items-center mb-3">
-                <Ionicons name="call-outline" size={20} color="#0891b2" />
-                <Text className="ml-3 text-base text-gray-600">
-                  {staffDetails.phone}
-                </Text>
-              </View>
-              <View className="flex-row items-center mb-3">
-                <Ionicons name="location-outline" size={20} color="#0891b2" />
-                <Text className="ml-3 text-base text-gray-600">
-                  {staffDetails.address || 'Not provided'}
-                </Text>
-              </View>
-              {staffDetails.startDate && (
-                <View className="flex-row items-center">
-                  <Ionicons name="calendar-outline" size={20} color="#0891b2" />
-                  <Text className="ml-3 text-base text-gray-600">
-                    Started {staffDetails.startDate}
-                  </Text>
-                </View>
-              )}
-            </Card>
+                   <View className='mx-auto w-3/5'>
+                   <CustomSecondaryButton label='Edit Profile' onPress={handleEdit} icon={Icons.editPencil} iconPosition='right' className='bg-secondary flex-row items-center justify-center shadow-xl mx-auto rounded-full py-3 px-4 text-center'/>
+                   </View>
+                   
 
-            <Card>
-              <Text className="text-lg font-bold text-gray-800 mb-4">
-                Professional Information
-              </Text>
-              <View className="mb-4">
-                <Text className="text-base font-semibold text-gray-600 mb-2">
-                  Bio
-                </Text>
-                <Text className="text-base text-gray-600 leading-6">
-                  {staffDetails.bio || 'No bio provided'}
-                </Text>
               </View>
-              {staffDetails.certifications && (
-                <View>
-                  <Text className="text-base font-semibold text-gray-600 mb-2">
-                    Certifications
-                  </Text>
-                  <Text className="text-base text-gray-600 leading-6">
-                    {staffDetails.certifications}
-                  </Text>
-                </View>
-              )}
             </Card>
-            <Button
-              title="Delete"
-              onPress={handleDelete}
-              variant="outline"
-              className="flex-1 mr-2 flex-row items-center justify-center"
-              icon={<Ionicons name="trash-outline" size={16} color="#0891b2" />}
-            />
-          </View>
+<View className="space-y-5">
+      {/* Personal Info */}
+      <Card className="p-5 bg-gray-50 rounded-xl shadow-sm border border-gray-200">
+        <Text className="text-lg font-bold text-gray-900 mb-4">
+          Personal Information
+        </Text>
+
+        <View className="border-b border-gray-200 pb-3 mb-3 flex-row items-center">
+          <Ionicons name="person-circle-outline" size={20} color="#0891b2" />
+          <Text className="ml-3 text-base text-gray-700 ">{staffDetails.name}</Text>
+        </View>
+
+        <View className="flex-row items-center">
+          <Ionicons name="briefcase-outline" size={20} color="#0891b2" />
+          <Text className="ml-3 text-base text-gray-700">
+            {staffDetails.role || "No role assigned"}
+          </Text>
+        </View>
+      </Card>
+
+      <Card className="p-5 bg-gray-50 rounded-xl shadow-sm border border-gray-200">
+        <Text className="text-lg font-bold text-gray-900 mb-4">
+          Contact Information
+        </Text>
+
+        <View className="border-b border-gray-200 pb-3 mb-3 flex-row items-center">
+          <Ionicons name="mail-outline" size={20} color="#0891b2" />
+          <Text className="ml-3 text-base text-gray-700">{staffDetails.email}</Text>
+        </View>
+
+        <View className="border-b border-gray-200 pb-3 mb-3 flex-row items-center">
+          <Ionicons name="call-outline" size={20} color="#0891b2" />
+          <Text className="ml-3 text-base text-gray-700">{staffDetails.phone}</Text>
+        </View>
+
+        <View className="flex-row items-center">
+          <Ionicons name="location-outline" size={20} color="#0891b2" />
+          <Text className="ml-3 text-base text-gray-700">
+            {staffDetails.address || "No address provided"}
+          </Text>
+        </View>
+      </Card>
+
+      {/* Professional Info */}
+      <Card className="p-5 bg-gray-50 rounded-xl shadow-sm border border-gray-200">
+        <Text className="text-lg font-bold text-gray-900 mb-4">
+          Professional Information
+        </Text>
+
+        <View>
+          <Text className="text-base font-semibold text-gray-600 mb-2">Bio</Text>
+          <Text className="text-base text-gray-700 leading-6">
+            {staffDetails.bio || "No bio provided"}
+          </Text>
+        </View>
+      </Card>
+    </View>
+           
+            
+          
         </ScrollView>
+         <View  className="py-2 mx-auto w-full">
+         {/* <TouchableOpacity
+          
+             onPress={handleDelete}
+                     activeOpacity={.90}
+                     className='bg-red-600 flex-row items-center justify-center shadow-xl mx-auto rounded-full py-3 px-4 w-4/5'
+                    
+                   >
+                     <View className="flex-row items-center gap-2 justify-center">
+                       <Image tintColor={"white"} source={Icons.deleteIcon} className="w-5 h-5 " />
+                       <Text className="text-white text-xl text-center font-semibold ml-2">
+                         Delete Profile
+                       </Text>
+                     </View>
+                   </TouchableOpacity> */}
+                   <CustomSecondaryButton onPress={handleDelete} className='bg-red-600 flex-row items-center justify-center shadow-xl mx-auto rounded-full py-3 px-4 w-4/5 text-center' icon={Icons.deleteIcon} label='Delete' />
+                   </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );

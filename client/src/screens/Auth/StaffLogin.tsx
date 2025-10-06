@@ -17,6 +17,7 @@ import axios from "axios";
 import { BASE_URL } from "../../api/api";
 import CustomButton from "../../components/CustomButton";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
 const StaffLogin = () => {
   const [email, setEmail] = useState("");
@@ -93,8 +94,6 @@ const StaffLogin = () => {
   //   }
   // };
 
-
-
   const handleLogin = async () => {
     if (!email || !password) {
       Alert.alert("Please fill all the fields");
@@ -116,7 +115,7 @@ const StaffLogin = () => {
       }).start();
       
       const response = await axios.post(
-        `${BASE_URL}/api/staff/login-staff`,
+        `${BASE_URL}/staff/login-staff`,
         { email, password },
         {
           headers: { "Content-Type": "application/json" },
@@ -127,17 +126,16 @@ const StaffLogin = () => {
       if (response.data.success) {
         const { token, staff } = response.data;
         
-        // Store both token and staff data
         await AsyncStorage.multiSet([
-          ["token", token],
+          ["staffToken", token],
           ["staffId", staff._id],
           ["staffData", JSON.stringify(staff)]
         ]);
-        
-        // Navigate without showing sensitive data in alert
+
         navigation.navigate("staffLayout", {
           screen: "AppointmentList",
         });
+        
       } else {
         Alert.alert(response.data.message || "Login failed");
       }
@@ -172,16 +170,16 @@ const StaffLogin = () => {
             <CustomInput
               keyboardType="email-address"
               placeholder={"Enter your email"}
-              icon={Icons.email}
+              icon={'mail-outline'}
               value={email}
-              onChange={setEmail}
+              onChangeText={setEmail}
               autoCapitalize="none"
             />
             <Text className="text-base md:text-lg">Password</Text>
             <CustomPasswordInput
               placeholder={"Enter your password"}
               value={password}
-              onChange={setPassword}
+              onChangeText={setPassword}
             />
 
             <View className="items-end">

@@ -47,15 +47,12 @@ interface StaffForm {
 }
 
 const AddStaffScreen = () => {
-  const navigation = useNavigation<AddStaffScreenNavigationProp>();
   const [loading, setLoading] = useState(false);
 
   const {
     control,
     handleSubmit,
     setValue,
-    reset,
-    watch,
     formState: {errors},
   } = useForm<StaffForm>({
     defaultValues: {
@@ -102,15 +99,15 @@ const AddStaffScreen = () => {
 
       const formData = new FormData();
       Object.entries(values).forEach(([key, value]) => {
-        if (key === 'profileImage' && value?.startsWith('file://')) {
-          formData.append(key, {
-            uri: value,
-            type: 'image/jpeg',
-            name: 'profile.jpg',
-          } as any);
-        } else {
-          formData.append(key, value as string);
-        }
+     if (key === 'profileImage' && value) {
+  formData.append(key, {
+    uri: value,
+    type: 'image/jpeg', 
+    name: 'profile.jpg',
+  } as any);
+} else {
+  formData.append(key, value as string);
+}
       });
 
       const response = await axios.post(
@@ -125,15 +122,15 @@ const AddStaffScreen = () => {
       );
 
       if (response?.data?.success) {
-        showToast('success', 'Profile updated successfully!');
+        showToast('success', 'Profile created successfully!');
       } else {
         showToast(
           'error',
-          response?.data?.message || 'Failed to update profile',
+          response?.data?.message || 'Failed to create profile',
         );
       }
     } catch (error: any) {
-      showToast('error', 'Something went wrong while updating profile');
+      showToast('error', 'Something went wrong while creating profile');
     } finally {
       setLoading(false);
     }

@@ -6,6 +6,7 @@ import Images from "../../utils/libs/constants/Images"
 import TabLayout from "../TabNavigation"
 import { Help, Privacy } from "../../screens"
 import StaffLayout from "../StaffNavigation"
+import AboutUs from "../../screens/Drawer/AboutUs"
 
 const Drawer = createDrawerNavigator()
 
@@ -42,7 +43,7 @@ const DrawerLayout = () => {
       screenOptions={{
         headerShown: false,
         drawerLabelStyle: {
-          marginLeft: -20, // Remove default left margin
+          marginLeft: -20,
           fontSize: 16,
           fontWeight: "500",
         },
@@ -94,6 +95,7 @@ const DrawerLayout = () => {
           ),
         }}
       />
+     
 
       <Drawer.Screen
         name="Add Staff"

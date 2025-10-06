@@ -46,7 +46,7 @@ const toggleCheckbox = (key: SelectedKeys) => {
   keyboardVerticalOffset={Platform.OS === "ios" ? 100 : 0}
 >
          <ScrollView
-          className="px-6 pt-6"
+          className="px-4 pt-6"
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{ paddingBottom: 80 }}
         >

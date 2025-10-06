@@ -1,5 +1,4 @@
-// toastUtils.tsx
-import React from "react"; // required for JSX
+import React from "react";
 import { toast } from "sonner-native";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 

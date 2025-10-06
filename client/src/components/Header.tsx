@@ -30,10 +30,8 @@ const Header = ({ title }: HeaderProps) => {
       >
         <Image className="w-6 h-6" source={Icons.leftIcon} />
       </TouchableOpacity>
-
       <Text className="text-lg font-semibold text-gray-800">{title}</Text>
-
-     
+      
       <View className="w-10 h-10" />
     </View>
   )

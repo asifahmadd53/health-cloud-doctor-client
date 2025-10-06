@@ -1,12 +1,12 @@
 import axios from 'axios';
-import { API_URL } from '../../../api/api';
 import type { Appointment } from '../types/appointment';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Alert } from 'react-native';
+import { BASE_URL } from '../../../api/api';
 
 // Helper function to get auth headers
 const getAuthHeaders = async () => {
-  const token = await AsyncStorage.getItem('token');
+  const token = await AsyncStorage.getItem('staffToken');
   if (!token) {
     throw new Error('No authentication token found');
   }
@@ -16,34 +16,31 @@ const getAuthHeaders = async () => {
   };
 };
 
-// Fetch all appointments for current staff member
 export const fetchAppointments = async (): Promise<Appointment[]> => {
   try {
     const headers = await getAuthHeaders();
-    const staffId = await AsyncStorage.getItem('staffId');
 
     const response = await axios.get(
-      `${API_URL}/api/appointment/get-appointments`,
-      {
-        headers,
-        params: { staffId },
-      },
+      `${BASE_URL}/appointment/get-appointments`,
+      { headers }
     );
 
     if (!response.data.success) {
-      throw new Error(response.data.message || 'Failed to fetch appointments');
+      throw new Error(response.data.message || "Failed to fetch appointments");
     }
+
     return response.data.appointments;
   } catch (error: any) {
-    console.error('Error fetching appointments:', error.message);
+    console.error("Error fetching appointments:", error.message);
     if (error.response?.status === 401) {
-      Alert.alert('Session Expired', 'Please login again');
+      Alert.alert("Session Expired", "Please login again");
     }
     throw new Error(
-      error.response?.data?.message || 'Failed to fetch appointments',
+      error.response?.data?.message || "Failed to fetch appointments"
     );
   }
 };
+
 
 // Get appointment by ID with ownership check
 export const getAppointmentById = async (id: string): Promise<Appointment> => {
@@ -51,7 +48,7 @@ export const getAppointmentById = async (id: string): Promise<Appointment> => {
     const headers = await getAuthHeaders(); // optional, only if your API needs it
 
     const response = await axios.get(
-      `${API_URL}/api/appointment/get-appointment/${id}`,
+      `${BASE_URL}/appointment/get-appointment/${id}`,
       {
         headers,
       },
@@ -86,7 +83,7 @@ export const createAppointment = async (
     }
 
     const response = await axios.post(
-      `${API_URL}/api/appointment/create-appointment`,
+      `${BASE_URL}/appointment/create-appointment`,
       { ...appointmentData, staffId },
       { headers },
     );
@@ -113,7 +110,7 @@ export const updateAppointment = async (id: string, appointmentData: Partial<App
     const staffId = await AsyncStorage.getItem('staffId');
 
     const response = await axios.put(
-      `${API_URL}/api/appointment/update-appointment/${id}`,
+      `${BASE_URL}/appointment/update-appointment/${id}`,
       { ...appointmentData, staffId },
       { headers },
     );
@@ -140,7 +137,7 @@ export const deleteAppointment = async (id: string): Promise<void> => {
     const staffId = await AsyncStorage.getItem('staffId');
 
     const response = await axios.delete(
-      `${API_URL}/api/appointment/delete-appointment/${id}`,
+      `${BASE_URL}/appointment/delete-appointment/${id}`,
       {
         headers,
         data: { staffId }, // Send staffId in request body for delete

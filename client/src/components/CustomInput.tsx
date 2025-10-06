@@ -73,6 +73,8 @@ const CustomInput = ({
         onFocus={() => setIsFocused(true)}
         onBlur={() => setIsFocused(false)}
         cursorColor="#2895cb"
+        selectionColor="#2895cb"
+        // selectionColor="transparent"
         keyboardType={keyboardType}
         secureTextEntry={secureTextEntry}
         autoCapitalize={autoCapitalize}

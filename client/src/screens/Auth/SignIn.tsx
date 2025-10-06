@@ -3,7 +3,6 @@ import {
   Text,
   View,
   KeyboardAvoidingView,
-
   Platform,
   Alert,
   Image,
@@ -83,7 +82,6 @@ const SignIn = () => {
           message: data.message || "Invalid PMDC number or password",
         })
       } else if (status === 403) {
-      // toast.error("Access pending approval.")
       showToast("error","Access pending approval.")
       } else {
         toast.warning("Something went wrong. Please try again.");
@@ -97,7 +95,7 @@ const SignIn = () => {
 };
 
   return (
-    <SafeAreaView className="bg-white px-6">
+    <SafeAreaView className="bg-white px-5">
       <ScrollView className="flex-grow min-h-full pb-5">
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : undefined}>

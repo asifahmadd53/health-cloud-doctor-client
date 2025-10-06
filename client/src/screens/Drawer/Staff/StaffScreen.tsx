@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react"
-import { View, Text, ScrollView, Alert, KeyboardAvoidingView, Platform } from "react-native"
+import { View, Text, ScrollView, Alert, KeyboardAvoidingView, Platform, TouchableOpacity } from "react-native"
 
 import { useFocusEffect, useNavigation } from "@react-navigation/native"
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack"
@@ -12,6 +12,9 @@ import { BASE_URL } from "../../../api/api"
 import axios from "axios"
 import AsyncStorage from "@react-native-async-storage/async-storage"
 import { showToast } from "../../../utils/toastUtils"
+import Icon from "react-native-vector-icons/Ionicons"
+import CustomSecondaryButton from "../../../components/CustomSecondaryButton"
+import Icons from "../../../utils/libs/constants/Icons"
 
 
 
@@ -116,17 +119,6 @@ const getStaff = async () => {
     <ScrollView className="px-5">
 
       <View className="pt-5">
-        <View className="flex-row justify-between items-center mb-2">
-          <Text className="text-xl font-bold text-gray-800">Staff Management</Text>
-          <Button
-            title="Add Staff"
-            onPress={handleAddStaff}
-            variant="primary"
-            icon={<Ionicons name="person-add-outline" size={18} color="#2895cb" />}
-            className="flex-row items-center gap-3"
-          />
-        </View>
-
         <Text className="text-gray-500 mb-4">
           Manage your clinic staff members, including nurses, assistants, and receptionists.
         </Text>
@@ -141,6 +133,20 @@ const getStaff = async () => {
         )}
       </View>
     </ScrollView>
+
+                <View  className="py-2 w-full">
+            {/* <TouchableOpacity
+            onPress={handleAddStaff}
+                    activeOpacity={0.9}
+                    className="bg-primary py-3 px-6 rounded-xl flex-row items-center justify-center shadow-xl w-4/5 mx-auto"
+                    >
+                      <Icon className="mr-1" size={16} color="white" style={{marginRight: 8}} name="person-add-outline"/>
+                    <Text className="text-white text-base font-bold">
+                      Add Staff
+                    </Text>
+                  </TouchableOpacity> */}
+                  <CustomSecondaryButton onPress={handleAddStaff} label="+ Add Staff" className="bg-primary w-4/5 mx-auto" />
+          </View>
     </KeyboardAvoidingView>
     </SafeAreaView>
   )

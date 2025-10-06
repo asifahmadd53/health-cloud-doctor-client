@@ -1,15 +1,19 @@
 import { useState, useEffect } from "react"
-import { View, ScrollView, KeyboardAvoidingView, Platform, Alert } from "react-native"
+import { View, ScrollView, KeyboardAvoidingView, Platform, Alert, Pressable, Image } from "react-native"
 import { useNavigation, useRoute, type RouteProp } from "@react-navigation/native"
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack"
 import Card from "../../../components/Doctor/Card"
 import FormInput from "../../../components/Doctor/FormInput"
-import PhotoUpload from "../../../components/Doctor/PhotoUpload"
 import Button from "../../../components/Doctor/Button"
 import Header from "../../../components/Header"
 import axios from "axios"
 import { BASE_URL } from "../../../api/api"
 import type { RootStackParamList } from "./StaffScreen"
+import Icons from "../../../utils/libs/constants/Icons"
+import { launchImageLibrary } from "react-native-image-picker"
+import { Controller, useForm } from "react-hook-form"
+import { showToast } from "../../../utils/toastUtils"
+import { SafeAreaView } from "react-native-safe-area-context"
 
 type EditStaffScreenRouteProp = RouteProp<RootStackParamList, "EditStaff">
 type EditStaffScreenNavigationProp = NativeStackNavigationProp<RootStackParamList>
@@ -29,17 +33,24 @@ const EditStaffScreen = () => {
   const route = useRoute<EditStaffScreenRouteProp>()
   const { staffId } = route.params
 
-  const [form, setForm] = useState<StaffForm>({
-    name: "",
-    role: "",
-    email: "",
-    phone: "",
-    address: "",
-    bio: "",
-    profileImage: null,
+  const {
+    control,
+    handleSubmit,
+    setValue,
+    reset,
+    formState: { errors },
+  } = useForm<StaffForm>({
+    defaultValues: {
+      name: "",
+      role: "",
+      email: "",
+      phone: "",
+      address: "",
+      bio: "",
+      profileImage: "",
+    },
   })
 
-  const [errors, setErrors] = useState<Partial<Record<keyof StaffForm, string>>>({})
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
@@ -55,7 +66,7 @@ const EditStaffScreen = () => {
 
       if (response.data && response.data.staff) {
         const staffData = response.data.staff
-        setForm({
+        reset({
           name: staffData.name || "",
           role: staffData.role || "",
           email: staffData.email || "",
@@ -68,153 +79,230 @@ const EditStaffScreen = () => {
         Alert.alert("Error", "Received unexpected data format from server.")
       }
     } catch (error: any) {
+      console.error("Fetch Staff Error:", error?.response?.data || error.message)
       Alert.alert("Error", "Could not load staff details. Please try again later.")
     } finally {
       setLoading(false)
     }
   }
 
-  const handleChange = (field: keyof StaffForm, value: string) => {
-    setForm((prev) => ({ ...prev, [field]: value }))
-    // Clear error when user types
-
-    if (errors[field]) {
-      setErrors((prev) => ({ ...prev, [field]: undefined }))
-    }
-  }
-
-  const handleImageSelected = (uri: string) => {
-    setForm((prev) => ({ ...prev, profileImage: uri }))
-  }
-
-  const validateForm = () => {
-    const newErrors: Partial<Record<keyof StaffForm, string>> = {}
-
-    if (!form.name.trim()) {
-      newErrors.name = "Name is required"
-    }
-
-    if (!form.role.trim()) {
-      newErrors.role = "Role is required"
-    }
-
-    if (!form.email.trim()) {
-      newErrors.email = "Email is required"
-    } else if (!/\S+@\S+\.\S+/.test(form.email)) {
-      newErrors.email = "Email is invalid"
-    }
-
-    if (!form.phone.trim()) {
-      newErrors.phone = "Phone number is required"
-    }
-
-   
-
-    setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
-  }
-
-  const handleSubmit = async () => {
-    if (validateForm()) {
-      try {
-        setLoading(true)
-        await axios.put(`${BASE_URL}/staff/update-staff/${staffId}`, form, {
-          withCredentials: true,
-        })
-        Alert.alert("Success", "Staff member updated successfully!")
-        navigation.navigate<any>("Staff") 
-      } catch (error: any) {
-        console.error("Failed to update staff:", error?.response?.data?.message || error.message)
-        Alert.alert("Error", "Could not update staff member. Please try again later.")
-      } finally {
-        setLoading(false)
+  const handleImageSelected = () => {
+    launchImageLibrary(
+      { mediaType: "photo", quality: 0.8, maxHeight: 2000, maxWidth: 2000 },
+      (response) => {
+        if (!response.didCancel && !response.errorCode && response.assets?.[0]) {
+          const selectedImage = response.assets[0]
+          if (selectedImage.uri) {
+            setValue("profileImage", selectedImage.uri)
+          }
+        } else if (response.errorCode) {
+          console.log("Gallery Error: ", response.errorMessage)
+        }
       }
+    )
+  }
+
+  const onSubmit = async (values: StaffForm) => {
+    try {
+      setLoading(true)
+      const formData = new FormData()
+      Object.entries(values).forEach(([key, value]) => {
+        if (key === "profileImage" && value) {
+          formData.append(key, {
+            uri: value,
+            type: "image/jpeg",
+            name: "profile.jpg",
+          } as any)
+        } else if (value) {
+          formData.append(key, value as string)
+        }
+      })
+
+      const response = await axios.put(
+        `${BASE_URL}/staff/update-staff/${staffId}`,
+        formData,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+          withCredentials: true,
+        }
+      )
+
+      if (response?.data?.success) {
+        showToast("success", "Profile updated successfully!")
+        navigation.goBack()
+      } else {
+        showToast("error", response?.data?.message || "Failed to update profile")
+      }
+    } catch (error: any) {
+      console.error("Update Staff Error:", error?.response?.data || error.message)
+      showToast("error", "Something went wrong while updating profile")
+    } finally {
+      setLoading(false)
     }
   }
 
   return (
-    <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} className="flex-1">
-      <ScrollView className="flex-1 bg-gray-100">
-        <View className="p-4">
-          <Header title="Edit Staff Member"  />
-          <Card>
-            <View className="items-center mb-4">
-              <PhotoUpload initialImage={form.profileImage} onImageSelected={handleImageSelected} />
+   <SafeAreaView className="flex-1 bg-white">
+      <Header title="Edit Profile" />
+      <KeyboardAvoidingView
+  className="flex-1"
+  behavior={Platform.OS === "ios" ? "padding" : "height"}
+  keyboardVerticalOffset={Platform.OS === "ios" ? 100 : 0}
+>
+        <ScrollView
+          className="pt-6 px-5"
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ paddingBottom: 40 }}
+        >
+        
+            <View className="items-center">
+              <View className="mb-3">
+                <Pressable
+                  onPress={handleImageSelected}
+                  className="w-24 h-24 rounded-full items-center justify-center bg-slate-100 border border-slate-200 shadow-lg overflow-hidden"
+                >
+                  <Controller
+                    control={control}
+                    name="profileImage"
+                    render={({ field: { value } }) =>
+                      value ? (
+                        <Image
+                          source={{ uri: value }}
+                          className="w-full h-full rounded-full"
+                        />
+                      ) : (
+                        <Image
+                          source={Icons.profileIcon}
+                          className="w-24 h-24"
+                          resizeMode="contain"
+                        />
+                      )
+                    }
+                  />
+                </Pressable>
+                <Pressable
+                  onPress={handleImageSelected}
+                  className="absolute -bottom-1 -right-1 w-8 h-8 bg-primary rounded-full items-center justify-center shadow-lg"
+                >
+                  <Image
+                    source={Icons.camera}
+                    className="w-4 h-4"
+                    tintColor={"white"}
+                  />
+                </Pressable>
+              </View>
             </View>
-            <FormInput
-              label="Full Name"
-              value={form.name}
-              onChangeText={(value) => handleChange("name", value)}
-              placeholder="Enter full name"
-              error={errors.name}
+
+            {/* Form Fields */}
+            <Controller
+              control={control}
+              name="name"
+              rules={{ required: "Name is required" }}
+              render={({ field: { value, onChange } }) => (
+                <FormInput
+                  label="Full Name"
+                  placeholder="Enter full name"
+                  value={value}
+                  onChangeText={onChange}
+                  error={errors.name?.message}
+                />
+              )}
             />
 
-            <FormInput
-              label="Role"
-              value={form.role}
-              onChangeText={(value) => handleChange("role", value)}
-              placeholder="e.g. Nurse, Medical Assistant"
-              error={errors.role}
+            <Controller
+              control={control}
+              name="role"
+              rules={{ required: "Role is required" }}
+              render={({ field: { value, onChange } }) => (
+                <FormInput
+                  label="Role"
+                  placeholder="e.g. Nurse, Medical Assistant"
+                  value={value}
+                  onChangeText={onChange}
+                  error={errors.role?.message}
+                />
+              )}
             />
 
-            <FormInput
-              label="Email"
-              value={form.email}
-              onChangeText={(value) => handleChange("email", value)}
-              placeholder="email@example.com"
-              keyboardType="email-address"
-              autoCapitalize="none"
-              error={errors.email}
+            <Controller
+              control={control}
+              name="email"
+              rules={{ required: "Email is required" }}
+              render={({ field: { value, onChange } }) => (
+                <FormInput
+                  label="Email"
+                  placeholder="example@email.com"
+                  value={value}
+                  autoCapitalize="none"
+                  keyboardType="email-address"
+                  onChangeText={onChange}
+                  error={errors.email?.message}
+                />
+              )}
             />
 
-            <FormInput
-              label="Phone Number"
-              value={form.phone}
-              onChangeText={(value) => handleChange("phone", value)}
-              placeholder="(555) 123-4567"
-              keyboardType="phone-pad"
-              error={errors.phone}
+            <Controller
+              control={control}
+              name="phone"
+              rules={{ required: "Phone is required" }}
+              render={({ field: { value, onChange } }) => (
+                <FormInput
+                  label="Phone Number"
+                  value={value}
+                  placeholder="(555) 123-4567"
+                  keyboardType="phone-pad"
+                  onChangeText={onChange}
+                  error={errors.phone?.message}
+                />
+              )}
             />
 
-            <FormInput
-              label="Address"
-              value={form.address}
-              onChangeText={(value) => handleChange("address", value)}
-              placeholder="Enter address"
-              multiline
-              numberOfLines={2}
+            <Controller
+              control={control}
+              name="address"
+              render={({ field: { value, onChange } }) => (
+                <FormInput
+                  label="Address"
+                  value={value}
+                  placeholder="Enter address"
+                  onChangeText={onChange}
+                  multiline
+                  numberOfLines={2}
+                  error={errors.address?.message}
+                />
+              )}
             />
 
-            <FormInput
-              label="Bio"
-              value={form.bio}
-              onChangeText={(value) => handleChange("bio", value)}
-              placeholder="Brief description or notes"
-              multiline
-              numberOfLines={4}
+            <Controller
+              control={control}
+              name="bio"
+              render={({ field: { value, onChange } }) => (
+                <FormInput
+                  label="Bio"
+                  value={value}
+                  placeholder="Brief description or notes"
+                  onChangeText={onChange}
+                  multiline
+                  numberOfLines={4}
+                  error={errors.bio?.message}
+                />
+              )}
             />
 
-            <View className="flex-row justify-between mt-4">
-              <Button
-                title="Cancel"
-                onPress={() => navigation.goBack()}
-                variant="outline"
-                className="flex-1 mr-2"
-                disabled={loading}
-              />
+            
               <Button
                 title="Save Changes"
-                onPress={handleSubmit}
+                onPress={handleSubmit(onSubmit)}
                 variant="primary"
                 className="flex-2 ml-2"
                 loading={loading}
                 disabled={loading}
               />
-            </View>
-          </Card>
-        </View>
+          
+         
       </ScrollView>
     </KeyboardAvoidingView>
+  </SafeAreaView>
   )
 }
 

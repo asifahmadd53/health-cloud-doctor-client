@@ -17,7 +17,6 @@ const OTP = () => {
   const email = route.params?.email || "your email"
   const [error, setError] = useState("")
 
-  // Create refs for each input
   const inputRefs = [useRef<TextInput>(null), useRef<TextInput>(null), useRef<TextInput>(null), useRef<TextInput>(null)]
 
   // State for OTP values

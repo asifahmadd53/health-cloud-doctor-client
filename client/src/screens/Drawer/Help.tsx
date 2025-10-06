@@ -1,24 +1,23 @@
 "use client"
 
 import { useState, useRef } from "react"
-import { View, Text, TouchableOpacity, TextInput, Animated, Image, ScrollView, Alert, Linking } from "react-native"
+import { View, Text, TouchableOpacity, TextInput, Animated, ScrollView, Alert, Linking } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { useNavigation } from "@react-navigation/native"
-import Icons from "../../utils/libs/constants/Icons"
 import CustomButton from "../../components/CustomButton"
 
 const Help = () => {
   const navigation = useNavigation()
-  const [activeTab, setActiveTab] = useState<"feedback" | "contact" | "faq">("feedback")
+  const [activeTab, setActiveTab] = useState<"feedback" | "contact">("feedback")
   const [rating, setRating] = useState(0)
   const [feedback, setFeedback] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
   const slideAnim = useRef(new Animated.Value(0)).current
 
-  const handleTabChange = (tab: "feedback" | "contact" | "faq") => {
+  const handleTabChange = (tab: "feedback" | "contact") => {
     setActiveTab(tab)
     Animated.spring(slideAnim, {
-      toValue: tab === "feedback" ? 0 : tab === "contact" ? 1 : 2,
+      toValue: tab === "feedback" ? 0 : 1,
       useNativeDriver: true,
     }).start()
   }
@@ -28,15 +27,11 @@ const Help = () => {
       Alert.alert("Missing Information", "Please provide your feedback before submitting.")
       return
     }
-
     if (rating === 0) {
       Alert.alert("Missing Rating", "Please rate your experience before submitting.")
       return
     }
-
     setIsSubmitting(true)
-
-    // Simulate API call
     setTimeout(() => {
       setIsSubmitting(false)
       Alert.alert("Thank You!", "Your feedback has been submitted successfully. We appreciate your input!", [
@@ -87,100 +82,67 @@ const Help = () => {
   ]
 
   return (
-    <SafeAreaView className="flex-1 bg-gray-50">
-      {/* Enhanced Header */}
-      <View className="bg-white shadow-sm border-b border-gray-100">
-        <View className="flex-row items-center px-6 py-4">
-          
-          <View className="flex-1">
-            <Text className="text-2xl font-bold text-gray-900">Help & Support</Text>
-            <Text className="text-sm text-gray-600 mt-1">We're here to assist you</Text>
+    <SafeAreaView className="flex-1 bg-slate-50">
+      {/* Header */}
+      <View className="bg-white border-b border-slate-200 px-6 py-5">
+        <View className="flex-row items-center justify-between">
+          <View>
+            <Text className="text-2xl font-bold text-slate-900">Help & Support</Text>
+            <Text className="text-sm text-slate-500 mt-1">We’re here to help</Text>
           </View>
-          <View className="w-10 h-10 bg-blue-100 rounded-xl items-center justify-center">
+          <View className="w-10 h-10 bg-blue-100 rounded-full items-center justify-center">
             <Text className="text-xl">💬</Text>
           </View>
         </View>
       </View>
 
       {/* Tab Navigation */}
-      <View className="bg-white mx-6 mt-6 rounded-2xl p-2 shadow-sm">
-        <View className="flex-row">
-          {[
-            { key: "feedback", label: "Feedback", icon: "⭐" },
-            { key: "contact", label: "Contact", icon: "📞" },
-            { key: "faq", label: "FAQ", icon: "❓" },
-          ].map((tab) => (
+      <View className="mx-6 mt-6">
+        <View className="flex-row bg-white rounded-full p-1 shadow-sm">
+          {["feedback", "contact"].map((tab) => (
             <TouchableOpacity
-              key={tab.key}
-              activeOpacity={0.7}
-              onPress={() => handleTabChange(tab.key as any)}
-              className={`flex-1 flex-row items-center justify-center py-3 px-4 rounded-xl ${
-                activeTab === tab.key ? "bg-blue-500" : "bg-transparent"
-              }`}
+              key={tab}
+              onPress={() => handleTabChange(tab as any)}
+              className={`flex-1 py-3 rounded-full ${activeTab === tab ? "bg-blue-600" : "bg-transparent"}`}
             >
-              <Text className="text-lg mr-2">{tab.icon}</Text>
-              <Text className={`font-semibold ${activeTab === tab.key ? "text-white" : "text-gray-600"}`}>
-                {tab.label}
+              <Text className={`text-center font-semibold ${activeTab === tab ? "text-white" : "text-slate-600"}`}>
+                {tab === "feedback" ? "Feedback" : "Contact & FAQ"}
               </Text>
             </TouchableOpacity>
           ))}
         </View>
       </View>
 
-      <ScrollView className="flex-1" showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 30 }}>
+      <ScrollView className="flex-1 px-6 mt-6" showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 40 }}>
         {/* Feedback Tab */}
         {activeTab === "feedback" && (
-          <View className="mx-6 mt-6">
-            <View className="bg-white rounded-2xl p-6 shadow-sm">
-              <View className="flex-row items-center mb-6">
-                <View className="w-12 h-12 bg-yellow-100 rounded-xl items-center justify-center mr-4">
-                  <Text className="text-2xl">💭</Text>
-                </View>
-                <View>
-                  <Text className="text-xl font-bold text-gray-900">Share Your Experience</Text>
-                  <Text className="text-gray-600">Help us improve our services</Text>
-                </View>
-              </View>
+          <View className="bg-white rounded-2xl p-6 shadow-sm">
+            <Text className="text-lg font-bold text-slate-900 mb-2">Share Your Experience</Text>
+            <Text className="text-sm text-slate-500 mb-4">Help us improve with your feedback</Text>
 
-              {/* Rating Section */}
-              <View className="mb-6">
-                <Text className="text-base font-semibold text-gray-900 mb-3">Rate your experience</Text>
-                <View className="flex-row justify-center space-x-2">
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <TouchableOpacity key={star} onPress={() => setRating(star)} className="p-2">
-                      <Text className={`text-3xl ${star <= rating ? "text-yellow-400" : "text-gray-300"}`}>⭐</Text>
-                    </TouchableOpacity>
-                  ))}
-                </View>
-                {rating > 0 && (
-                  <Text className="text-center text-gray-600 mt-2">
-                    {rating === 1
-                      ? "Poor"
-                      : rating === 2
-                        ? "Fair"
-                        : rating === 3
-                          ? "Good"
-                          : rating === 4
-                            ? "Very Good"
-                            : "Excellent"}
-                  </Text>
-                )}
-              </View>
+            {/* Rating */}
+            <Text className="text-sm font-semibold text-slate-700 mb-2">Rate your experience</Text>
+            <View className="flex-row justify-center mb-4">
+              {[1, 2, 3, 4, 5].map((star) => (
+                <TouchableOpacity key={star} onPress={() => setRating(star)}>
+                  <Text className={`text-3xl ${star <= rating ? "text-yellow-400" : "text-slate-300"}`}>⭐</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
 
-              {/* Feedback Input */}
-              <View className="mb-6">
-                <Text className="text-base font-semibold text-gray-900 mb-3">Tell us more</Text>
-                <TextInput
-                  className="bg-gray-50 border border-gray-200 rounded-xl p-4 text-base"
-                  placeholder="Share your thoughts, suggestions, or report any issues..."
-                  multiline
-                  numberOfLines={6}
-                  value={feedback}
-                  onChangeText={setFeedback}
-                  textAlignVertical="top"
-                />
-              </View>
+            {/* Feedback Input */}
+            <Text className="text-sm font-semibold text-slate-700 mb-2">Tell us more</Text>
+            <TextInput
+              className="bg-slate-100 border border-slate-200 rounded-xl p-4 text-sm"
+              placeholder="Share your thoughts..."
+              multiline
+              numberOfLines={5}
+              value={feedback}
+              onChangeText={setFeedback}
+              textAlignVertical="top"
+            />
 
+            <View className="mt-5">
               <CustomButton
                 label={isSubmitting ? "Submitting..." : "Submit Feedback"}
                 onPress={handleSubmitFeedback}
@@ -192,118 +154,68 @@ const Help = () => {
 
         {/* Contact Tab */}
         {activeTab === "contact" && (
-          <View className="mx-6 mt-6">
+          <>
+            {/* Contact Options */}
             <View className="bg-white rounded-2xl p-6 shadow-sm mb-6">
-              <View className="flex-row items-center mb-6">
-                <View className="w-12 h-12 bg-blue-100 rounded-xl items-center justify-center mr-4">
-                  <Text className="text-2xl">🤝</Text>
+              <Text className="text-lg font-bold text-slate-900 mb-2">Get in Touch</Text>
+              <Text className="text-sm text-slate-500 mb-4">Choose how you'd like to contact us</Text>
+
+              <TouchableOpacity
+                onPress={() => handleContactPress("email")}
+                className="flex-row items-center p-4 bg-red-50 rounded-xl mb-3"
+              >
+                <Text className="text-2xl mr-4">📧</Text>
+                <View className="flex-1">
+                  <Text className="font-semibold text-slate-800">Email Support</Text>
+                  <Text className="text-sm text-slate-500">support@healthcloud.com</Text>
                 </View>
-                <View>
-                  <Text className="text-xl font-bold text-gray-900">Get in Touch</Text>
-                  <Text className="text-gray-600">Multiple ways to reach us</Text>
+                <Text className="text-red-500 text-xl">→</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                onPress={() => handleContactPress("phone")}
+                className="flex-row items-center p-4 bg-blue-50 rounded-xl mb-3"
+              >
+                <Text className="text-2xl mr-4">📱</Text>
+                <View className="flex-1">
+                  <Text className="font-semibold text-slate-800">Phone Support</Text>
+                  <Text className="text-sm text-slate-500">+1 (234) 567-8900</Text>
                 </View>
-              </View>
+                <Text className="text-blue-500 text-xl">→</Text>
+              </TouchableOpacity>
 
-              <View className="space-y-4">
-                <TouchableOpacity
-                  activeOpacity={0.7}
-                  onPress={() => handleContactPress("email")}
-                  className="flex-row items-center p-4 bg-red-50 border border-red-100 rounded-xl"
-                >
-                  <View className="w-12 h-12 bg-red-500 rounded-xl items-center justify-center mr-4">
-                    <Text className="text-white text-xl">📧</Text>
-                  </View>
-                  <View className="flex-1">
-                    <Text className="font-semibold text-gray-900 text-base">Email Support</Text>
-                    <Text className="text-gray-600 text-sm">support@healthcloud.com</Text>
-                    <Text className="text-red-600 text-xs mt-1">Response within 24 hours</Text>
-                  </View>
-                  <Text className="text-red-500 text-xl">→</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  activeOpacity={0.7}
-                  onPress={() => handleContactPress("phone")}
-                  className="flex-row items-center p-4 bg-blue-50 border border-blue-100 rounded-xl"
-                >
-                  <View className="w-12 h-12 bg-blue-500 rounded-xl items-center justify-center mr-4">
-                    <Text className="text-white text-xl">📱</Text>
-                  </View>
-                  <View className="flex-1">
-                    <Text className="font-semibold text-gray-900 text-base">Phone Support</Text>
-                    <Text className="text-gray-600 text-sm">+1 (234) 567-8900</Text>
-                    <Text className="text-blue-600 text-xs mt-1">Mon-Fri, 9 AM - 6 PM EST</Text>
-                  </View>
-                  <Text className="text-blue-500 text-xl">→</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  activeOpacity={0.7}
-                  onPress={() => handleContactPress("whatsapp")}
-                  className="flex-row items-center p-4 bg-green-50 border border-green-100 rounded-xl"
-                >
-                  <View className="w-12 h-12 bg-green-500 rounded-xl items-center justify-center mr-4">
-                    <Text className="text-white text-xl">💬</Text>
-                  </View>
-                  <View className="flex-1">
-                    <Text className="font-semibold text-gray-900 text-base">WhatsApp Chat</Text>
-                    <Text className="text-gray-600 text-sm">+1 (234) 567-8900</Text>
-                    <Text className="text-green-600 text-xs mt-1">Instant messaging support</Text>
-                  </View>
-                  <Text className="text-green-500 text-xl">→</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-
-            {/* Emergency Contact */}
-            <View className="bg-red-50 border border-red-200 rounded-2xl p-6">
-              <View className="flex-row items-center mb-3">
-                <Text className="text-2xl mr-3">🚨</Text>
-                <Text className="text-lg font-bold text-red-800">Emergency Support</Text>
-              </View>
-              <Text className="text-red-700 text-sm leading-5">
-                For urgent medical emergencies, please call 911 or visit your nearest emergency room. This app is not
-                intended for emergency medical situations.
-              </Text>
-            </View>
-          </View>
-        )}
-
-        {/* FAQ Tab */}
-        {activeTab === "faq" && (
-          <View className="mx-6 mt-6">
-            <View className="bg-white rounded-2xl p-6 shadow-sm mb-6">
-              <View className="flex-row items-center mb-6">
-                <View className="w-12 h-12 bg-purple-100 rounded-xl items-center justify-center mr-4">
-                  <Text className="text-2xl">❓</Text>
+              <TouchableOpacity
+                onPress={() => handleContactPress("whatsapp")}
+                className="flex-row items-center p-4 bg-green-50 rounded-xl"
+              >
+                <Text className="text-2xl mr-4">💬</Text>
+                <View className="flex-1">
+                  <Text className="font-semibold text-slate-800">WhatsApp</Text>
+                  <Text className="text-sm text-slate-500">Chat with us instantly</Text>
                 </View>
-                <View>
-                  <Text className="text-xl font-bold text-gray-900">Frequently Asked Questions</Text>
-                  <Text className="text-gray-600">Quick answers to common questions</Text>
-                </View>
-              </View>
-
-              <View className="space-y-4">
-                {faqData.map((faq, index) => (
-                  <View key={index} className="border-b border-gray-100 pb-4 last:border-b-0">
-                    <Text className="font-semibold text-gray-900 text-base mb-2">{faq.question}</Text>
-                    <Text className="text-gray-600 text-sm leading-5">{faq.answer}</Text>
-                  </View>
-                ))}
-              </View>
-            </View>
-
-            {/* Still Need Help */}
-            <View className="bg-blue-50 border border-blue-200 rounded-2xl p-6">
-              <Text className="text-lg font-bold text-blue-900 mb-2">Still need help?</Text>
-              <Text className="text-blue-700 text-sm mb-4">
-                Can't find what you're looking for? Our support team is ready to assist you.
-              </Text>
-              <TouchableOpacity onPress={() => handleTabChange("contact")} className="bg-blue-500 py-3 px-6 rounded-xl">
-                <Text className="text-white font-semibold text-center">Contact Support</Text>
+                <Text className="text-green-500 text-xl">→</Text>
               </TouchableOpacity>
             </View>
-          </View>
+
+            {/* FAQ Section */}
+            <View className="bg-white rounded-2xl p-6 shadow-sm mb-6">
+              <Text className="text-lg font-bold text-slate-900 mb-4">Frequently Asked Questions</Text>
+              {faqData.map((faq, index) => (
+                <View key={index} className="mb-4">
+                  <Text className="font-semibold text-slate-800 text-sm mb-1">• {faq.question}</Text>
+                  <Text className="text-slate-600 text-xs leading-4">{faq.answer}</Text>
+                </View>
+              ))}
+            </View>
+
+            {/* Emergency Note */}
+            <View className="bg-red-50 border border-red-200 rounded-xl p-4">
+              <Text className="text-sm font-semibold text-red-800 mb-1">🚨 Emergency?</Text>
+              <Text className="text-xs text-red-700">
+                For medical emergencies, call 911. This app is not for emergency use.
+              </Text>
+            </View>
+          </>
         )}
       </ScrollView>
     </SafeAreaView>

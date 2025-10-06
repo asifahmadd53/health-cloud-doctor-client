@@ -34,7 +34,8 @@ import profileOutline from '../../../assets/icons/profile-outline.png'
 import profileFilled from '../../../assets/icons/profile-filled.png'
 import homeOutline from '../../../assets/icons/home-outline.png'
 import homeFilled from '../../../assets/icons/home-filled.png'
-import profile from '../../../assets/icons/profile.png'
+import editPencil from '../../../assets/icons/editPencil.png'
+import deleteIcon from '../../../assets/icons/deleteIcon.png'
 
 export default {
     rightIcon,
@@ -73,5 +74,6 @@ export default {
     profileFilled,
     homeOutline,
     homeFilled,
-    profile
+    editPencil,
+    deleteIcon
 }

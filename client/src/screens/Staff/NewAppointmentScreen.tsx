@@ -87,82 +87,65 @@ const NewAppointmentScreen = () => {
   };
 
   const handleSubmit = async () => {
-    if (!validateForm()) return;
-  
-    setLoading(true);
-  
-    try {
-      // Get token and staffId consistently
-      const [token, staffId] = await Promise.all([
-        AsyncStorage.getItem("token"),
-        AsyncStorage.getItem("staffId")
-      ]);
-  
-      if (!token || !staffId) {
-        Alert.alert("Session Expired", "Please login again");
-        navigation.navigate("StaffLogin");
-        return;
-      }
-  
-      const dateString = date?.toISOString().split("T")[0] || "";
-      const timeString = time?.toTimeString().split(" ")[0].substring(0, 5) || "";
-  
-      const response = await axios.post(
-        `${BASE_URL}/api/appointment/create-appointment`,
-        {
-          patientName,
-          patientCNIC,
-          patientPhone,
-          patientAge,
-          gender,
-          date: dateString,
-          time: timeString,
-          paymentStatus: paymentMethod,
-          reason,
-          staffId,
-        },
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-  
-      if (response.data.success) {
-        Alert.alert(
-          "Success",
-          "Appointment created successfully",
-          [{ text: "OK", onPress: () => navigation.goBack() }]
-        );
-      } else {
-        Alert.alert("Error", response.data.message);
-      }
-    } catch (error: any) {
-      console.error("Appointment error:", error);
-      
-      if (error.response?.status === 401) {
-        // Token expired or invalid
-        Alert.alert(
-          "Session Expired",
-          "Your session has expired. Please login again.",
-          [
-            {
-              text: "OK",
-              onPress: () => navigation.navigate("StaffLogin"),
-            },
-          ]
-        );
-      } else {
-        Alert.alert(
-          "Error",
-          error.response?.data?.message || "Failed to create appointment"
-        );
-      }
-    } finally {
-      setLoading(false);
+  if (!validateForm()) return;
+
+  setLoading(true);
+
+  try {
+    const token = await AsyncStorage.getItem("staffToken");
+
+    if (!token) {
+      Alert.alert("Session Expired", "Please login again");
+      navigation.navigate("StaffLogin");
+      return;
     }
-  };
+
+    const dateString = date?.toISOString().split("T")[0] || "";
+    const timeString = time?.toTimeString().split(" ")[0].substring(0, 5) || "";
+
+    const response = await axios.post(
+      `${BASE_URL}/appointment/create-appointment`,
+      {
+        patientName,
+        patientCNIC,
+        patientPhone,
+        patientAge,
+        gender,
+        date: dateString,
+        time: timeString,
+        paymentStatus: paymentMethod,
+        reason,
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    if (response.data.success) {
+      Alert.alert("Success", "Appointment created successfully", [
+        { text: "OK", onPress: () => navigation.goBack() },
+      ]);
+    } else {
+      Alert.alert("Error", response.data.message);
+    }
+  } catch (error: any) {
+    console.error("Appointment error:", error);
+
+    if (error.response?.status === 401) {
+      Alert.alert("Session Expired", "Your session has expired. Please login again.", [
+        { text: "OK", onPress: () => navigation.navigate("StaffLogin") },
+      ]);
+    } else {
+      Alert.alert("Error", error.response?.data?.message || "Failed to create appointment");
+    }
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   return (
     <SafeAreaView className="flex-1 bg-white">
@@ -214,22 +197,30 @@ const NewAppointmentScreen = () => {
             <Text className="mt-4 mb-2 font-semibold text-base text-gray-700">
               Gender
             </Text>
-            <View className="flex-row space-x-6 items-center">
-              {["male", "female"].map((g) => (
-                <Pressable
-                  key={g}
-                  onPress={() => setGender(g as "male" | "female")}
-                  className="flex-row items-center space-x-1"
-                >
-                  <RadioButton
-                    value={g}
-                    color="#0891b2"
-                    status={gender === g ? "checked" : "unchecked"}
-                  />
-                  <Text className="text-gray-700 capitalize">{g}</Text>
-                </Pressable>
-              ))}
-            </View>
+<View className="flex-row gap-4">
+  {["Male", "Female"].map((g) => (
+    <TouchableOpacity
+    activeOpacity={.90}
+      key={g}
+      onPress={() => setGender(g.toLowerCase() as "male" | "female")}
+      className={`flex-1 py-4 rounded-xl items-center ${
+        gender === g.toLowerCase()
+          ? g === "Male"
+            ? "bg-blue-500"
+            : "bg-pink-500"
+          : "bg-gray-200"
+      }`}
+    >
+      <Text
+        className={`font-semibold ${
+          gender === g.toLowerCase() ? "text-white" : "text-gray-700"
+        }`}
+      >
+        {g}
+      </Text>
+    </TouchableOpacity>
+  ))}
+</View>
 
             {/* Appointment Details */}
             <Text className="text-lg font-bold text-gray-800 mt-8 mb-4">
@@ -305,23 +296,63 @@ const NewAppointmentScreen = () => {
             <Text className="mt-4 mb-2 font-semibold text-base text-gray-700">
               Payment Method
             </Text>
-            <View className="flex-row space-x-6 items-center">
-              {["cash", "online"].map((p) => (
-                <Pressable
-                  key={p}
-                  onPress={() => setPaymentMethod(p as "cash" | "online")}
-                  className="flex-row items-center space-x-1"
-                >
-                  <RadioButton
-                    value={p}
-                    color="#0891b2"
-                    status={paymentMethod === p ? "checked" : "unchecked"}
-                  />
-                  <Text className="text-gray-700 capitalize">{p}</Text>
-                </Pressable>
-              ))}
-            </View>
-
+<View className="gap-4">
+                {[
+                  {
+                    key: "cash",
+                    label: "Cash Payment",
+                    icon: "💵",
+                    desc: "Pay at the clinic",
+                  },
+                  {
+                    key: "online",
+                    label: "Online Payment",
+                    icon: "💳",
+                    desc: "Pay securely online",
+                  },
+                ].map((method) => (
+                  <Pressable
+                    key={method.key}
+                    onPress={() =>
+                      setPaymentMethod(method.key as "cash" | "online")
+                    }
+                    className={`p-1 px-2 rounded-2xl border-2 ${
+                      paymentMethod === method.key
+                        ? "border-green-500 bg-green-50"
+                        : "border-gray-200 bg-white"
+                    }`}
+                  >
+                    <View className="flex-row items-center">
+                      <Text className="text-2xl mr-3">{method.icon}</Text>
+                      <View className="flex-1">
+                        <Text
+                          className={`font-semibold text-lg ${
+                            paymentMethod === method.key
+                              ? "text-green-700"
+                              : "text-gray-900"
+                          }`}
+                        >
+                          {method.label}
+                        </Text>
+                        <Text className="text-gray-600 text-sm">
+                          {method.desc}
+                        </Text>
+                      </View>
+                      <View
+                        className={`w-6 h-6 rounded-full border-2 items-center justify-center ${
+                          paymentMethod === method.key
+                            ? "border-green-500 bg-green-500"
+                            : "border-gray-300"
+                        }`}
+                      >
+                        {paymentMethod === method.key && (
+                          <Text className="text-white text-xs">✓</Text>
+                        )}
+                      </View>
+                    </View>
+                  </Pressable>
+                ))}
+              </View>
             {/* Submit Button */}
             <View className="mt-8">
               <CustomButton

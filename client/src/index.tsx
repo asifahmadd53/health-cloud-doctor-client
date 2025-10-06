@@ -27,11 +27,9 @@ const RootLayout = () => {
   position="top-center"
   offset={20}
   richColors
-  // closeButton
   visibleToasts={1}
   duration={2000}
   toastOptions={{
-    
     style: {
       borderRadius: 12,
       // backgroundColor: "#1E293B", 

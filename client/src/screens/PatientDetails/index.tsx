@@ -5,7 +5,6 @@ import {
   ScrollView,
   Image,
   TouchableOpacity,
-  Pressable,
   TextInput as RNTextInput,
   Platform,
   Keyboard,
@@ -13,9 +12,8 @@ import {
   KeyboardAvoidingView,
 } from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
-import {useNavigation} from '@react-navigation/native';
+import {useNavigation, useRoute} from '@react-navigation/native';
 import BottomSheet, {BottomSheetBackdrop, BottomSheetView} from '@gorhom/bottom-sheet';
-
 import PatientText from '../../components/PatientText';
 import Icons from '../../utils/libs/constants/Icons';
 import CustomButton from '../../components/CustomButton';
@@ -28,17 +26,22 @@ const PatientDetails = () => {
   const [otp, setOtp] = useState(['', '', '', '']);
   const inputRefs = useRef<RNTextInput[]>([]);
   const [keyboardHeight, setKeyboardHeight] = useState(0);
+  const route = useRoute<any>();
+  const { appointment } = route.params || {};
+  if (!appointment) return null;
 
-  const patientName = 'Muhammad Hassan';
-  const patientAge = 18;
-  const patientGender = 'Male';
-  const patientPhone = '5843757345';
-  const patientCNIC = '52735092735-3';
-  const patientEmail = 'hassan@email.com';
+  const patientName = appointment.patientName
+  const patientAge = appointment.patientAge;
+  const patientGender = appointment.gender;
+ const patientPhone  = appointment.patientPhone ?? "N/A";
+  const patientCNIC   = (appointment as any).patientCNIC ?? "N/A";
+  const patientEmail  = "N/A";
   const patientImage = null;
   const patientHasRecord = false;
-  const paymentMethod = 'Online';
-  const paymentStatus = 'Paid';
+  const paymentMethod = appointment.paymentStatus === "Paid" ? "Online" : "Cash";
+  const paymentStatus = appointment.paymentStatus === "Paid" ? "Paid" : "Pending";
+
+  const addedBy = appointment.staffId?.name ?? "Admin";
 
   useEffect(() => {
     const showListener = Keyboard.addListener('keyboardDidShow', e => {
@@ -110,47 +113,84 @@ const PatientDetails = () => {
             <PatientText label="Phone:" item={patientPhone} />
             <PatientText label="CNIC:" item={patientCNIC} />
             <PatientText label="Email:" item={patientEmail} />
+            <PatientText label="Added by:" item={addedBy} />
           </View>
 
-          {/* Payment & Records */}
-          <View className="bg-white rounded-3xl p-6 shadow-md mb-6">
-            <Text className="text-xl font-semibold text-gray-800 mb-4">
-              Payment & Records
-            </Text>
-            <View className="flex-row items-center justify-between mb-4 bg-green-50 p-4 rounded-xl">
-              <View className="flex-row items-center gap-3">
-                <Image source={Icons.paymentdone} className="w-8 h-8" />
-                <Text className="text-lg font-semibold text-green-700">
-                  {paymentMethod} Payment
-                </Text>
-              </View>
-              <Text className="text-green-700 font-semibold">
-                {paymentStatus}
-              </Text>
-            </View>
-            {patientHasRecord ? (
-              <TouchableOpacity
-                className="flex-row items-center justify-between bg-gray-50 p-4 rounded-xl"
-                onPress={() => navigation.navigate('previouseData')}>
-                <View className="flex-row items-center gap-3">
-                  <Image source={Icons.historynot} className="w-6 h-6" />
-                  <Text className="text-lg font-semibold text-gray-700">
-                    View Previous Record
-                  </Text>
-                </View>
-                <Text className="text-primary font-semibold">Open</Text>
-              </TouchableOpacity>
-            ) : (
-              <TouchableOpacity
-                activeOpacity={0.9}
-                className="bg-primary py-3 rounded-xl flex-row items-center justify-center mt-3"
-                onPress={openSheet}>
-                <Text className="text-white text-lg font-semibold">
-                  Send OTP to Patient
-                </Text>
-              </TouchableOpacity>
-            )}
-          </View>
+          
+<View className="bg-white rounded-3xl p-6 shadow-md mb-6">
+  <Text className="text-xl font-semibold text-gray-800 mb-4">
+    Payment & Records
+  </Text>
+
+  
+  <View
+    className={`flex-row items-center justify-between mb-4 p-4 rounded-xl ${
+      appointment.paymentStatus === 'cash' || appointment.paymentStatus === 'online'
+        ? 'bg-green-50'
+        : 'bg-amber-50'
+    }`}>
+    
+
+    <View className="flex-row items-center gap-3">
+      <Image
+        source={
+          appointment.paymentStatus === 'cash' || appointment.paymentStatus === 'online'
+            ? Icons.paymentdone
+            : Icons.paymentpending          
+        }
+        className="w-8 h-8"
+      />
+      <Text
+        className={`text-lg font-semibold ${
+          appointment.paymentStatus === 'cash' || appointment.paymentStatus === 'online'
+            ? 'text-green-700'
+            : 'text-amber-700'
+        }`}>
+        {appointment.paymentStatus === 'cash'
+          ? 'Cash Payment'
+          : appointment.paymentStatus === 'online'
+          ? 'Online Payment'
+          : 'Payment Pending'}
+      </Text>
+    </View>
+
+   
+    <Text
+      className={`font-semibold ${
+        appointment.paymentStatus === 'cash' || appointment.paymentStatus === 'online'
+          ? 'text-green-700'
+          : 'text-amber-700'
+      }`}>
+      {appointment.paymentStatus === 'cash' || appointment.paymentStatus === 'online'
+        ? 'Done'
+        : 'Pending'}
+    </Text>
+  </View>
+
+  
+  {patientHasRecord ? (
+    <TouchableOpacity
+      className="flex-row items-center justify-between bg-gray-50 p-4 rounded-xl"
+      onPress={() => navigation.navigate('previouseData')}>
+      <View className="flex-row items-center gap-3">
+        <Image source={Icons.historynot} className="w-6 h-6" />
+        <Text className="text-lg font-semibold text-gray-700">
+          View Previous Record
+        </Text>
+      </View>
+      <Text className="text-primary font-semibold">Open</Text>
+    </TouchableOpacity>
+  ) : (
+    <TouchableOpacity
+      activeOpacity={0.9}
+      className="bg-primary py-3 rounded-xl flex-row items-center justify-center mt-3"
+      onPress={openSheet}>
+      <Text className="text-white text-lg font-semibold">
+        Send OTP to Patient
+      </Text>
+    </TouchableOpacity>
+  )}
+</View>
         </ScrollView>
 
         <View className="py-3 bg-white">
@@ -174,7 +214,7 @@ const PatientDetails = () => {
       {...props}
       disappearsOnIndex={-1}
       appearsOnIndex={0}
-      opacity={0.5} // control the dim effect
+      opacity={0.5} 
     />
           )}
           >
@@ -214,13 +254,16 @@ const PatientDetails = () => {
               ))}
             </View>
 
-            <CustomSecondaryButton
+            <View className='w-full items-center'>
+              <CustomSecondaryButton
+            className='bg-secondary'
               label="Proceed"
               onPress={() => {
                 bottomSheetRef.current?.close();
                 navigation.navigate('previouseData');
               }}
             />
+            </View>
           </BottomSheetView>
         </BottomSheet>
       </SafeAreaView>

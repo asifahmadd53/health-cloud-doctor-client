@@ -60,7 +60,7 @@ const AppointmentListScreen = () => {
                     appointment.patientName
                         .toLowerCase()
                         .includes(query.toLowerCase()) ||
-                    appointment.contactNumber.includes(query),
+                    appointment.patientPhone?.includes(query),
             );
             setFilteredAppointments(filtered);
         },
@@ -121,7 +121,7 @@ const AppointmentListScreen = () => {
                             try {
                                 await deleteAppointment(id);
                                 const updatedAppointments = appointments.filter(
-                                    (appointment) => appointment.id !== id,
+                                    (appointment) => appointment._id !== id,
                                 );
                                 setAppointments(updatedAppointments);
                                 applyFilter(activeFilter, updatedAppointments);
@@ -185,9 +185,9 @@ const AppointmentListScreen = () => {
     );
 
     return (
-        <SafeAreaView className="flex-1 bg-white px-4">
+        <SafeAreaView className="flex-1 bg-white ">
             <Header title="Appointments" />
-            <View className="p-1 mt-5">
+            <View className="p-1 mt-5 px-5">
                 <SearchBar value={searchQuery} onChangeText={handleSearch} />
                 {renderListHeader()}
             </View>
@@ -197,10 +197,9 @@ const AppointmentListScreen = () => {
                     <Text className="mt-2 text-gray-600">Loading appointments...</Text>
                 </View>
             ) : (
-                <FlatList className="mt-3"
-                    key={filteredAppointments.length}
+                <FlatList className="mt-3 px-5"
                     data={filteredAppointments}
-                    keyExtractor={(item) => item.id}
+                    keyExtractor={(item) => item._id}
                     renderItem={renderAppointmentItem}
                     ListEmptyComponent={
                         <EmptyState

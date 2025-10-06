@@ -186,8 +186,6 @@ const validatePasswords = () => {
     return '#10b981';
   };
 
- 
-
 const openCamera = () => {
   launchCamera(
     { mediaType: 'photo', quality: 0.8, maxHeight: 2000, maxWidth: 2000 },
@@ -375,7 +373,6 @@ const openGallery = () => {
                     </View>
                   </View>
                 ) : null}
-
                 <Text className="text-xs text-gray-500 mb-1">
                   Password must contain:
                 </Text>

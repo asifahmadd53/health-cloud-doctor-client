@@ -33,10 +33,10 @@ const StaffCard: React.FC<StaffCardProps> = ({ staff, className = "" }) => {
   }
 
   return (
-    <TouchableOpacity
+  <TouchableOpacity
       onPress={handleView}
       activeOpacity={0.85}
-      className={`bg-white rounded-2xl p-5 mb-4 shadow-md flex-row items-center justify-between ${className}`}
+      className={`bg-white rounded-2xl p-5 mb-4 shadow-sm border border-gray-200 flex-row items-center justify-between ${className}`}
     >
       {/* Left Section: Profile */}
       <View className="flex-row items-center">
@@ -44,28 +44,28 @@ const StaffCard: React.FC<StaffCardProps> = ({ staff, className = "" }) => {
           {staff.profileImage ? (
             <Image
               source={{ uri: staff.profileImage }}
-              className="w-20 h-20 rounded-full border border-gray-200"
+              className="w-16 h-16 rounded-full border-2 border-cyan-500 shadow-sm"
             />
           ) : (
-            <View className="w-16 h-16 rounded-full bg-gray-200 items-center justify-center border border-gray-300">
+            <View className="w-16 h-16 rounded-full bg-gray-200 items-center justify-center border border-gray-300 shadow-sm">
               <Text className="text-xl font-bold text-gray-600">
                 {staff.name.charAt(0)}
               </Text>
             </View>
           )}
-
-        
         </View>
 
         <View className="ml-4">
           <Text className="text-lg font-semibold text-gray-900">{staff.name}</Text>
-          <Text className="text-sm text-gray-500">{staff.role}</Text>
-        <Text className="text-sm text-gray-600">View Profile</Text>
+          <Text className="text-sm text-gray-500 mb-1">{staff.role}</Text>
+          <Text className="text-sm text-cyan-600 font-medium">View Profile</Text>
         </View>
       </View>
 
-      {/* Right Arrow (hint clickable) */}
-      <Ionicons name="chevron-forward" size={22} color="#9CA3AF" />
+      {/* Right Arrow */}
+      <View className="w-8 h-8 rounded-full bg-gray-100 items-center justify-center">
+        <Ionicons name="chevron-forward" size={20} color="#6B7280" />
+      </View>
     </TouchableOpacity>
   )
 }

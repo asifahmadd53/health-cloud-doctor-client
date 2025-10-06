@@ -9,20 +9,28 @@ import Images from "../../utils/libs/constants/Images"
 import CustomHeader from "../../components/CustomHeader"
 import PatientCard from "../../components/PatientCard"
 import { useNavigation } from "@react-navigation/native"
+import AsyncStorage from "@react-native-async-storage/async-storage"
+import { showToast } from "../../utils/toastUtils"
+import axios from "axios"
+import { BASE_URL } from "../../api/api"
 
 
 const Dashboard = () => {
-  const appointments = [2,3,1,6,4,10,34] as Array<number>
   const [selectedDate, setSelectedDate] = useState(new Date())
   const [showCalendar, setShowCalendar] = useState(false)
-  const [totalAppointments, setTotalAppointments] = useState(4)
+  const [totalAppointments, setTotalAppointments] = useState(0)
   const scaleAnim = useRef(new Animated.Value(1)).current
   const modalScale = useRef(new Animated.Value(0)).current
   const modalOpacity = useRef(new Animated.Value(0)).current
-
+  const [appointments, setAppointments] = useState([]);
   const navigation = useNavigation()
 
-  // Animation for the notification bell
+ const [doctor, setDoctor] = useState({
+    name: "",
+    specialty: "",
+    gender: "",
+  });
+  
   useEffect(() => {
     const pulse = Animated.loop(
       Animated.sequence([
@@ -114,6 +122,68 @@ const Dashboard = () => {
     { id: "5", time: "04:00 PM", status: "available" },
   ]
 
+  const getDoctorAppointments = async () => {
+  try {
+    const storedToken = await AsyncStorage.getItem('token'); 
+    if (!storedToken) {
+      showToast('error', 'User not found. Please login again.');
+      navigation.navigate('sign-in' as never);
+      return;
+    }
+
+    const res = await axios.get(
+      `${BASE_URL}/appointment/get-doctor-appointments`,
+      { headers: { Authorization: `Bearer ${storedToken}` } }
+    );
+
+    if (res.data.success) {
+      setAppointments(res.data.appointments ?? []);
+      setTotalAppointments(res.data.appointments.length);
+    } else {
+      showToast('error', res.data.message || 'Failed to fetch');
+    }
+  } catch (err:any) {
+    console.error('API Error:', err.response?.data || err.message);
+    showToast('error', err.response?.data?.message || 'Something went wrong');
+  }
+};
+
+useEffect(() => {
+  getDoctorAppointments();
+}, []);
+
+
+ useEffect(() => {
+    const getDoctor = async () => {
+      try {
+        const storedUser = await AsyncStorage.getItem("user");
+        if (!storedUser) return;
+
+        const parsedUser = JSON.parse(storedUser);
+        const doctorId = parsedUser._id;
+
+        const response = await axios.get(
+          `${BASE_URL}/doctors/get-doctor/${doctorId}`
+        );
+        if (!response.data.success) return;
+
+        const { doctor,profile } = response.data;
+
+        setDoctor({
+          name: doctor?.name || "",
+          specialty: profile?.specialty || "",
+          gender: doctor?.gender || "",
+        });
+      } catch (err) {
+        console.log("Error fetching doctor", err);
+      }
+    };
+
+    getDoctor();
+  }, []);
+
+
+
 
 
  
@@ -138,11 +208,18 @@ const Dashboard = () => {
 
 
         {/* Doctor Info */}
-      <View className="flex-row justify-around items-center pt-6 px-5">
+      <View className="flex-row justify-around items-center pt-6 px-6 ">
             <View className="flex-col items-start justify-center">
               <Text className="text-3xl font-bold text-white">Welcome!</Text>
-              <Text className="text-2xl font-bold text-white">Dr. Ali</Text>
-              <Text className="text-base font-bold text-white">Surgeon</Text>
+            <Text
+            style={{ maxWidth: width * 0.4 }}
+  numberOfLines={1}
+  ellipsizeMode="tail"
+  className=" text-xl font-bold text-white"
+>
+  {doctor.name}
+</Text>
+              <Text className="text-base font-bold text-white">{doctor.specialty}</Text>
             </View>
             <View className="w-1/2">
               <Image className="w-full h-full" source={Images.dashboard} resizeMode="cover" />
@@ -158,7 +235,7 @@ const Dashboard = () => {
               </View>
               <View className="ml-2">
                 <Text className="text-gray-500 text-sm">Today's</Text>
-                <Text className="text-gray-800 text-lg font-bold">{totalAppointments} Appointments</Text>
+                <Text className="text-gray-800 text-lg font-bold">{totalAppointments}Appointments</Text>
               </View>
             </View>
           </View>
@@ -231,7 +308,7 @@ const Dashboard = () => {
         </ScrollView>
 
         {/* Time Slots */}
-        {/* <Text className="text-lg font-bold text-gray-800 mb-3">Available Time Slots</Text>
+      {/* <Text className="text-lg font-bold text-gray-800 mb-3">Available Time Slots</Text>
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -273,15 +350,20 @@ const Dashboard = () => {
           })}
         </ScrollView> */}
 
-        {/* Appointments List */}
+    
         <Text className="text-lg font-bold text-gray-800 mb-3">Today's Appointments</Text>
-        <FlatList
-          data={appointments}
-          keyExtractor={(item) => item.toString()}
-          renderItem={({ item, index }) => <PatientCard index={index + 1} />}
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingBottom: 20 }}
-        />
+       <FlatList
+  data={appointments}
+  keyExtractor={(item) => item._id}
+  renderItem={({ item, index }) => (
+    <PatientCard
+      index={index + 1}
+      appointment={item}   
+    />
+  )}
+  showsVerticalScrollIndicator={false}
+  contentContainerStyle={{ paddingBottom: 5 }}
+/>
       </View>
 
       {/* Calendar Modal */}
@@ -317,7 +399,6 @@ const Dashboard = () => {
                 className="w-8 h-8 bg-blue-100 rounded-full items-center justify-center"
               >
               <MaterialCommunityIcons name="close" size={20} color="#2895cb" />
-
               </TouchableOpacity>
             </View>
             <Calendar
