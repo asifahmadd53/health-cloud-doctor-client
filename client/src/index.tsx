@@ -9,6 +9,7 @@ import { AutocompleteDropdownContextProvider } from 'react-native-autocomplete-d
 import { Toaster } from 'sonner-native'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
+import { BottomSheetModalProvider } from '@gorhom/bottom-sheet'
 
 const RootLayout = () => {
   return (
@@ -18,7 +19,9 @@ const RootLayout = () => {
         backgroundColor="#FFFFFF"
         translucent={false}
       />
+      
       <GestureHandlerRootView style={{ flex: 1 }}>
+        <BottomSheetModalProvider>
         <NavigationContainer>
           <AutocompleteDropdownContextProvider>
             <AppLayout />
@@ -63,6 +66,7 @@ const RootLayout = () => {
 
 
         </NavigationContainer>
+      </BottomSheetModalProvider>
       </GestureHandlerRootView>
     </SafeAreaProvider>
   )

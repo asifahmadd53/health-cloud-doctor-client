@@ -534,7 +534,7 @@ useEffect(() => {
                   </View>
 
                   <View className="flex-row items-center w-full gap-2 mt-4">
-                    <View className="flex-1 ">
+                    <View className="flex-1">
                       <CustomInput
                         label="Duration"
                         value={duration}

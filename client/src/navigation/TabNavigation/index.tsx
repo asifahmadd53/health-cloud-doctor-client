@@ -43,8 +43,8 @@ const AnimatedTabIcon = ({ source, focused, color }: any) => {
       <Image
         source={source}
         style={{
-          width: 28,
-          height: 28,
+          width: 24,
+          height: 24,
           tintColor: color,
           resizeMode: 'contain',
         }}

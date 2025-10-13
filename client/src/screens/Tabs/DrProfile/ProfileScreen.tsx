@@ -1,4 +1,4 @@
-import {useState, useRef, useEffect} from 'react';
+import {useState, useRef, useEffect, useCallback, useMemo} from 'react';
 import {
   View,
   Text,
@@ -14,7 +14,6 @@ import {
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import PhotoUpload from '../../../components/Doctor/PhotoUpload';
 import FormInput from '../../../components/Doctor/FormInput';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {BASE_URL} from '../../../api/api';
@@ -24,12 +23,20 @@ import Icons from '../../../utils/libs/constants/Icons';
 import Header from '../../../components/Header';
 import { Controller, useForm } from 'react-hook-form';
 import { showToast } from '../../../utils/toastUtils';
-import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import BottomSheet, { BottomSheetFlatList, BottomSheetView } from '@gorhom/bottom-sheet';
+import FormSelectTrigger from '../../../components/FormSelectTrigger';
 
 const ProfileScreen = () => {
 
   const [loading, setLoading] = useState(false);
-
+  const [sheetTitle, setSheetTitle] = useState('');
+  const [sheetData, setSheetData] = useState<string[]>([]);
+  const [sheetField, setSheetField] = useState<'specialty' | 'city'>('specialty');
+  const bottomSheetRef = useRef<BottomSheet>(null);
+  const handleSheetChanges = useCallback((index: number) => {
+    console.log('handleSheetChanges', index);
+  }, []);
  type ProfileFormValues = {
   name: string;
   specialty: string;
@@ -39,6 +46,7 @@ const ProfileScreen = () => {
   email: string;
   phoneNumber: string;
   clinicAddress: string;
+  city: string;
   profileImage?: string;
 };
 
@@ -54,9 +62,88 @@ const { control, handleSubmit, setValue, reset,watch, formState: { errors } } = 
     email: '',
     phoneNumber: '',
     clinicAddress: '',
+    city: '',
     profileImage: '',
   }
 });
+
+  const renderSingleItem = useCallback(
+    ({ item }: { item: string }) => (
+      <TouchableOpacity
+        activeOpacity={.80}
+        onPress={() => {
+          setValue(sheetField, item);   // overwrite
+          bottomSheetRef.current?.close();
+        }}
+        className="flex-row items-center justify-between py-3 px-4"
+      >
+        <Text className="text-base text-slate-800">{item}</Text>
+        {(watch(sheetField) === item) && (
+          <MaterialIcons name="check" size={20} color="#2895cb" />
+        )}
+      </TouchableOpacity>
+    ),
+    [sheetField, setValue, watch]
+  );
+
+  const SPECIALITIES = [
+    'Cardiology', 'Dermatology', 'Neurology', 'Pediatrics', 'Oncology',
+    'Orthopedics', 'Gastroenterology', 'Urology', 'Radiology', 'General Practice',
+  ];
+
+  const CITIES = [
+    'Lahore', 'Karachi', 'Islamabad', 'Rawalpindi', 'Faisalabad',
+    'Multan', 'Peshawar', 'Quetta', 'Gujranwala', 'Sialkot',
+  ];
+
+  const openPicker = useCallback(
+    (field: 'specialty' | 'city', title: string) => {
+      setSheetField(field);
+      setSheetTitle(title);
+      setSheetData(field === 'specialty' ? SPECIALITIES : CITIES);
+      bottomSheetRef.current?.snapToIndex(0);
+    },
+    []
+  );
+
+  const closeSheet = useCallback(() => {
+    bottomSheetRef.current?.close();
+  }, []);
+
+  const toggleItem = useCallback(
+    (item: string) => {
+      const current = watch(sheetField);          // existing csv string
+      const selected = current ? current.split(',').map(s => s.trim()) : [];
+      const idx = selected.indexOf(item);
+
+      if (idx > -1) selected.splice(idx, 1);
+      else selected.push(item);
+
+      setValue(sheetField, selected.join(', '));  // react-hook-form
+    },
+    [sheetField, setValue, watch]
+  );
+
+  const renderItem = useCallback(
+    ({ item }: { item: string }) => {
+      const selected = (watch(sheetField) || '').split(',').map(s => s.trim());
+      const isSelected = selected.includes(item);
+
+      return (
+        <TouchableOpacity
+          activeOpacity={.80}
+          onPress={() => toggleItem(item)}
+          className="flex-row items-center justify-between py-3 px-4"
+        >
+          <Text className="text-base text-slate-800">{item}</Text>
+          {isSelected && (
+            <MaterialIcons name="check" size={20} color="#2895cb" />
+          )}
+        </TouchableOpacity>
+      );
+    },
+    [sheetField, watch, toggleItem]
+  );
 
 const nameValue = watch("name");
 const specialtyValue = watch("specialty");
@@ -257,13 +344,19 @@ useEffect(() => {
 
                 <View className="flex-row space-x-4">
                   <View className="flex-1 mr-2">
-                       <Controller
-            control={control}
-            name="specialty"
-            render={({ field: { value, onChange } }) => (
-              <FormInput label="Specialty" value={value} onChangeText={onChange} />
-            )}
-          />
+                      <Controller
+                        control={control}
+                        name="specialty"
+                        render={({ field: { value }, fieldState: { error } }) => (
+                          <FormSelectTrigger
+                            label="Specialty"
+                            value={value}
+                            placeholder="Select Specialties"
+                            onPress={() => openPicker('specialty', 'Select Specialties')}
+                            error={error?.message}
+                          />
+                        )}
+                      />
 
                   </View>
                   <View className="w-32">
@@ -365,9 +458,7 @@ useEffect(() => {
           />
                 </View>
 
-                {/* Phone */}
                 <View>
-                 
                   <Controller
             control={control}
             name="phoneNumber"
@@ -386,7 +477,6 @@ useEffect(() => {
 
                 {/* Address */}
                 <View>
-                 
                    <Controller
             control={control}
             name="clinicAddress"
@@ -403,7 +493,22 @@ useEffect(() => {
                   />
             )}
           />
+
                 </View>
+
+                  <Controller
+                    control={control}
+                    name="city"
+                    render={({ field: { value }, fieldState: { error } }) => (
+                      <FormSelectTrigger
+                        label="Cities"
+                        value={value}
+                        placeholder="Tap to select"
+                        onPress={() => openPicker('city', 'Select Cities')}
+                        error={error?.message}
+                      />
+                    )}
+                  />
               </View>
             </View>
           </View>
@@ -429,7 +534,28 @@ useEffect(() => {
 
           </View>
         </View>
+
       </ScrollView>
+        <BottomSheet
+          ref={bottomSheetRef}
+          index={-1}
+          snapPoints={['95%']}
+          enablePanDownToClose
+          onClose={closeSheet}
+          onChange={handleSheetChanges}
+          backgroundStyle={{ backgroundColor: 'white' }}
+        >
+          <BottomSheetView className="px-5 flex-1">
+            <Text className="text-xl font-bold text-center mb-4">{sheetTitle}</Text>
+            <BottomSheetFlatList
+              data={sheetData}
+              keyExtractor={item => item}
+              renderItem={sheetField === 'specialty' ? renderItem : renderSingleItem}
+              ItemSeparatorComponent={() => <View className="h-px bg-slate-200" />}
+              contentContainerStyle={{ paddingBottom: 20 }}
+            />
+          </BottomSheetView>
+        </BottomSheet>
     </KeyboardAvoidingView>
     </SafeAreaView>
   );
