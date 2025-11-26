@@ -17,12 +17,13 @@ import {Dropdown} from 'react-native-element-dropdown';
 import CustomSecondaryButton from '../../components/CustomSecondaryButton';
 import CustomButton from '../../components/CustomButton';
 import Header from '../../components/Header';
+import { useRoute, useNavigation } from '@react-navigation/native';
 import FormInput from '../../components/Doctor/FormInput';
 import BottomSheet, {BottomSheetScrollView} from '@gorhom/bottom-sheet';
 import CustomInput from '../../components/CustomInput';
-import { TextInput } from 'react-native';
+import {TextInput} from 'react-native';
 import axios from 'axios';
-import { BASE_URL } from '../../api/api';
+import {BASE_URL} from '../../api/api';
 
 const DrugSheet = () => {
   const [drugsList, setDrugsList] = useState([]);
@@ -40,24 +41,31 @@ const DrugSheet = () => {
   const [isModalVisible, setModalVisible] = useState(false);
   const [isDropDownVisible, setDropDownVisible] = useState(false);
   const [isDropDownVisibleDosage, setDropDownVisibleDosage] = useState(false);
-  const [isDropDownVisibleDuration, setDropDownVisibleDuration] = useState(false);
+  const [isDropDownVisibleDuration, setDropDownVisibleDuration] =
+    useState(false);
   const [timing, setTiming] = useState('Before Meal');
   const bottomSheetRef = useRef<BottomSheet>(null);
-   const [allDrugs, setAllDrugs] = useState<any[]>([]);
-  const [pickedDrug,   setPickedDrug]   = useState('');
-  const [pickedType,   setPickedType]   = useState('');
-  const [pickedMode,   setPickedMode]   = useState('');
+  const [allDrugs, setAllDrugs] = useState<any[]>([]);
+  const [pickedDrug, setPickedDrug] = useState('');
+  const [pickedType, setPickedType] = useState('');
+  const [pickedMode, setPickedMode] = useState('');
+  const route = useRoute();
+  const navigation = useNavigation();
+  const {
+    complaints,
+    hopi,
+    pastHistory,
+    diagnosis,
+    labs,
+    radiology,
+  } = route.params;
   const mealOptions = ['od', 'bd', 'tds', 'qid', 'hs', 'morning'];
-  
 
   const handleSheetChanges = useCallback((index: number) => {
     console.log('handleSheetChanges', index);
   }, []);
 
-
   const toggleModal = () => setModalVisible(!isModalVisible);
-
-
 
   const dosageData = [
     {key: '1', value: 'Once a day'},
@@ -178,61 +186,60 @@ const DrugSheet = () => {
     setTimeout(() => inputRef.current?.focus(), 250);
   };
 
-useEffect(() => {
-  const fetchDrugs = async () => {
-    try {
-      const { data } = await axios.get(`${BASE_URL}/drugs/get-all-drugs`);
-      if (data?.drugsList) {
-        setAllDrugs(data.drugsList);
-      } else {
-        console.warn("No drugs list found in response:", data);
+  useEffect(() => {
+    const fetchDrugs = async () => {
+      try {
+        const {data} = await axios.get(`${BASE_URL}/drugs/get-all-drugs`);
+        if (data?.drugsList) {
+          setAllDrugs(data.drugsList);
+        } else {
+          console.warn('No drugs list found in response:', data);
+        }
+      } catch (error) {
+        console.error('Failed to fetch drugs:', error);
       }
-    } catch (error) {
-      console.error("Failed to fetch drugs:", error);
-    }
-  };
+    };
 
-  fetchDrugs();
-}, []);
+    fetchDrugs();
+  }, []);
 
-
-const medicineData = allDrugs.map(item => ({
-  label: item.name,
-  value: item._id, // keep id for reference
-}));
+  const medicineData = allDrugs.map(item => ({
+    label: item.name,
+    value: item._id, // keep id for reference
+  }));
 
   const selectedDrugObj = allDrugs.find(d => d._id === selectedDrug);
 
+  const typeOptions = selectedDrugObj
+    ? selectedDrugObj.type.map(type => ({label: type.name, value: type.name}))
+    : [];
 
-const typeOptions = selectedDrugObj
-  ? selectedDrugObj.type.map(type => ({ label: type.name, value: type.name }))
-  : [];
+  const selectedTypeObj = selectedDrugObj?.type.find(
+    type => type.name === selectedType,
+  );
 
-const selectedTypeObj = selectedDrugObj?.type.find(type => type.name === selectedType);
+  const modeOptions = selectedTypeObj
+    ? selectedTypeObj.dosageMode.map(mode => ({label: mode, value: mode}))
+    : [];
 
+  const strengthOptions = selectedTypeObj
+    ? selectedTypeObj.dosageStrength.map(strength => ({
+        label: strength,
+        value: strength,
+      }))
+    : [];
 
-const modeOptions = selectedTypeObj
-  ? selectedTypeObj.dosageMode.map(mode => ({ label: mode, value: mode }))
-  : [];
+  useEffect(() => {
+    if (modeOptions.length === 1) {
+      setSelectedMode(modeOptions[0].value);
+    }
+  }, [modeOptions]);
 
-
-const strengthOptions = selectedTypeObj
-  ? selectedTypeObj.dosageStrength.map(strength=> ({ label: strength, value: strength }))
-  : [];
-
-useEffect(() => {
-  if (modeOptions.length === 1) {
-    setSelectedMode(modeOptions[0].value);
-  }
-}, [modeOptions]);
-
-useEffect(() => {
-  if (strengthOptions.length === 1) {
-    setSelectedStrength(strengthOptions[0].value);
-  }
-}, [strengthOptions]);
-
-
+  useEffect(() => {
+    if (strengthOptions.length === 1) {
+      setSelectedStrength(strengthOptions[0].value);
+    }
+  }, [strengthOptions]);
 
   return (
     <SafeAreaView className="flex-1 bg-gray-50">
@@ -309,7 +316,7 @@ useEffect(() => {
         </View>
 
         <View className="mt-8 mx-4">
-          <CustomButton link={''} label="Generate Prescription" />
+          <CustomButton link={''} label="Generate Prescription"  />
         </View>
 
         <BottomSheet
@@ -342,8 +349,8 @@ useEffect(() => {
                     Choose Drug Name
                   </Text>
 
-                 <Dropdown
-                  containerStyle={{borderRadius: 8}}
+                  <Dropdown
+                    containerStyle={{borderRadius: 8}}
                     style={styles.consistentDropdown}
                     placeholderStyle={styles.consistentPlaceholder}
                     selectedTextStyle={styles.consistentSelectedText}
@@ -353,12 +360,12 @@ useEffect(() => {
                     data={medicineData}
                     search
                     renderInputSearch={onSearch => (
-                     <FormInput
-          ref={inputRef}
-          style={styles.consistentInputSearch}
-          placeholder="Search drug..."
-          onChangeText={onSearch}
-        />
+                      <FormInput
+                        ref={inputRef}
+                        style={styles.consistentInputSearch}
+                        placeholder="Search drug..."
+                        onChangeText={onSearch}
+                      />
                     )}
                     maxHeight={300}
                     labelField="label"
@@ -367,13 +374,12 @@ useEffect(() => {
                     searchPlaceholder="Search drug..."
                     value={selectedDrug}
                     onChange={item => {
-    setSelectedDrug(item.value);
-    setSelectedType('');
-    setSelectedMode('');
-    setSelectedStrength('');
-  }}
+                      setSelectedDrug(item.value);
+                      setSelectedType('');
+                      setSelectedMode('');
+                      setSelectedStrength('');
+                    }}
                     onFocus={focusSearch}
-                    
                   />
 
                   <Text className="text-base font-semibold text-gray-700 mb-2 mt-4">
@@ -396,10 +402,10 @@ useEffect(() => {
                     searchPlaceholder="Search..."
                     value={selectedType}
                     onChange={item => {
-    setSelectedType(item.value);
-    setSelectedMode('');
-    setSelectedStrength('');
-  }}
+                      setSelectedType(item.value);
+                      setSelectedMode('');
+                      setSelectedStrength('');
+                    }}
                     onFocus={() => hideAllDropdowns()}
                   />
 
@@ -407,7 +413,7 @@ useEffect(() => {
                     Mode of Drug
                   </Text>
                   <Dropdown
-                  containerStyle={{borderRadius: 8}}
+                    containerStyle={{borderRadius: 8}}
                     style={styles.consistentDropdown}
                     placeholderStyle={styles.consistentPlaceholder}
                     selectedTextStyle={styles.consistentSelectedText}
@@ -430,13 +436,13 @@ useEffect(() => {
                     Strength
                   </Text>
                   <Dropdown
-                   containerStyle={{borderRadius: 8}}
+                    containerStyle={{borderRadius: 8}}
                     style={styles.consistentDropdown}
-                        placeholderStyle={styles.consistentPlaceholder}
-                        selectedTextStyle={styles.consistentSelectedText}
-                        inputSearchStyle={styles.consistentInputSearch}
-                        iconStyle={styles.consistentIcon}
-                        itemTextStyle={styles.consistentItemText}
+                    placeholderStyle={styles.consistentPlaceholder}
+                    selectedTextStyle={styles.consistentSelectedText}
+                    inputSearchStyle={styles.consistentInputSearch}
+                    iconStyle={styles.consistentIcon}
+                    itemTextStyle={styles.consistentItemText}
                     data={strengthOptions}
                     search={false}
                     maxHeight={300}
@@ -471,7 +477,7 @@ useEffect(() => {
 
                     <View className="w-1/2">
                       <Dropdown
-                       containerStyle={{borderRadius: 8}}
+                        containerStyle={{borderRadius: 8}}
                         style={styles.consistentDropdown}
                         placeholderStyle={styles.consistentPlaceholder}
                         selectedTextStyle={styles.consistentSelectedText}
@@ -546,15 +552,15 @@ useEffect(() => {
                           setDropDownVisibleDosage(false);
                           setDropDownVisibleDuration(false);
                         }}
-                        style={{height: 48,backgroundColor:"white"}}
+                        style={{height: 48, backgroundColor: 'white'}}
                       />
                     </View>
-                    
+
                     {/* Dropdown fixed width */}
 
                     <View className="w-1/2">
                       <Dropdown
-                       containerStyle={{borderRadius: 8}}
+                        containerStyle={{borderRadius: 8}}
                         style={styles.consistentDropdown}
                         placeholderStyle={styles.consistentPlaceholder}
                         selectedTextStyle={styles.consistentSelectedText}
@@ -610,8 +616,9 @@ useEffect(() => {
                     ))}
                   </View>
 
-                  <View className="mt-8">
+                  <View className="mt-8 items-center">
                     <CustomSecondaryButton
+                     className='bg-secondary'
                       onPress={handleAddDrug}
                       label={'Add Drug'}
                     />
@@ -630,21 +637,21 @@ export default DrugSheet;
 
 const styles = StyleSheet.create({
   consistentDropdown: {
-    height: 50, 
+    height: 50,
     backgroundColor: '#fff',
-    borderRadius: 7, 
-    paddingHorizontal: 10, 
+    borderRadius: 7,
+    paddingHorizontal: 10,
     paddingVertical: 2,
     borderWidth: 1,
     borderColor: '#d1d5db',
   },
   consistentPlaceholder: {
-    fontSize: 16, 
+    fontSize: 16,
     color: '#9ca3af',
   },
   consistentSelectedText: {
-    fontSize: 16, 
-    color: 'black', 
+    fontSize: 16,
+    color: 'black',
   },
   consistentInputSearch: {
     height: 48,

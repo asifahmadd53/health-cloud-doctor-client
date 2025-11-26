@@ -79,8 +79,8 @@ const toggleCheckbox = (key: SelectedKeys) => {
               {[
                 {key: 'dm', label: 'DM'},
                 {key: 'htn', label: 'HTN'},
-                {key: 'hepb', label: 'HB'},
-                {key: 'hepc', label: 'HC'},
+                {key: 'hepb', label: 'Hep B'},
+                {key: 'hepc', label: 'Hep C'},
                 {key: 'ihd', label: 'IHD'},
                 {key: 'smoker', label: 'Smoker'},
               ].map(item => (
@@ -137,7 +137,14 @@ const toggleCheckbox = (key: SelectedKeys) => {
         </ScrollView>
       <View className="absolute bottom-0 left-0 right-0 bg-white px-5 py-2 flex-row justify-end">
   <Pressable 
-    onPress={() => navigation.navigate("DrugSheet")} 
+            onPress={() => navigation.navigate("DrugSheet", {
+              complaints,
+              hopi,
+              pastHistory: selected,
+              diagnosis,
+              labs,
+              radiology,
+            })} 
     className="bg-secondary px-10 py-2 rounded-full"
   >
     <Text className="text-white text-lg font-semibold">Next</Text>

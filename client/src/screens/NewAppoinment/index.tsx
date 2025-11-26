@@ -142,6 +142,7 @@ const handleSubmit = async () => {
                 onChangeText={setPatientPhone}
                 placeholder="Enter mobile number"
                 label="Mobile #"
+                keyboardType="phone-pad"
               />
               <FormInput
                 value={patientAge}
