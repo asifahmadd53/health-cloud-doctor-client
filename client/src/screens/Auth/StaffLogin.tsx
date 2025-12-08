@@ -165,18 +165,19 @@ const StaffLogin = () => {
             </Text>
           </View>
 
-          <View className="mt-16 w-[97%] mx-auto gap-5">
-            <Text className="text-base md:text-lg">Email Address</Text>
+          <View className="mt-16 w-[97%] mx-auto ">
+            
             <CustomInput
               keyboardType="email-address"
               placeholder={"Enter your email"}
+              label="Email"
               icon={'mail-outline'}
               value={email}
               onChangeText={setEmail}
               autoCapitalize="none"
             />
-            <Text className="text-base md:text-lg">Password</Text>
             <CustomPasswordInput
+              label="Password"
               placeholder={"Enter your password"}
               value={password}
               onChangeText={setPassword}

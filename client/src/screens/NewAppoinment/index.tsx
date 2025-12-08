@@ -253,7 +253,8 @@ const handleSubmit = async () => {
         </ScrollView>
         <View className="py-2">
             <CustomButton
-            label={loading ? "Creating..." : "Proceed to Patient Details"}
+            loading={loading}
+            label="Proceed to Patient Details"
             onPress={handleSubmit}
             disabled={loading}
           />

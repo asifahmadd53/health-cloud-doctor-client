@@ -8,7 +8,6 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import { AutocompleteDropdownContextProvider } from 'react-native-autocomplete-dropdown'
 import { Toaster } from 'sonner-native'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
-import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet'
 
 const RootLayout = () => {

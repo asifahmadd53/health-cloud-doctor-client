@@ -1,4 +1,4 @@
-import {useState, useRef, useEffect, useCallback, useMemo} from 'react';
+import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import {
   View,
   Text,
@@ -6,28 +6,26 @@ import {
   KeyboardAvoidingView,
   Platform,
   TouchableOpacity,
-  Alert,
   TextInput as RNTextInput,
   Pressable,
   Image,
   ActivityIndicator,
 } from 'react-native';
-import {useNavigation} from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import FormInput from '../../../components/Doctor/FormInput';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {BASE_URL} from '../../../api/api';
+import { BASE_URL } from '../../../api/api';
 import axios from 'axios';
-import {launchImageLibrary} from 'react-native-image-picker';
+import { launchImageLibrary } from 'react-native-image-picker';
 import Icons from '../../../utils/libs/constants/Icons';
 import Header from '../../../components/Header';
-import {Controller, useForm} from 'react-hook-form';
-import {showToast} from '../../../utils/toastUtils';
-import {SafeAreaView} from 'react-native-safe-area-context';
+import { Controller, useForm } from 'react-hook-form';
+import { showToast } from '../../../utils/toastUtils';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import BottomSheet, {
   BottomSheetFlatList,
   BottomSheetScrollView,
-  BottomSheetView,
 } from '@gorhom/bottom-sheet';
 import FormSelectTrigger from '../../../components/FormSelectTrigger';
 
@@ -44,31 +42,26 @@ const ProfileScreen = () => {
   }, []);
   type ProfileFormValues = {
     name: string;
-    specialty: string;
-    years: string;
-    certifications: string;
-    professionalBio: string;
+    specialty?: string;
+    years?: string;
+    consultationFee?: string;
+    certifications?: string;
+    professionalBio?: string;
     email: string;
     phoneNumber: string;
-    clinicAddress: string;
-    city: string;
+    clinicAddress?: string;
+    city?: string;
     profileImage?: string;
   };
 
   const navigation = useNavigation();
 
-  const {
-    control,
-    handleSubmit,
-    setValue,
-    reset,
-    watch,
-    formState: {errors},
-  } = useForm<ProfileFormValues>({
+  const { control, handleSubmit, setValue, watch, reset, formState: { errors } } = useForm<ProfileFormValues>({
     defaultValues: {
       name: '',
       specialty: '',
       years: '',
+      consultationFee: '',
       certifications: '',
       professionalBio: '',
       email: '',
@@ -77,10 +70,11 @@ const ProfileScreen = () => {
       profileImage: '',
       city: '',
     },
+    mode: 'onSubmit',
   });
 
   const renderSingleItem = useCallback(
-    ({item}: {item: string}) => (
+    ({ item }: { item: string }) => (
       <TouchableOpacity
         activeOpacity={0.8}
         onPress={() => {
@@ -144,9 +138,8 @@ const ProfileScreen = () => {
     'Occupational Medicine',
     'Public Health',
     'Traditional Chinese Medicine',
-    'Homeopathy'
+    'Homeopathy',
   ];
-
 
   const CITIES = [
     'Lahore',
@@ -191,7 +184,7 @@ const ProfileScreen = () => {
   );
 
   const renderItem = useCallback(
-    ({item}: {item: string}) => {
+    ({ item }: { item: string }) => {
       const rawValue = watch(sheetField);
       const safeValue = typeof rawValue === 'string' ? rawValue : '';
 
@@ -218,7 +211,7 @@ const ProfileScreen = () => {
 
   const handleImageSelected = () => {
     launchImageLibrary(
-      {mediaType: 'photo', quality: 0.8, maxHeight: 2000, maxWidth: 2000},
+      { mediaType: 'photo', quality: 0.8, maxHeight: 2000, maxWidth: 2000 },
       response => {
         if (
           !response.didCancel &&
@@ -234,10 +227,9 @@ const ProfileScreen = () => {
     );
   };
 
-  const onSubmit = async (values: ProfileFormValues) => {
+  const onSubmit = async (values: ProfileFormValues) => { 
     try {
       setLoading(true);
-
       const storedToken = await AsyncStorage.getItem('token');
       if (!storedToken) {
         showToast('error', 'User not found. Please login again.');
@@ -277,6 +269,7 @@ const ProfileScreen = () => {
         );
       }
     } catch (error: any) {
+      console.log('🔥 AXIOS ERROR:', error.response?.data || error.message);
       showToast('error', 'Something went wrong while updating profile');
     } finally {
       setLoading(false);
@@ -301,19 +294,23 @@ const ProfileScreen = () => {
         );
         if (!response.data.success) return;
 
-        const {doctor, profile} = response.data;
+        const { doctor, profile } = response.data;
 
         const formValues = {
           name: doctor.name,
           email: doctor.email,
           phoneNumber: doctor.phoneNumber,
           profileImage: profile?.profileImage || '',
-          specialty: profile?.specialty || '',
+          specialty: profile?.specialty || '',  
           years: profile?.years || '',
+          consultationFee: profile?.consultationFee || '',
           certifications: profile?.certifications || '',
           professionalBio: profile?.professionalBio || '',
           clinicAddress: profile?.clinicAddress || '',
+          city: profile?.city || '',  
         };
+
+
         reset(formValues);
       } catch (err) {
         console.log('Error fetching doctor', err);
@@ -333,7 +330,7 @@ const ProfileScreen = () => {
         <ScrollView
           className="px-6 pt-6"
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={{paddingBottom: 40}}>
+          contentContainerStyle={{ paddingBottom: 40 }}>
           <View className="bg-white pt-6 pb-10">
             <View className="px-8">
               <View className="items-center">
@@ -344,10 +341,10 @@ const ProfileScreen = () => {
                     <Controller
                       control={control}
                       name="profileImage"
-                      render={({field: {value}}) =>
+                      render={({ field: { value } }) =>
                         value ? (
                           <Image
-                            source={{uri: value}}
+                            source={{ uri: value }}
                             className="w-full h-full rounded-full"
                           />
                         ) : (
@@ -419,13 +416,13 @@ const ProfileScreen = () => {
                     <Controller
                       control={control}
                       name="name"
-                      rules={{required: 'Name is required'}}
-                      render={({field: {value, onChange}}) => (
+                      rules={{ required: 'Full Name is required' }}
+                      render={({ field: { value, onChange }, fieldState: { error } }) => (
                         <FormInput
                           label="Full Name"
                           value={value}
                           onChangeText={onChange}
-                          error={errors.name?.message}
+                          error={error?.message}
                         />
                       )}
                     />
@@ -436,32 +433,31 @@ const ProfileScreen = () => {
                       <Controller
                         control={control}
                         name="specialty"
-                        render={({field: {value}, fieldState: {error}}) => (
+                        rules={{ required: 'Specialty is required' }}
+                        render={({ field: { value }, fieldState: { error } }) => (
                           <FormSelectTrigger
                             label="Specialty"
                             value={value}
                             placeholder="Select Specialties"
-                            onPress={() =>
-                              openPicker('specialty', 'Select Specialties')
-                            }
+                            onPress={() => openPicker('specialty', 'Select Specialties')}
                             error={error?.message}
                           />
                         )}
                       />
                     </View>
-                    <View className="w-32">
+                    <View className="flex-[0.50]">
                       <Controller
                         control={control}
                         name="years"
-                        render={({field: {value, onChange}}) => (
+                        rules={{ required: 'Years of experience is required' }}
+                        render={({ field: { value, onChange }, fieldState: { error } }) => (
                           <FormInput
                             label="Years"
                             value={value}
                             onChangeText={onChange}
-                            placeholder="Unknown"
+                            placeholder="e.g., 5"
                             keyboardType="numeric"
-                            className="text-base text-slate-900 font-medium"
-                            placeholderTextColor="#94a3b8"
+                            error={error?.message}
                           />
                         )}
                       />
@@ -471,17 +467,35 @@ const ProfileScreen = () => {
                   <View>
                     <Controller
                       control={control}
+                      name="consultationFee"
+                      rules={{ required: 'Consultation Fee is required' }}
+                      render={({ field: { value, onChange }, fieldState: { error } }) => (
+                        <FormInput
+                          label="Consultation Fee in PKR"
+                          value={value}
+                          onChangeText={onChange}
+                          placeholder="Enter Fee"
+                          keyboardType="numeric"
+                          error={error?.message}
+                        />
+                      )}
+                    />
+                  </View>
+
+                  <View>
+                    <Controller
+                      control={control}
                       name="certifications"
-                      render={({field: {value, onChange}}) => (
+                      rules={{ required: 'Certifications are required' }}
+                      render={({ field: { value, onChange }, fieldState: { error } }) => (
                         <FormInput
                           label="Certifications"
-                          placeholder="No Certifications"
+                          placeholder="Add your certifications"
                           value={value}
                           onChangeText={onChange}
                           multiline
                           numberOfLines={4}
-                          className="text-base text-slate-900 font-medium min-h-20 "
-                          placeholderTextColor="#94a3b8"
+                          error={error?.message}
                         />
                       )}
                     />
@@ -491,16 +505,16 @@ const ProfileScreen = () => {
                     <Controller
                       control={control}
                       name="professionalBio"
-                      render={({field: {value, onChange}}) => (
+                      rules={{ required: 'Professional Bio is required' }}
+                      render={({ field: { value, onChange }, fieldState: { error } }) => (
                         <FormInput
                           label="Professional Bio"
+                          placeholder="Add your professional summary"
                           value={value}
-                          placeholder="No Professional Bio"
                           onChangeText={onChange}
                           multiline
                           numberOfLines={4}
-                          className="text-base text-slate-900 font-medium"
-                          placeholderTextColor="#94a3b8"
+                          error={error?.message}
                         />
                       )}
                     />
@@ -529,32 +543,44 @@ const ProfileScreen = () => {
                     <Controller
                       control={control}
                       name="email"
-                      render={({field: {value, onChange}}) => (
+                      rules={{
+                        required: 'Email is required',
+                        pattern: {
+                          value: /^\S+@\S+\.\S+$/,
+                          message: 'Enter a valid email address',
+                        },
+                      }}
+                      render={({ field: { value, onChange }, fieldState: { error } }) => (
                         <FormInput
+                          label="Email"
                           value={value}
                           onChangeText={onChange}
-                          label="Email"
+                          placeholder="Enter your email"
                           keyboardType="email-address"
                           autoCapitalize="none"
-                          className="text-base text-slate-900 font-medium"
-                          placeholderTextColor="#94a3b8"
+                          error={error?.message}
                         />
                       )}
                     />
+
                   </View>
 
                   <View>
                     <Controller
                       control={control}
                       name="phoneNumber"
-                      render={({field: {value, onChange}}) => (
+                      rules={{
+                        required: 'Phone Number is required',
+                        minLength: { value: 10, message: 'Enter a valid phone number' },
+                      }}
+                      render={({ field: { value, onChange }, fieldState: { error } }) => (
                         <FormInput
                           label="Phone Number"
-                          onChangeText={onChange}
                           value={value}
+                          onChangeText={onChange}
+                          placeholder="Enter your phone number"
                           keyboardType="phone-pad"
-                          className="text-base text-slate-900 font-medium"
-                          placeholderTextColor="#94a3b8"
+                          error={error?.message}
                         />
                       )}
                     />
@@ -565,7 +591,7 @@ const ProfileScreen = () => {
                     <Controller
                       control={control}
                       name="clinicAddress"
-                      render={({field: {value, onChange}}) => (
+                      render={({ field: { value, onChange } }) => (
                         <FormInput
                           label="Clinic Address"
                           value={value}
@@ -583,12 +609,13 @@ const ProfileScreen = () => {
                   <Controller
                     control={control}
                     name="city"
-                    render={({field: {value}, fieldState: {error}}) => (
+                    rules={{ required: 'City is required' }}
+                    render={({ field: { value }, fieldState: { error } }) => (
                       <FormSelectTrigger
-                        label="Cities"
+                        label="City"
                         value={value}
-                        placeholder="Tap to select"
-                        onPress={() => openPicker('city', 'Select Cities')}
+                        placeholder="Select City"
+                        onPress={() => openPicker('city', 'Select City')}
                         error={error?.message}
                       />
                     )}
@@ -621,18 +648,18 @@ const ProfileScreen = () => {
             </View>
           </View>
         </ScrollView>
-        <BottomSheet
+        
+      </KeyboardAvoidingView>
+      <BottomSheet
           ref={bottomSheetRef}
           index={-1}
           snapPoints={['95%']}
           enablePanDownToClose
           onClose={closeSheet}
           onChange={handleSheetChanges}
-          backgroundStyle={{ backgroundColor: 'white' }}
-        >
+          backgroundStyle={{ backgroundColor: 'white' }}>
           <BottomSheetScrollView
-            contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 40 }}
-          >
+            contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 40 }}>
             <Text className="text-xl font-bold text-center mb-4">
               {sheetTitle}
             </Text>
@@ -647,11 +674,9 @@ const ProfileScreen = () => {
                 <View className="h-px bg-slate-200" />
               )}
               scrollEnabled={false}
-           
             />
           </BottomSheetScrollView>
         </BottomSheet>
-      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 };

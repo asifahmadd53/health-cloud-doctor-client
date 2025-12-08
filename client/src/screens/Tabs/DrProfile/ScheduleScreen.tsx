@@ -272,7 +272,7 @@ const ScheduleScreen = () => {
           hasBreak: day.hasBreak,
           breakStart: day.breakStart,
           breakEnd: day.breakEnd,
-          patientPerHour: Number(day.patientsPerHour),
+          patientPerHour: Number(day.patientsPerHour || 1), 
         })),
       };
 
@@ -632,10 +632,7 @@ const ScheduleScreen = () => {
                               placeholder="Select Patients per Hour"
                               value={daySchedule.patientsPerHour} // bind value
                               onChange={item =>
-                                updatePatientsPerHour(
-                                  daySchedule.day,
-                                  item.value,
-                                )
+                                updatePatientsPerHour(daySchedule.day, item.value)
                               }
                               renderItem={item => (
                                 <View style={styles.dropdownItemContainer}>
