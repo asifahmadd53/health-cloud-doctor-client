@@ -117,7 +117,7 @@ const CustomInput = ({
           paddingVertical: 2,
           fontSize: 12,
           color: '#ef4444',
-          height: 20,
+          height: 8,
         }}
         placeholderTextColor="#9ca3af"
         {...rest}

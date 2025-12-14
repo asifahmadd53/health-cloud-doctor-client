@@ -1,47 +1,47 @@
+"use client"
+
 import { Text, TouchableOpacity, View, Platform } from "react-native"
-import { useCallback, useState } from "react"
+import { useCallback } from "react"
 import { useNavigation } from "@react-navigation/native"
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons"
 
-
 interface Appointment {
-  _id: string;
-  patientName: string;
-  patientAge: number | string;
-  patientPhone?: string;
-  time: string;
-  gender: "male" | "female";
-  paymentStatus: string;
+  _id: string
+  patientName: string
+  patientAge: number | string
+  patientPhone?: string
+  time: string
+  gender: "male" | "female"
+  paymentStatus: string
 }
 
 interface PatientCardProps {
-  index: number;
-  appointment: Appointment;
+  index: number
+  appointment: Appointment
 }
 
-
-const PatientCard = ({ index,appointment }: PatientCardProps) => {
+const PatientCard = ({ index, appointment }: PatientCardProps) => {
   const navigation = useNavigation()
 
- const handlePress = useCallback(() => {
-    navigation.navigate('patientDetailsLayout', {
-  screen: 'patientDetails',
-  params: { appointment },
-})
+  const handlePress = useCallback(() => {
+    navigation.navigate("patientDetailsLayout", {
+      screen: "patientDetails",
+      params: { appointment },
+    })
   }, [navigation, appointment])
-  
+
   if (!appointment) {
-    return null;
+    return null
   }
 
- const formatTime = (time: string) => {
-  if (!time) return "";
-  const [hourStr, minuteStr] = time.split(":");
-  let hour = parseInt(hourStr, 10);
-  const ampm = hour >= 12 ? "PM" : "AM";
-  hour = hour % 12 || 12; // convert 0 → 12
-  return `${hour}:${minuteStr} ${ampm}`;
-};
+  const formatTime = (time: string) => {
+    if (!time) return ""
+    const [hourStr, minuteStr] = time.split(":")
+    let hour = Number.parseInt(hourStr, 10)
+    const ampm = hour >= 12 ? "PM" : "AM"
+    hour = hour % 12 || 12 // convert 0 → 12
+    return `${hour}:${minuteStr} ${ampm}`
+  }
   return (
     <TouchableOpacity
       activeOpacity={1}
@@ -58,9 +58,7 @@ const PatientCard = ({ index,appointment }: PatientCardProps) => {
         },
       })}
     >
-      
       <View className="flex-row items-center">
- 
         <View className="w-10 h-10 bg-secondary/10 bg-opacity-10 rounded-full items-center justify-center mr-3">
           <Text className="text-secondary font-bold text-base">{index}</Text>
         </View>
@@ -68,22 +66,20 @@ const PatientCard = ({ index,appointment }: PatientCardProps) => {
         <View className="flex-1">
           <View className="flex-row justify-between items-center">
             <Text className="text-lg font-bold text-primary">{appointment.patientName}</Text>
-            
-            {appointment.gender && (
-             <View className="px-3 py-1 rounded-full bg-secondary/10 ">
-  <Text
-    className={`text-xs font-medium capitalize 
-      ${appointment.gender === 'male' ? 'text-secondary' : 'text-pink-500'}`}
-  >
-    {appointment.gender}
-  </Text>
-</View>
-            )}
 
+            {appointment.gender && (
+              <View className="px-3 py-1 rounded-full bg-secondary/10 ">
+                <Text
+                  className={`text-xs font-medium capitalize 
+      ${appointment.gender === "male" ? "text-secondary" : "text-pink-500"}`}
+                >
+                  {appointment.gender}
+                </Text>
+              </View>
+            )}
           </View>
 
           <View className="flex-row justify-between items-center mt-1">
-           
             <Text className="text-gray-600 text-sm">Age: {appointment.patientAge}</Text>
 
             <View className="flex-row items-center">
@@ -95,25 +91,26 @@ const PatientCard = ({ index,appointment }: PatientCardProps) => {
           {/* Payment Status */}
           <View className="mt-1 flex-row items-center">
             <MaterialCommunityIcons
-  name={appointment.paymentStatus === "cash" || appointment.paymentStatus === "online"
-    ? "check-circle-outline"
-    : "clock-time-four-outline"}
-  size={14}
-  color={appointment.paymentStatus === "cash" || appointment.paymentStatus === "online"
-    ? "#10B981"
-    : "#F59E0B"}
-/>
-<Text
-  className={`ml-1 text-sm ${
-    appointment.paymentStatus === "cash" || appointment.paymentStatus === "online"
-      ? "text-green-600"
-      : "text-amber-600"
-  }`}
->
-  {appointment.paymentStatus === "cash" || appointment.paymentStatus === "online"
-    ? "Payment Done"
-    : "Payment Pending"}
-</Text>
+              name={
+                appointment.paymentStatus === "cash" || appointment.paymentStatus === "online"
+                  ? "check-circle-outline"
+                  : "clock-time-four-outline"
+              }
+              size={14}
+              color={
+                appointment.paymentStatus === "cash" || appointment.paymentStatus === "online" ? "#10B981" : "#F59E0B"
+              }
+            />
+            <Text
+              className={`ml-1 text-sm ${appointment.paymentStatus === "cash" || appointment.paymentStatus === "online"
+                  ? "text-green-600"
+                  : "text-amber-600"
+                }`}
+            >
+              {appointment.paymentStatus === "cash" || appointment.paymentStatus === "online"
+                ? "Payment Done"
+                : "Payment Pending"}
+            </Text>
           </View>
         </View>
       </View>
@@ -126,7 +123,11 @@ const PatientCard = ({ index,appointment }: PatientCardProps) => {
         </TouchableOpacity> */}
 
         {/* Start Session Button */}
-        <TouchableOpacity onPress={handlePress} activeOpacity={.95} className="flex-1 ml-2 bg-secondary py-2.5 rounded-lg items-center">
+        <TouchableOpacity
+          onPress={handlePress}
+          activeOpacity={0.95}
+          className="flex-1 ml-2 bg-secondary py-2.5 rounded-lg items-center"
+        >
           <Text className="text-white font-medium">Start Session</Text>
         </TouchableOpacity>
       </View>

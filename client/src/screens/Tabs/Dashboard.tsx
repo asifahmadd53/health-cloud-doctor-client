@@ -1,3 +1,5 @@
+'use client';
+
 import {useEffect, useRef, useState} from 'react';
 import {
   Animated,
@@ -9,6 +11,7 @@ import {
   TouchableOpacity,
   View,
   Modal,
+  ActivityIndicator,
 } from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {Calendar} from 'react-native-calendars';
@@ -32,6 +35,8 @@ const Dashboard = () => {
   const modalScale = useRef(new Animated.Value(0)).current;
   const modalOpacity = useRef(new Animated.Value(0)).current;
   const [appointments, setAppointments] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [filteredAppointments, setFilteredAppointments] = useState([]);
   const navigation = useNavigation();
 
   const [doctor, setDoctor] = useState({
@@ -58,7 +63,6 @@ const Dashboard = () => {
     pulse.start();
   }, []);
 
-  // Animation for the calendar modal
   useEffect(() => {
     if (showCalendar) {
       Animated.parallel([
@@ -106,7 +110,13 @@ const Dashboard = () => {
     });
   };
 
-  // Generate dates for the week view
+  const getDateString = (date: Date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
   const generateWeekDates = () => {
     const dates = [];
     const today = new Date();
@@ -117,22 +127,70 @@ const Dashboard = () => {
         day: date.toLocaleString('en-US', {weekday: 'short'}),
         date: date.getDate(),
         fullDate: date.toDateString(),
+        dateString: getDateString(date),
       });
     }
     return dates;
   };
 
-  // Time slots for the day
-  const timeSlots = [
-    {id: '1', time: '09:00 AM', status: 'available'},
-    {id: '2', time: '10:30 AM', status: 'booked'},
-    {id: '3', time: '01:00 PM', status: 'available'},
-    {id: '4', time: '02:30 PM', status: 'booked'},
-    {id: '5', time: '04:00 PM', status: 'available'},
-  ];
+  useEffect(() => {
+    const filterAppointmentsByDate = () => {
+      if (!appointments || appointments.length === 0) {
+        setFilteredAppointments([]);
+        return;
+      }
+
+      const selectedDateStr = getDateString(selectedDate);
+
+      const filtered = appointments.filter(appointment => {
+        if (!appointment.date) return false;
+
+        const appointmentDate = new Date(appointment.date);
+        const appointmentDateStr = getDateString(appointmentDate);
+
+        return appointmentDateStr === selectedDateStr;
+      });
+
+      setFilteredAppointments(filtered);
+    };
+
+    filterAppointmentsByDate();
+  }, [selectedDate, appointments]);
+
+  const generateTimeSlots = () => {
+    const allSlots = [
+      '09:00 AM',
+      '09:30 AM',
+      '10:00 AM',
+      '10:30 AM',
+      '11:00 AM',
+      '11:30 AM',
+      '12:00 PM',
+      '12:30 PM',
+      '01:00 PM',
+      '01:30 PM',
+      '02:00 PM',
+      '02:30 PM',
+      '03:00 PM',
+      '03:30 PM',
+      '04:00 PM',
+      '04:30 PM',
+      '05:00 PM',
+      '05:30 PM',
+    ];
+
+    const bookedTimes = filteredAppointments.map(apt => apt.time);
+
+    return allSlots.slice(0, 8).map((time, index) => ({
+      id: String(index + 1),
+      time,
+      status: bookedTimes.includes(time) ? 'booked' : 'available',
+    }));
+  };
 
   const getDoctorAppointments = async () => {
     try {
+      setLoading(true);
       const storedToken = await AsyncStorage.getItem('token');
       if (!storedToken) {
         showToast('error', 'User not found. Please login again.');
@@ -142,7 +200,9 @@ const Dashboard = () => {
 
       const res = await axios.get(
         `${BASE_URL}/appointment/get-doctor-appointments`,
-        {headers: {Authorization: `Bearer ${storedToken}`}},
+        {
+          headers: {Authorization: `Bearer ${storedToken}`},
+        },
       );
 
       if (res.data.success) {
@@ -154,6 +214,8 @@ const Dashboard = () => {
     } catch (err: any) {
       console.error('API Error:', err.response?.data || err.message);
       showToast('error', err.response?.data?.message || 'Something went wrong');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -190,6 +252,36 @@ const Dashboard = () => {
     getDoctor();
   }, []);
 
+  const renderEmptyState = () => (
+    <View className="flex-1 items-center justify-center py-12">
+      <View className="w-24 h-24 bg-gray-100 rounded-full items-center justify-center mb-4">
+        <MaterialCommunityIcons
+          name="calendar-blank-outline"
+          size={48}
+          color="#9CA3AF"
+        />
+      </View>
+      <Text className="text-xl font-bold text-gray-800 mb-2">
+        No Appointments
+      </Text>
+      <Text className="text-gray-500 text-center px-8 mb-6">
+        No appointments scheduled for{' '}
+        {selectedDate.toLocaleDateString('en-US', {
+          month: 'long',
+          day: 'numeric',
+          year: 'numeric',
+        })}
+      </Text>
+      <TouchableOpacity
+        activeOpacity={0.9}
+        onPress={() => navigation.navigate('newAppointmentLayout' as never)}
+        className="bg-secondary rounded-xl py-3 px-6 flex-row items-center">
+        <MaterialCommunityIcons name="plus" size={20} color="white" />
+        <Text className="text-white font-medium ml-2">Create Appointment</Text>
+      </TouchableOpacity>
+    </View>
+  );
+
   return (
     <SafeAreaView className="flex-1 bg-gray-50">
       <View className="absolute top-3 left-3 right-0 z-50 p-4">
@@ -208,7 +300,6 @@ const Dashboard = () => {
           className="absolute inset-0"
         />
 
-        {/* Doctor Info */}
         <View className="flex-row justify-around items-center pt-6 px-6 ">
           <View className="flex-col items-start justify-center">
             <Text className="text-3xl font-bold text-white">Welcome!</Text>
@@ -222,9 +313,11 @@ const Dashboard = () => {
             <Text
               ellipsizeMode="tail"
               numberOfLines={1}
-              style={{ maxWidth: width * 0.4 }}
+              style={{maxWidth: width * 0.4}}
               className="text-base font-bold text-white">
-              {doctor.specialty}
+              {Array.isArray(doctor.specialty)
+                ? doctor.specialty.join(', ')
+                : doctor.specialty}
             </Text>
           </View>
           <View className="w-1/2">
@@ -236,7 +329,6 @@ const Dashboard = () => {
           </View>
         </View>
 
-        {/* Stats Cards */}
         <View className="absolute -bottom-14 left-0 right-0 flex-row justify-between px-4">
           <View className="bg-white rounded-xl p-4 shadow-md w-[48%]">
             <View className="flex-row items-center">
@@ -248,7 +340,7 @@ const Dashboard = () => {
                 />
               </View>
               <View className="ml-2">
-                <Text className="text-gray-500 text-sm">Today's</Text>
+                <Text className="text-gray-500 text-sm">Total</Text>
                 <Text className="text-gray-800 text-base font-bold">
                   {totalAppointments} Appointments
                 </Text>
@@ -259,15 +351,15 @@ const Dashboard = () => {
             <View className="flex-row items-center">
               <View className="w-10 h-10 bg-green-100 rounded-full items-center justify-center">
                 <MaterialCommunityIcons
-                  name="check-circle"
+                  name="calendar-check"
                   size={20}
                   color="#10B981"
                 />
               </View>
               <View className="ml-2">
-                <Text className="text-gray-500 text-sm">Completed</Text>
+                <Text className="text-gray-500 text-sm">Today</Text>
                 <Text className="text-gray-800 text-base font-bold">
-                  2 Sessions
+                  {filteredAppointments.length} Scheduled
                 </Text>
               </View>
             </View>
@@ -275,9 +367,7 @@ const Dashboard = () => {
         </View>
       </View>
 
-      {/* Main Content */}
       <View className="flex-1 pt-16 px-4">
-        {/* Date Selector */}
         <View className="flex-row items-center justify-between mb-4">
           <TouchableOpacity
             activeOpacity={0.8}
@@ -307,18 +397,25 @@ const Dashboard = () => {
           </TouchableOpacity>
         </View>
 
-        {/* Week View */}
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
           className="mb-4 flex-none"
           contentContainerStyle={{paddingRight: 20}}>
           {generateWeekDates().map((item, index) => {
-            const isSelected = item.fullDate === selectedDate.toDateString();
+            const isSelected = item.dateString === getDateString(selectedDate);
             return (
               <TouchableOpacity
                 key={index}
-                onPress={() => setSelectedDate(new Date(item.fullDate))}
+                onPress={() => {
+                  const [year, month, day] = item.dateString.split('-');
+                  const newDate = new Date(
+                    Number.parseInt(year),
+                    Number.parseInt(month) - 1,
+                    Number.parseInt(day),
+                  );
+                  setSelectedDate(newDate);
+                }}
                 activeOpacity={0.9}
                 className={`items-center justify-center rounded-xl mr-3 w-16 h-20 ${
                   isSelected
@@ -342,64 +439,31 @@ const Dashboard = () => {
           })}
         </ScrollView>
 
-        {/* Time Slots */}
-        {/* <Text className="text-lg font-bold text-gray-800 mb-3">Available Time Slots</Text>
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          className="mb-6 flex-none"
-          contentContainerStyle={{ paddingRight: 20 }}
-        >
-          {timeSlots.map((slot, index) => {
-            const isSelected = selectedTimeSlot === slot.id
-            const isBooked = slot.status === "booked"
-            return (
-              <TouchableOpacity
-                key={index}
-                onPress={() => !isBooked && setSelectedTimeSlot(slot.id)}
-                activeOpacity={isBooked ? 0.6 : 0.8}
-                className={`mr-3 px-4 py-3 rounded-xl border ${
-                  isBooked
-                    ? "bg-gray-100 border-gray-200"
-                    : isSelected
-                      ? "bg-indigo-600 border-indigo-600"
-                      : "bg-white border-gray-200"
-                } ${isBooked ? "opacity-60" : ""}`}
-              >
-                <Text
-                  className={`text-center font-medium ${
-                    isBooked ? "text-gray-500" : isSelected ? "text-white" : "text-gray-800"
-                  }`}
-                >
-                  {slot.time}
-                </Text>
-                <Text
-                  className={`text-xs text-center mt-1 ${
-                    isBooked ? "text-gray-500" : isSelected ? "text-white/80" : "text-gray-500"
-                  }`}
-                >
-                  {isBooked ? "Booked" : "Available"}
-                </Text>
-              </TouchableOpacity>
-            )
-          })}
-        </ScrollView> */}
-
         <Text className="text-lg font-bold text-gray-800 mb-3">
-          Today's Appointments
+          {selectedDate.toDateString() === new Date().toDateString()
+            ? "Today's Appointments"
+            : 'Appointments'}
         </Text>
-        <FlatList
-          data={appointments}
-          keyExtractor={item => item._id}
-          renderItem={({item, index}) => (
-            <PatientCard index={index + 1} appointment={item} />
-          )}
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={{paddingBottom: 5}}
-        />
+
+        {loading ? (
+          <View className="flex-1 items-center justify-center py-12">
+            <ActivityIndicator size="large" color="#2895cb" />
+            <Text className="text-gray-500 mt-4">Loading appointments...</Text>
+          </View>
+        ) : (
+          <FlatList
+            data={filteredAppointments}
+            keyExtractor={item => item._id}
+            renderItem={({item, index}) => (
+              <PatientCard index={index + 1} appointment={item} />
+            )}
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={{paddingBottom: 5}}
+            ListEmptyComponent={renderEmptyState}
+          />
+        )}
       </View>
 
-      {/* Calendar Modal */}
       <Modal visible={showCalendar} transparent={true} animationType="none">
         <Animated.View
           style={{
@@ -439,11 +503,17 @@ const Dashboard = () => {
             </View>
             <Calendar
               onDayPress={day => {
-                setSelectedDate(new Date(day.dateString));
+                const [year, month, dayNum] = day.dateString.split('-');
+                const newDate = new Date(
+                  Number.parseInt(year),
+                  Number.parseInt(month) - 1,
+                  Number.parseInt(dayNum),
+                );
+                setSelectedDate(newDate);
                 handleCloseCalendar();
               }}
               markedDates={{
-                [selectedDate.toISOString().split('T')[0]]: {
+                [getDateString(selectedDate)]: {
                   selected: true,
                   selectedColor: '#2895cb',
                 },

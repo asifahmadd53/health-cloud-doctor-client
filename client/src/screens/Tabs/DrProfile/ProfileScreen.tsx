@@ -42,7 +42,7 @@ const ProfileScreen = () => {
   }, []);
   type ProfileFormValues = {
     name: string;
-    specialty?: string;
+    specialty?: string[]; // <- change from string to array
     years?: string;
     consultationFee?: string;
     certifications?: string;
@@ -59,7 +59,7 @@ const ProfileScreen = () => {
   const { control, handleSubmit, setValue, watch, reset, formState: { errors } } = useForm<ProfileFormValues>({
     defaultValues: {
       name: '',
-      specialty: '',
+      specialty: [],
       years: '',
       consultationFee: '',
       certifications: '',
@@ -170,25 +170,22 @@ const ProfileScreen = () => {
 
   const toggleItem = useCallback(
     (item: string) => {
-      const rawValue = watch(sheetField);
-      const safeValue = typeof rawValue === 'string' ? rawValue : '';
-      const selected = safeValue ? safeValue.split(',').map(s => s.trim()) : [];
-      const idx = selected.indexOf(item);
+      const selected: string[] = watch(sheetField) || [];
+      const isSelected = selected.includes(item);
 
-      if (idx > -1) selected.splice(idx, 1);
-      else selected.push(item);
+      const updated = isSelected
+        ? selected.filter(i => i !== item)
+        : [...selected, item];
 
-      setValue(sheetField, selected.join(', ')); // react-hook-form
+      setValue(sheetField, updated); // store as array
     },
     [sheetField, setValue, watch],
   );
 
+
   const renderItem = useCallback(
     ({ item }: { item: string }) => {
-      const rawValue = watch(sheetField);
-      const safeValue = typeof rawValue === 'string' ? rawValue : '';
-
-      const selected = safeValue.split(',').map(s => s.trim());
+      const selected: string[] = watch(sheetField) || [];
       const isSelected = selected.includes(item);
 
       return (
@@ -205,6 +202,7 @@ const ProfileScreen = () => {
     },
     [sheetField, watch, toggleItem],
   );
+
 
   const nameValue = watch('name');
   const specialtyValue = watch('specialty');
@@ -295,20 +293,25 @@ const ProfileScreen = () => {
         if (!response.data.success) return;
 
         const { doctor, profile } = response.data;
+        
 
         const formValues = {
           name: doctor.name,
           email: doctor.email,
           phoneNumber: doctor.phoneNumber,
           profileImage: profile?.profileImage || '',
-          specialty: profile?.specialty || '',  
+          specialty: profile?.specialty
+            ? profile.specialty.split(',').map(s => s.trim()) // store as array
+            : [],
           years: profile?.years || '',
           consultationFee: profile?.consultationFee || '',
           certifications: profile?.certifications || '',
           professionalBio: profile?.professionalBio || '',
           clinicAddress: profile?.clinicAddress || '',
-          city: profile?.city || '',  
+          city: profile?.city || '',
         };
+        reset(formValues);
+
 
 
         reset(formValues);
@@ -380,8 +383,9 @@ const ProfileScreen = () => {
                     ellipsizeMode="tail"
                     numberOfLines={1}
                     className="text-base font-semibold text-slate-600">
-                    {specialtyValue || 'Medical Specialist'}
+                    {(specialtyValue || []).join(', ') || 'Medical Specialist'}
                   </Text>
+
                 </View>
                 <View className="w-full max-w-sm">
                   <TouchableOpacity
@@ -437,7 +441,7 @@ const ProfileScreen = () => {
                         render={({ field: { value }, fieldState: { error } }) => (
                           <FormSelectTrigger
                             label="Specialty"
-                            value={value}
+                            value={Array.isArray(value) ? value.join(', ') : ''}
                             placeholder="Select Specialties"
                             onPress={() => openPicker('specialty', 'Select Specialties')}
                             error={error?.message}
