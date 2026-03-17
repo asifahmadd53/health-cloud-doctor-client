@@ -300,9 +300,10 @@ const ProfileScreen = () => {
           email: doctor.email,
           phoneNumber: doctor.phoneNumber,
           profileImage: profile?.profileImage || '',
-          specialty: profile?.specialty
-            ? profile.specialty.split(',').map(s => s.trim()) // store as array
+          specialty: Array.isArray(profile?.specialty)
+            ? profile.specialty
             : [],
+
           years: profile?.years || '',
           consultationFee: profile?.consultationFee || '',
           certifications: profile?.certifications || '',

@@ -19,19 +19,18 @@ const CustomDrawerContent = (props: any) => {
 
   const handleLogout = async () => {
     try {
-      await AsyncStorage.clear();
+      await AsyncStorage.multiRemove(["user", "token"])
 
       props.navigation.dispatch(
         CommonActions.reset({
           index: 0,
-          routes: [{ name: "auth" }],  // ROOT STACK NAME
-        })
-      );
-
+          routes: [{ name: "auth" }],
+        }),
+      )
     } catch (error) {
-      console.log("Logout Error:", error);
+      console.log("Logout Error:", error)
     }
-  };
+  }
 
   return (
     <DrawerContentScrollView {...props} contentContainerStyle={{ flex: 1 }}>

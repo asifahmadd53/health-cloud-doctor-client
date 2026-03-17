@@ -1,5 +1,8 @@
 export const BASE_URL = 'http://192.168.100.8:3000/api';
 
+// export const BASE_URL = 'http://10.247.219.6:3000/api';
+// export const BASE_URL = 'http://192.168.186.6:3000/api';
+
 
 // export const API_URL = 'http://192.168.0.101:3000';
 
